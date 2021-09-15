@@ -4,6 +4,7 @@ from data.base_dataset import BaseDataset
 from util.util import is_mesh_file, pad
 from models.layers.mesh import Mesh
 import pathlib
+import csv
 import numpy as np
 
 class ClassificationData(BaseDataset):
@@ -25,9 +26,10 @@ class ClassificationData(BaseDataset):
 
     def __getitem__(self, index):
         path = self.paths[index][0]
-        #label = self.paths[index][1]
+        label = self.paths[index][1]
         label_index = int(pathlib.Path(self.paths[index][0]).parts[2][-1]) - 1
-        labels = torch.tensor([[-39.263191, -31.227459, 30.902531],  #1
+
+        """labels = torch.tensor([[-39.263191, -31.227459, 30.902531],  #1
                                [-39.059505, -24.339855, 43.244362],  #2
                                [-39.807362, -43.25309, 60.427628],  #3
                                [-32.064659, -41.070557, 39.225555],  #4
@@ -35,12 +37,34 @@ class ClassificationData(BaseDataset):
                                [-52.490776, -9.491112, 66.128883],  # 10
                                [-19.039095, -30.652889, 53.925327],  #7
                                [-15.428528, -42.542801, 24.401356],  #9
+                               #[-19.039095, -30.652889, 53.925327],  # 7
+                               #[-15.428528, -42.542801, 24.401356],  # 9
+                               ])"""
 
-                               ])
-        labels = labels.numpy()
-        label = labels[label_index]
+        foldernum = pathlib.Path(path).parts[-3]
+        ldmks = []
+        # inefficient. change!
+        #with open(self.root + '/ldmk_coords.csv', 'r') as file:
+        #    reader = csv.reader(file)
+        #    for row in reader:
+        #        ldmks.append(row)
+        #csv_idx = 0
+        ldmks = np.load(self.root + '/ldmks.pkl')
+        #for i in range(len(ldmks)):
+        #    if ldmks[i][0] == foldernum:
+        #        csv_idx = i
+        #        break
+        for i in range(ldmks.shape[0]):
+            if int(ldmks[i, 0, 0]) == int(foldernum):
+                ldmks_idx = i
+                break
+        #labels = ldmks[csv_idx].numpy()
+        #labels = ldmks[csv_idx][1:]
+        #labels = labels.numpy()
+        #label = labels[label_index]
+        labels = ldmks[ldmks_idx, 1:, :]
         mesh = Mesh(file=path, opt=self.opt, hold_history=False, export_folder=self.opt.export_folder)
-        meta = {'mesh': mesh, 'label': label}
+        meta = {'mesh': mesh, 'label': labels}
         # get edge features
         edge_features = mesh.extract_features()
         edge_features = pad(edge_features, self.opt.ninput_edges)

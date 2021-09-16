@@ -1,0 +1,106 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{tabularx}
+\usepackage{hyperref}
+\usepackage{comment}
+\title{MSc Thesis Project Plan}
+\author{Luca Carotenuto}
+\date{September 2021}
+
+\begin{document}
+
+\maketitle
+
+% Should be 3 to 4 pages (it says in the website) or
+% This plan should contain the subject and a short description of the planned research (max 1 A4). it says in the email
+
+% 1. Mention some basic information, such as start date, expected end date, supervisor and (preliminary) project title. Also you must mention your study programme: computing science or information science.
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\begin{table}[h]
+\begin{tabularx}{\textwidth}{lL}
+\textbf{Start date:}                  & 01-09-2021                       \\
+\textbf{End date:}                    & 01-03-2022                       \\
+\textbf{External supervisor:}                  & Guido de Jong\\ & Email: \href{mailto:guido.dejong@radboudumc.nl}{guido.dejong@radboudumc.nl}                           \\
+\textbf{Internal supervisor:}                  & Prof. Tom Heskes\\ &  Email: \href{tom.heskes@ru.nl}{tom.heskes@ru.nl}                                 \\
+\textbf{(Preliminary) project title:} & Three dimensional landmark detection in 3D CT-Scans and 3D Photos                             \\
+\textbf{Study program:}               & Computing Science (Data Science)
+\end{tabularx}
+\end{table}
+ 
+\section{Problem Statement}
+% 2. Write the problem statement. In this statement you describe what is the problem to be solved.
+Three-dimensional (3D) landmarks are used in various fields of medicine e.g. for alignment of 3D radiological images, 3D scans or 3D photos. The department of Oral and Maxilofacial Surgery at Radboudumc needs to place 3D landmarks for surgical planning, follow-up and diagnostics. Placing 3D landmarks manually is a tedious process with a high degree of inter- and intraobserver variability. Automatic landmark detection can ensure consistent and precise landmark placement. However, there are several challenges for computer-assisted approaches such as variation in device/data source, pre-processing or sampling resolution. 
+
+The Radboudumc 3D lab has 3D CT-scans and 3D photos of the face and cranium in following modalities: bony-tissue CT-scans, soft-tissue CT-scans, soft-tissue 3D photos and soft-tissue textured 3D photos. Per modality a set of 12 to 36 clinically relevant landmarks have to be detected.
+
+% \begin{itemize}
+%     \item 3D lab at UMC at the Department of Oral and Maxillofacial Surgery
+%     \item surgical planning, follow-up and diagnostics
+%     \item placing 3D landmarks manually is a lot of effort with high degree intra- and interobserver variability (landmarks should be placed consistently)
+%     \item automatic landmark placement
+%     \item different modalities:
+%     - bony-tissue CT-scans
+%     - soft-tissue CT-scans
+%     - soft-tissue 3D photos
+%     - soft-tissue textured 3D photos
+%     \item mesh data representation
+% \end{itemize}
+
+
+\section{Approach}
+% 3. Describe the way of working. This means: describe how you want to solve the problem.
+With the recent successes and the emerging field of artificial intelligence (AI) within 3D technology the goal is to develop a neural network that automatically places landmarks in 3D photos and CT-scans of faces or craniums. The final approach either fully or partly relies on AI. We try to outperform manual and other non-deep learning 3D landmark detection approaches in accuracy and time.
+
+A deep learning approach in combination with one of the four modalities will be chosen. 
+Depending on the chosen modality, up to several hundreds of partly annotated samples will be used to train the neural network. Data augmentation can be used to increase the size of training set.
+
+Computing clusters are provided by Radboudumc efficient experimenting and training of the deep learning model.
+
+
+% \begin{itemize}
+%     \item Choose one approach from the following:
+%     \begin{enumerate}
+%         \item  multi-view 2D images are based on coordinates, convolutions possible but high information loss
+%         \item representing as voxel data makes convolutions possible but high computation and memory costs 
+%         \item 3D images in a point cloud are unordered coordinates in 3D space, so deep learning with convolutions not straight forward here because of unstructuredness, but methods exist such as PointNet (also attention-based methods exist that operate on point clouds)
+%         \item Network that operates directly on meshes: MeshCNN. Pooling and convolutions on mesh edges
+%         \item Graph-based, attention-based methods
+%     \end{enumerate}
+%     \item Use computing resources from UMC
+%     \item data augmentation depending on used data representation. E.g. for translation-, rotation- and isotropoic scaling invariant methods such as MeshCNN: anisotropic scaling on vertex locations in x, y, z, shift vertices to different locations on the mesh surface, augment the tesselation by performing random edge flips, collapse small random set of edges (source: MeshCNN paper)
+% \end{itemize}
+
+\section{Literature}
+% 4. Give an overview of relevant literature and describe how you want to use it.
+There is little to no literature about 3D deep learning for the application of facial landmark detection that operates directly on the 3D data source (mesh data). Instead, we rely on literature that describe 3D deep learning in more general terms or for applications that are similar to ours \cite{Guo2020}, \cite{Bello2020}.
+
+3D deep learning is an emerging field, but still lacks behind 2D computer vision. This because techniques such as convolution, that Convolutional Neural Networks (CNNs) rely on are not directly transferable to 3D due to the unstructuredness and irregularities in the data. Promising approaches are PointNet \cite{Qi2017} that use Point Clouds and take into account the permutation invariance of points in the input. Variations of PointNet are PointNet++ \cite{Qi2017b} that manage to improve classification and segmentation performance by modelling local regions through sampling and grouping or PointCNN \cite{Li2018} that take into account the  correlation between points in the local regions.
+An approach that operates directly on triangular mesh data is MeshCNN \cite{Hanocka2019}, where convolutions are applied on edges and the four edges of their incident triangles, and pooling is applied via an edge collapse operation.
+
+
+ \section{Plan}
+% 5. Give a global planning
+% \begin{itemize}
+%     \item first weeks literature research: 3D deep learning
+%     \item familiarity with computer graphics terminology, polygonal meshes, Software such as Meshlab and Blender
+%     \item Experiments on public Headspace dataset
+%     \item find deep learning approach for given modality
+%     \item Run experiments on own umc data
+%     \item dedicate last 2 months on thesis (start writing earlier)
+%     \item optionally: compare to another approach
+%     \item weekly meeting with supervisor
+%     \item setup git for version control and distributing the code
+% \end{itemize}
+The following is a rough outline of the planning of my 6-months internship. The first month will be mainly literature research. I will read into 3D deep learning, which approaches exist and work well on similar applications. Moreover, I try to get familiar with computer graphics terminology and polygonal mesh processing including the mesh processing software MeshLab. Afterwards, I will experiment with the Headspace dataset which is available for University-based non-commercial research. When I found a deep learning for a given modality, I apply my method on the data given from Radboudumc. The last months will be dedicated to the final thesis.
+
+There are weekly meetings in addition to spontaneous exchange in my everyday work with my external supervisor, Research coordinator
+of the 3D Lab at Radboudumc. Moreover, I will meet monthly with my internal supervisor, Professor for Data Science at Radboud University.
+
+A git repository will be set up for version control and code distribution.
+
+% Apart from the above points, your supervisor may have additional wishes. It is not necessary to send your Project Plan to the Master Thesis Coordinator, but you must make sure that your Project Plan is accepted by your supervisor.
+
+\bibliographystyle{apalike}
+\bibliography{refs} % Entries are in the &quot;refs.bib&quot; file</code></pre>
+
+\end{document}

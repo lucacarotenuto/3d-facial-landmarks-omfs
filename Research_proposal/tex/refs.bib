@@ -1,0 +1,70 @@
+@inproceedings{Qi2017,
+abstract = {Point cloud is an important type of geometric data structure. Due to its irregular format, most researchers transform such data to regular 3D voxel grids or collections of images. This, however, renders data unnecessarily voluminous and causes issues. In this paper, we design a novel type of neural network that directly consumes point clouds, which well respects the permutation invariance of points in the input. Our network, named PointNet, provides a unified architecture for applications ranging from object classification, part segmentation, to scene semantic parsing. Though simple, PointNet is highly efficient and effective. Empirically, it shows strong performance on par or even better than state of the art. Theoretically, we provide analysis towards understanding of what the network has learnt and why the network is robust with respect to input perturbation and corruption.},
+archivePrefix = {arXiv},
+arxivId = {1612.00593},
+author = {Qi, Charles R. and Su, Hao and Mo, Kaichun and Guibas, Leonidas J.},
+booktitle = {Proceedings - 30th IEEE Conference on Computer Vision and Pattern Recognition, CVPR 2017},
+doi = {10.1109/CVPR.2017.16},
+eprint = {1612.00593},
+isbn = {9781538604571},
+title = {{PointNet: Deep learning on point sets for 3D classification and segmentation}},
+year = {2017}
+}
+
+@inproceedings{Qi2017b,
+abstract = {Few prior works study deep learning on point sets. PointNet [20] is a pioneer in this direction. However, by design PointNet does not capture local structures induced by the metric space points live in, limiting its ability to recognize fine-grained patterns and generalizability to complex scenes. In this work, we introduce a hierarchical neural network that applies PointNet recursively on a nested partitioning of the input point set. By exploiting metric space distances, our network is able to learn local features with increasing contextual scales. With further observation that point sets are usually sampled with varying densities, which results in greatly decreased performance for networks trained on uniform densities, we propose novel set learning layers to adaptively combine features from multiple scales. Experiments show that our network called PointNet++ is able to learn deep point set features efficiently and robustly. In particular, results significantly better than state-of-the-art have been obtained on challenging benchmarks of 3D point clouds.},
+archivePrefix = {arXiv},
+arxivId = {1706.02413},
+author = {Qi, Charles R. and Yi, Li and Su, Hao and Guibas, Leonidas J.},
+booktitle = {Advances in Neural Information Processing Systems},
+eprint = {1706.02413},
+issn = {10495258},
+title = {{PointNet++: Deep hierarchical feature learning on point sets in a metric space}},
+year = {2017}
+}
+
+@inproceedings{Li2018,
+abstract = {We present a simple and general framework for feature learning from point clouds. The key to the success of CNNs is the convolution operator that is capable of leveraging spatially-local correlation in data represented densely in grids (e.g. images). However, point clouds are irregular and unordered, thus directly convolving kernels against features associated with the points will result in desertion of shape information and variance to point ordering. To address these problems, we propose to learn an X-transformation from the input points to simultaneously promote two causes: the first is the weighting of the input features associated with the points, and the second is the permutation of the points into a latent and potentially canonical order. Element-wise product and sum operations of the typical convolution operator are subsequently applied on the X-transformed features. The proposed method is a generalization of typical CNNs to feature learning from point clouds, thus we call it PointCNN. Experiments show that PointCNN achieves on par or better performance than state-of-the-art methods on multiple challenging benchmark datasets and tasks.},
+author = {Li, Yangyan and Bu, Rui and Sun, Mingchao and Wu, Wei and Di, Xinhan and Chen, Baoquan},
+booktitle = {Advances in Neural Information Processing Systems},
+issn = {10495258},
+title = {{PointCNN: Convolution on X-transformed points}},
+year = {2018}
+}
+
+@article{Hanocka2019,
+abstract = {Polygonal meshes provide an efficient representation for 3D shapes. They explicitly capture both shape surface and topology, and leverage non-uniformity to represent large flat regions as well as sharp, intricate features. This non-uniformity and irregularity, however, inhibits mesh analysis efforts using neural networks that combine convolution and pooling operations. In this paper, we utilize the unique properties of the mesh for a direct analysis of 3D shapes using MeshCNN, a convolutional neural network designed specifically for triangular meshes. Analogous to classic CNNs, MeshCNN combines specialized convolution and pooling layers that operate on the mesh edges, by leveraging their intrinsic geodesic connections. Convolutions are applied on edges and the four edges of their incident triangles, and pooling is applied via an edge collapse operation that retains surface topology, thereby, generating new mesh connectivity for the subsequent convolutions. MeshCNN learns which edges to collapse, thus forming a task-driven process where the network exposes and expands the important features while discarding the redundant ones. We demonstrate the effectiveness of MeshCNN on various learning tasks applied to 3D meshes.},
+author = {Hanocka, Rana and Hertz, Amir and Fish, Noa and Giryes, Raja and Fleishman, Shachar and Cohen-Or, Daniel},
+doi = {10.1145/3306346.3322959},
+issn = {0730-0301},
+journal = {ACM Transactions on Graphics},
+title = {{MeshCNN}},
+year = {2019}
+}
+
+@article{Guo2020,
+abstract = {Point cloud learning has lately attracted increasing attention due to its wide applications in many areas, such as computer vision, autonomous driving, and robotics. As a dominating technique in AI, deep learning has been successfully used to solve various 2D vision problems. However, deep learning on point clouds is still in its infancy due to the unique challenges faced by the processing of point clouds with deep neural networks. Recently, deep learning on point clouds has become even thriving, with numerous methods being proposed to address different problems in this area. To stimulate future research, this paper presents a comprehensive review of recent progress in deep learning methods for point clouds. It covers three major tasks, including 3D shape classification, 3D object detection and tracking, and 3D point cloud segmentation. It also presents comparative results on several publicly available datasets, together with insightful observations and inspiring future research directions.},
+archivePrefix = {arXiv},
+arxivId = {1912.12033},
+author = {Guo, Yulan and Wang, Hanyun and Hu, Qingyong and Liu, Hao and Liu, Li and Bennamoun, Mohammed},
+doi = {10.1109/tpami.2020.3005434},
+eprint = {1912.12033},
+issn = {0162-8828},
+journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+title = {{Deep Learning for 3D Point Clouds: A Survey}},
+year = {2020}
+}
+
+@misc{Bello2020,
+abstract = {A point cloud is a set of points defined in a 3D metric space. Point clouds have become one of the most significant data formats for 3D representation and are gaining increased popularity as a result of the increased availability of acquisition devices, as well as seeing increased application in areas such as robotics, autonomous driving, and augmented and virtual reality. Deep learning is now the most powerful tool for data processing in computer vision and is becoming the most preferred technique for tasks such as classification, segmentation, and detection. While deep learning techniques are mainly applied to data with a structured grid, the point cloud, on the other hand, is unstructured. The unstructuredness of point clouds makes the use of deep learning for its direct processing very challenging. This paper contains a review of the recent state-of-the-art deep learning techniques, mainly focusing on raw point cloud data. The initial work on deep learning directly with raw point cloud data did not model local regions; therefore, subsequent approaches model local regions through sampling and grouping. More recently, several approaches have been proposed that not only model the local regions but also explore the correlation between points in the local regions. From the survey, we conclude that approaches that model local regions and take into account the correlation between points in the local regions perform better. Contrary to existing reviews, this paper provides a general structure for learning with raw point clouds, and various methods were compared based on the general structure. This work also introduces the popular 3D point cloud benchmark datasets and discusses the application of deep learning in popular 3D vision tasks, including classification, segmentation, and detection.},
+archivePrefix = {arXiv},
+arxivId = {2001.06280},
+author = {Bello, Saifullahi Aminu and Yu, Shangshu and Wang, Cheng and Adam, Jibril Muhmmad and Li, Jonathan},
+booktitle = {Remote Sensing},
+doi = {10.3390/rs12111729},
+eprint = {2001.06280},
+issn = {20724292},
+keywords = {Classification,Datasets,Deep learning,Object detection,Point cloud,Segmentation},
+title = {{Review: Deep learning on 3D point clouds}},
+year = {2020}
+}

@@ -2,6 +2,7 @@ import torch
 from . import networks
 from os.path import join
 from util.util import seg_accuracy, print_network
+import pickle
 
 
 class ClassifierModel:
@@ -115,6 +116,8 @@ class ClassifierModel:
         """
         with torch.no_grad():
             out = self.forward()
+            with open(self.opt.dataroot + '/predictions.pkl', 'wb') as f:
+                pickle.dump(out, f)
             print("TEST coordinates: " + str(out))
             # compute number of correct
             # pred_class = out.data.max(1)[1]

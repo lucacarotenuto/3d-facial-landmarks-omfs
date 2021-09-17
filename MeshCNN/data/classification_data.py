@@ -14,6 +14,7 @@ class ClassificationData(BaseDataset):
         self.opt = opt
         self.device = torch.device('cuda:{}'.format(opt.gpu_ids[0])) if opt.gpu_ids else torch.device('cpu')
         self.root = opt.dataroot
+        self.labels = np.load(self.root + '/ldmks.pkl')
         self.dir = os.path.join(opt.dataroot)
         self.classes, self.class_to_idx = self.find_classes(self.dir)
         self.paths = self.make_dataset_by_class(self.dir, self.class_to_idx, opt.phase)
@@ -49,7 +50,7 @@ class ClassificationData(BaseDataset):
         #    for row in reader:
         #        ldmks.append(row)
         #csv_idx = 0
-        ldmks = np.load(self.root + '/ldmks.pkl')
+        ldmks = self.labels
         #for i in range(len(ldmks)):
         #    if ldmks[i][0] == foldernum:
         #        csv_idx = i

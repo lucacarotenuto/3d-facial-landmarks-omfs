@@ -132,3 +132,8 @@ dmypy.json
 .DS_Store
 .idea/
 .DS_Store
+*.local
+*.obj
+*.mtl
+*.npz
+*.pth

@@ -59,7 +59,7 @@ class Writer:
         if self.opt.dataset_mode == 'regression':
             message = 'epoch: {}, TEST ACC: [{} %]\n' \
                .format(epoch, acc)
-        print(message)
+        #print(message)
         with open(self.testacc_log, "a") as log_file:
             log_file.write('%s\n' % message)
 

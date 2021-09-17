@@ -2,8 +2,8 @@
 
 ## run the training
 python test.py \
---dataroot datasets/headspace_cust \
---name headspace_cust \
+--dataroot datasets/headspace_cust1 \
+--name headspace_cust1 \
 --ncf 64 128 256 256 \
 --pool_res 300 200 100 80 \
 --pool_res 9000 5000 3000 1800 \

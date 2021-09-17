@@ -63,6 +63,7 @@ class ClassificationData(BaseDataset):
         #labels = labels.numpy()
         #label = labels[label_index]
         labels = ldmks[ldmks_idx, 1:, :]
+        labels = labels.flatten() # (204,)
         mesh = Mesh(file=path, opt=self.opt, hold_history=False, export_folder=self.opt.export_folder)
         meta = {'mesh': mesh, 'label': labels}
         # get edge features

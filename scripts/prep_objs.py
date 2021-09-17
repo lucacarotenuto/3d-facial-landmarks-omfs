@@ -14,5 +14,8 @@ for filepath in glob.iglob(rootdir + '*/*/*.obj'):
     ms.repair_non_manifold_edges_by_removing_faces()
     ms.repair_non_manifold_edges_by_splitting_vertices()
     ms.repair_non_manifold_vertices_by_splitting()
+    ms.select_non_manifold_vertices()
+    ms.delete_selected_vertices()
+    ms.close_holes(maxholesize=70)
     #ms.save_current_mesh(filepath[:-4] + '_simplfd.obj', save_textures=False)
     ms.save_current_mesh(filepath, save_textures=False)

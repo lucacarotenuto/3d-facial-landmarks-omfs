@@ -9,7 +9,7 @@ import csv
 import numpy as np
 import pickle
 
-rootdir = '/Users/carotenuto/Master Radboud/MscProj/headspace10_hs_struc/'
+rootdir = '/Users/carotenuto/Master Radboud/MscProj/headspace100_hs_struc/'
 
 ldmks = []
 for filepath in glob.iglob(rootdir + '*/*/ldmks*.txt'):

@@ -4,18 +4,29 @@
 import pymeshlab
 import glob
 
-rootdir = '/Users/carotenuto/Documents/GitHub/3d-facial-landmarks-omfs/MeshCNN/datasets/headspace_cust1/'
+rootdir = '/Users/carotenuto/Master Radboud/MscProj/headspace100_hs_struc/'
 
+ms = pymeshlab.MeshSet()
 for filepath in glob.iglob(rootdir + '*/*/*.obj'):
-    ms = pymeshlab.MeshSet()
+    print("loading " + filepath)
     ms.load_new_mesh(filepath)
+    print("applying filters " + filepath)
+    print("sqecd")
     ms.simplification_quadric_edge_collapse_decimation(targetfacenum=8000)
-    ms.remove_isolated_pieces_wrt_face_num(mincomponentsize=5000)
+    print("remove")
+    ms.remove_isolated_pieces_wrt_face_num(mincomponentsize=3000)
+    print("repair")
     ms.repair_non_manifold_edges_by_removing_faces()
+
     ms.repair_non_manifold_edges_by_splitting_vertices()
     ms.repair_non_manifold_vertices_by_splitting()
+    print("select")
     ms.select_non_manifold_vertices()
+    print("delete")
     ms.delete_selected_vertices()
-    ms.close_holes(maxholesize=70)
+    print("close")
+    #ms.close_holes(maxholesize=5)
     #ms.save_current_mesh(filepath[:-4] + '_simplfd.obj', save_textures=False)
+    print("saving " + filepath)
     ms.save_current_mesh(filepath, save_textures=False)
+

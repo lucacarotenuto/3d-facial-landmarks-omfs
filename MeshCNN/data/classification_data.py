@@ -29,19 +29,6 @@ class ClassificationData(BaseDataset):
         path = self.paths[index][0]
         label = self.paths[index][1]
         label_index = int(pathlib.Path(self.paths[index][0]).parts[2][-1]) - 1
-
-        """labels = torch.tensor([[-39.263191, -31.227459, 30.902531],  #1
-                               [-39.059505, -24.339855, 43.244362],  #2
-                               [-39.807362, -43.25309, 60.427628],  #3
-                               [-32.064659, -41.070557, 39.225555],  #4
-                               [-2.316769, -21.537405, 76.362061],  #5
-                               [-52.490776, -9.491112, 66.128883],  # 10
-                               [-19.039095, -30.652889, 53.925327],  #7
-                               [-15.428528, -42.542801, 24.401356],  #9
-                               #[-19.039095, -30.652889, 53.925327],  # 7
-                               #[-15.428528, -42.542801, 24.401356],  # 9
-                               ])"""
-
         foldernum = pathlib.Path(path).parts[-3]
         ldmks = []
         # inefficient. change!
@@ -66,7 +53,7 @@ class ClassificationData(BaseDataset):
         labels = ldmks[ldmks_idx, 1:, :]
         labels = labels.flatten() # (204,)
         mesh = Mesh(file=path, opt=self.opt, hold_history=False, export_folder=self.opt.export_folder)
-        meta = {'mesh': mesh, 'label': labels}
+        meta = {'mesh': mesh, 'label': labels, 'foldernum': foldernum}
         # get edge features
         edge_features = mesh.extract_features()
         edge_features = pad(edge_features, self.opt.ninput_edges)

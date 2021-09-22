@@ -3,6 +3,7 @@ from . import networks
 from os.path import join
 from util.util import seg_accuracy, print_network
 import pickle
+import numpy as np
 
 
 class ClassifierModel:
@@ -56,6 +57,7 @@ class ClassifierModel:
         self.edge_features = input_edge_features.to(self.device).requires_grad_(self.is_train)
         self.labels = labels.to(self.device)
         self.mesh = data['mesh']
+        self.foldernum = data['foldernum']
         if self.opt.dataset_mode == 'segmentation' and not self.is_train:
             self.soft_label = torch.from_numpy(data['soft_label'])
 
@@ -116,8 +118,13 @@ class ClassifierModel:
         """
         with torch.no_grad():
             out = self.forward()
+            out_to_dump = np.reshape(out, (2,68,3))
+            folder_rows = np.zeros((out.shape[0], 3))
+            folder_rows[:, 0] = self.foldernum
+            out_to_dump = np.insert(out_to_dump, 0, folder_rows, axis=1)
+
             with open(self.opt.dataroot + '/predictions.pkl', 'wb') as f:
-                pickle.dump(out, f)
+                pickle.dump(out_to_dump, f)
             print("TEST coordinates: " + str(out))
             # compute number of correct
             # pred_class = out.data.max(1)[1]

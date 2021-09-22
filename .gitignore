@@ -140,3 +140,4 @@ dmypy.json
 *.p
 *.pkl
 loss_log.txt
+testacc_log.txt

@@ -1,8 +1,0 @@
-================ Training Loss (Mon Sep 20 14:15:12 2021) ================
-(epoch: 1, iters: 16, time: 15.628, data: 0.344) loss: 4376.388 
-================ Training Loss (Mon Sep 20 14:42:27 2021) ================
-================ Training Loss (Mon Sep 20 16:45:47 2021) ================
-(epoch: 1, iters: 16, time: 29.100, data: 0.775) loss: 4239.519 
-(epoch: 1, iters: 32, time: 29.602, data: 1.009) loss: 4238.351 
-================ Training Loss (Tue Sep 21 17:27:33 2021) ================
-================ Training Loss (Wed Sep 22 09:49:48 2021) ================

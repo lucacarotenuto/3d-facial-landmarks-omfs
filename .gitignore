@@ -139,3 +139,4 @@ dmypy.json
 *.pth
 *.p
 *.pkl
+loss_log.txt

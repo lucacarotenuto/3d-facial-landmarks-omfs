@@ -1,22 +1,22 @@
 # Prepare landmarks for headspace dataset
-# execute prep_hs_struc.ipynb first and use output as rootdir
 
 import os
 import glob
 import pymeshlab
 from pathlib import Path
-import csv
 import numpy as np
 import pickle
 
+# Rootdir of headspace dataset
 rootdir = '/Users/carotenuto/Master Radboud/MscProj/subjects_1-150/'
+# Set true if rootdir has prepared headspace structure with train/test folders, false if original headspace folder struc
+has_prep_struc = False
 
+searchpath = '*/*/ldmks*.txt' if has_prep_struc else '*/ldmks*.txt'
 ldmks = []
-#for filepath in glob.iglob(rootdir + '*/*/ldmks*.txt'):
-for filepath in glob.iglob(rootdir + '*/ldmks*.txt'):
+for filepath in glob.iglob(rootdir + searchpath):
     lines = open(filepath, 'r').read().split('\n')[:68]
-    ldmks_per_file = [Path(filepath).parts[-2]]
-    #ldmks_per_file = [Path(filepath).parts[-3]]
+    ldmks_per_file = [Path(filepath).parts[-3]] if has_prep_struc else [Path(filepath).parts[-2]]
     ms = pymeshlab.MeshSet()
     ms.load_new_mesh(os.path.dirname(filepath) + '/' + os.path.basename(filepath)[5:-4] + '.obj')
     for l in lines:
@@ -33,7 +33,3 @@ for i in range(len(ldmks)):
         ndarr[i, j, 2] = ldmks[i][j][2]
 with open(rootdir + 'ldmks.pkl', 'wb') as f:
     pickle.dump(ndarr, f)
-"""with open(rootdir + 'ldmk_coords.csv', 'w') as myfile:
-    wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
-    for row in ldmks:
-        wr.writerow(row)"""

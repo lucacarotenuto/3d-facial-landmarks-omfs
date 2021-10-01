@@ -4,7 +4,7 @@
 \usepackage{hyperref}
 \usepackage{comment}
 \title{MSc Thesis Project Plan}
-\author{Luca Carotenuto}
+\author{Luca Carotenuto (\href{mailto:luca.carotenuto@ru.nl}{luca.carotenuto@ru.nl})}
 \date{September 2021}
 
 \begin{document}
@@ -22,16 +22,16 @@
 \textbf{End date:}                    & 01-03-2022                       \\
 \textbf{External supervisor:}                  & Guido de Jong\\ & Email: \href{mailto:guido.dejong@radboudumc.nl}{guido.dejong@radboudumc.nl}                           \\
 \textbf{Internal supervisor:}                  & Prof. Tom Heskes\\ &  Email: \href{tom.heskes@ru.nl}{tom.heskes@ru.nl}                                 \\
-\textbf{(Preliminary) project title:} & Three dimensional landmark detection in 3D CT-Scans and 3D Photos                             \\
+\textbf{(Preliminary) project title:} &  Landmark detection in 3D images for Cranio-Maxillofacial Surgery using Deep Learning                            \\
 \textbf{Study program:}               & Computing Science (Data Science)
 \end{tabularx}
 \end{table}
  
 \section{Problem Statement}
 % 2. Write the problem statement. In this statement you describe what is the problem to be solved.
-Three-dimensional (3D) landmarks are used in various fields of medicine e.g. for alignment of 3D radiological images, 3D scans or 3D photos. The department of Oral and Maxilofacial Surgery at Radboudumc needs to place 3D landmarks for surgical planning, follow-up and diagnostics. Placing 3D landmarks manually is a tedious process with a high degree of inter- and intraobserver variability. Automatic landmark detection can ensure consistent and precise landmark placement. However, there are several challenges for computer-assisted approaches such as variation in device/data source, pre-processing or sampling resolution. 
+Three-dimensional (3D) landmarks are used in various fields of medicine e.g. for the alignment of 3D radiological images, 3D scans or 3D photos. The department of Oral and Maxillofacial Surgery at Radboudumc needs to place 3D landmarks for surgical planning, follow-up and diagnostics. Placing 3D landmarks manually is a tedious process with a high degree of interobserver and intraobserver variability. Automatic landmark detection can ensure consistent and precise landmark placement. However, computer-assisted approaches need to deal with challenges such as variation in the capturing device/data source, different pre-processing techniques or varying sampling resolution. 
 
-The Radboudumc 3D lab has 3D CT-scans and 3D photos of the face and cranium in following modalities: bony-tissue CT-scans, soft-tissue CT-scans, soft-tissue 3D photos and soft-tissue textured 3D photos. Per modality a set of 12 to 36 clinically relevant landmarks have to be detected.
+The Radboudumc 3D lab has 3D CT-scans and 3D photos of the face and cranium in the following modalities: bony-tissue CT-scans, soft-tissue CT-scans, soft-tissue 3D photos and soft-tissue textured 3D photos. Per modality, a set of 12 to 36 clinically relevant landmarks have to be detected. The data set comprises several hundred partly annotated samples.
 
 % \begin{itemize}
 %     \item 3D lab at UMC at the Department of Oral and Maxillofacial Surgery
@@ -49,13 +49,13 @@ The Radboudumc 3D lab has 3D CT-scans and 3D photos of the face and cranium in f
 
 \section{Approach}
 % 3. Describe the way of working. This means: describe how you want to solve the problem.
-With the recent successes and the emerging field of artificial intelligence (AI) within 3D technology the goal is to develop a neural network that automatically places landmarks in 3D photos and CT-scans of faces or craniums. The final approach either fully or partly relies on AI. We try to outperform manual and other non-deep learning 3D landmark detection approaches in accuracy and time.
+With the recent successes and the emerging field of artificial intelligence (AI) within 3D technology, the goal is to develop a neural network that automatically places landmarks in 3D photos and CT scans of faces or craniums. The final approach either fully or partly relies on AI. We try to outperform manual and other non-deep learning 3D landmark detection approaches in accuracy and time.
 
-A deep learning approach in combination with one of the four modalities will be chosen. 
-Depending on the chosen modality, up to several hundreds of partly annotated samples will be used to train the neural network. Data augmentation can be used to increase the size of training set.
+A deep learning approach in combination with one of the four modalities is chosen. The approach will likely either be a convolution-based approach such as MeshCNN, which attempts to mimic the convolution operation that is conventionally used on regular grid data and apply them on the edges of the mesh data. Another possible approach is a point-based method, such as PointNet \cite{Qi2017} that uses point clouds as a data source and takes into account the permutation invariance of points. Note, that these approaches only support classification and segmentation in their original versions and have to undergo architectural changes to support the detection of key points.
 
-Computing clusters are provided by Radboudumc efficient experimenting and training of the deep learning model.
+Depending on the chosen modality, several hundred annotated samples will be used to train the neural network. Data augmentation can be applied to increase the size of the training set and improve generalization.
 
+Computing resources are provided by Radboudumc for experimentation and training of the deep learning model.
 
 % \begin{itemize}
 %     \item Choose one approach from the following:
@@ -72,10 +72,10 @@ Computing clusters are provided by Radboudumc efficient experimenting and traini
 
 \section{Literature}
 % 4. Give an overview of relevant literature and describe how you want to use it.
-There is little to no literature about 3D deep learning for the application of facial landmark detection that operates directly on the 3D data source (mesh data). Instead, we rely on literature that describe 3D deep learning in more general terms or for applications that are similar to ours \cite{Guo2020}, \cite{Bello2020}.
+There is little to no literature about 3D deep learning for the application of facial landmark detection that operates directly on the 3D data source (mesh data). Instead, we rely on literature that describes 3D deep learning in more general terms or for applications that are similar to ours \cite{Guo2020}, \cite{Bello2020}.
 
-3D deep learning is an emerging field, but still lacks behind 2D computer vision. This because techniques such as convolution, that Convolutional Neural Networks (CNNs) rely on are not directly transferable to 3D due to the unstructuredness and irregularities in the data. Promising approaches are PointNet \cite{Qi2017} that use Point Clouds and take into account the permutation invariance of points in the input. Variations of PointNet are PointNet++ \cite{Qi2017b} that manage to improve classification and segmentation performance by modelling local regions through sampling and grouping or PointCNN \cite{Li2018} that take into account the  correlation between points in the local regions.
-An approach that operates directly on triangular mesh data is MeshCNN \cite{Hanocka2019}, where convolutions are applied on edges and the four edges of their incident triangles, and pooling is applied via an edge collapse operation.
+3D deep learning is an emerging field but still lacks behind 2D computer vision. This is not only due to the shortage of large 3D data sets but also because techniques such as convolutions, that Convolutional Neural Networks (CNNs) rely on, are not directly transferable to 3D due to the unorderedness and irregularity in the data. Promising approaches are PointNet \cite{Qi2017} that use point clouds and consider the permutation invariance of points in the input. Variations of PointNet are PointNet++ \cite{Qi2017b} that manage to improve classification and segmentation performance by modelling local regions through sampling and grouping or PointCNN \cite{Li2018} that take into account the correlation between points in the local regions.
+An approach that operates directly on triangular mesh data is MeshCNN \cite{Hanocka2019}, which applies convolutions on edges and the four edges of their incident triangles, and pooling is applied via an edge collapse operation.
 
 
  \section{Plan}
@@ -91,10 +91,9 @@ An approach that operates directly on triangular mesh data is MeshCNN \cite{Hano
 %     \item weekly meeting with supervisor
 %     \item setup git for version control and distributing the code
 % \end{itemize}
-The following is a rough outline of the planning of my 6-months internship. The first month will be mainly literature research. I will read into 3D deep learning, which approaches exist and work well on similar applications. Moreover, I try to get familiar with computer graphics terminology and polygonal mesh processing including the mesh processing software MeshLab. Afterwards, I will experiment with the Headspace dataset which is available for University-based non-commercial research. When I found a deep learning for a given modality, I apply my method on the data given from Radboudumc. The last months will be dedicated to the final thesis.
+The following is a rough outline of the planning for my 6-month internship. The first month is mainly literature research. That includes reading into 3D deep learning and finding out which approaches exist and work well on similar applications. Moreover, I get familiar with computer graphics terminology and polygonal mesh processing \cite{botsch2010polygon} including the mesh processing software MeshLab. In the second month, I familiarize myself with the code of the deep learning methods that I plan on using. I prepare the data, change the architecture of the chosen deep learning models to work for landmark detection and possibly do adaptations that benefit this task. I apply the adapted models on the Headspace dataset \cite{Dai2020}, which contains face and cranium 3D data and is available for University-based non-commercial research. This data can be used for experiments that are performed outside the Radboudumc network. In the third month, I apply the deep learning approach that works on the Headspace data on the data from Radboudumc and train the network with the provided computing resources. In the fourth month, the network with the best performance from the experiments is chosen and if necessary, trained for a final time. The results are prepared and visualized. The last two months are dedicated to the final thesis and delivering results.
 
-There are weekly meetings in addition to spontaneous exchange in my everyday work with my external supervisor, Research coordinator
-of the 3D Lab at Radboudumc. Moreover, I will meet monthly with my internal supervisor, Professor for Data Science at Radboud University.
+There are weekly meetings in addition to spontaneous exchange in my everyday work with my external supervisor, research coordinator of the 3D Lab at Radboudumc. Moreover, I will meet monthly with my internal supervisor, professor of Artificial Intelligence at iCIS, Radboud University.
 
 A git repository will be set up for version control and code distribution.
 

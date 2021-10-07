@@ -142,3 +142,5 @@ dmypy.json
 loss_log.txt
 testacc_log.txt
 *.txt
+Pointnet/data/*
+Pointnet/log/*

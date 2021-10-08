@@ -150,6 +150,8 @@ class HeadspaceDataLoader(Dataset):
         self.cat = [line.rstrip() for line in open(self.catfile)]
         self.classes = dict(zip(self.cat, range(len(self.cat))))
 
+        self.labels = np.load(self.root + 'ldmks.pkl', allow_pickle=True)
+
         shape_ids = {}
         shape_ids['train'] = [line.rstrip() for line in open(os.path.join(self.root, 'headspace_train.txt'))]
         shape_ids['test'] = [line.rstrip() for line in open(os.path.join(self.root, 'headspace_test.txt'))]
@@ -202,6 +204,18 @@ class HeadspaceDataLoader(Dataset):
         else:
             fn = self.datapath[index]
             cls = self.classes[self.datapath[index][0]]
+
+            for i in range(self.labels.shape[0]):
+                if int(self.labels[i, 0, 0]) == int(fn[0]):
+                    ldmks_idx = i
+                    break
+
+            labels = self.labels[ldmks_idx, 1:, :]
+            labels = labels.flatten()  # (204,)
+
+
+
+
             label = np.array([cls]).astype(np.int32)
             point_set = np.loadtxt(fn[1], delimiter=',').astype(np.float32)
 
@@ -214,7 +228,7 @@ class HeadspaceDataLoader(Dataset):
         if not self.use_normals:
             point_set = point_set[:, 0:3]
 
-        return point_set, label[0]
+        return point_set, labels
 
     def __getitem__(self, index):
         return self._get_item(index)

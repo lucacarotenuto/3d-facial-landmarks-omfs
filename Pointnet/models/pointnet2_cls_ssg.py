@@ -1,3 +1,4 @@
+import torch.nn
 import torch.nn as nn
 import torch.nn.functional as F
 from pointnet2_utils import PointNetSetAbstraction
@@ -17,7 +18,8 @@ class get_model(nn.Module):
         self.fc2 = nn.Linear(512, 256)
         self.bn2 = nn.BatchNorm1d(256)
         self.drop2 = nn.Dropout(0.4)
-        self.fc3 = nn.Linear(256, num_class)
+        #self.fc3 = nn.Linear(256, num_class)
+        self.fc3 = nn.Linear(256, 68*3)
 
     def forward(self, xyz):
         B, _, _ = xyz.shape
@@ -30,10 +32,15 @@ class get_model(nn.Module):
         l2_xyz, l2_points = self.sa2(l1_xyz, l1_points)
         l3_xyz, l3_points = self.sa3(l2_xyz, l2_points)
         x = l3_points.view(B, 1024)
-        x = self.drop1(F.relu(self.bn1(self.fc1(x))))
+        x = self.fc1(x)
+        x = self.bn1(x)
+        x = F.relu(x)
+        x = self.drop2(x)
+
+        #x = self.drop1(F.relu(self.bn1(self.fc1(x))))
         x = self.drop2(F.relu(self.bn2(self.fc2(x))))
         x = self.fc3(x)
-        x = F.log_softmax(x, -1)
+        #x = F.log_softmax(x, -1)
 
 
         return x, l3_points
@@ -45,6 +52,6 @@ class get_loss(nn.Module):
         super(get_loss, self).__init__()
 
     def forward(self, pred, target, trans_feat):
-        total_loss = F.nll_loss(pred, target)
-
+        #total_loss = F.nll_loss(pred, target)
+        total_loss = F.l1_loss(pred, target)
         return total_loss

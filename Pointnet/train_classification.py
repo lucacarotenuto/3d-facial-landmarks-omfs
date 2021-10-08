@@ -42,6 +42,7 @@ def parse_args():
     parser.add_argument('--process_data', action='store_true', default=False, help='save data offline')
     parser.add_argument('--use_uniform_sample', action='store_true', default=False, help='use uniform sampiling')
     parser.add_argument('--data', type=str, default='modelnet', help='use modelnet or headspace data')
+    parser.add_argument('--continue_train', action='store_true', default=False, help='continue training with pretrain model')
     return parser.parse_args()
 
 
@@ -65,7 +66,10 @@ def test(model, loader, num_class=40):
         pred, _ = classifier(points)
         pred_choice = pred.data.max(1)[1]
 
-        for cat in np.unique(target.cpu()):
+        lossfn = torch.nn.L1Loss()
+        loss = lossfn(pred, target)
+        """for cat in np.unique(target.cpu()):
+
             classacc = pred_choice[target == cat].eq(target[target == cat].long().data).cpu().sum()
             class_acc[cat, 0] += classacc.item() / float(points[target == cat].size()[0])
             class_acc[cat, 1] += 1
@@ -76,9 +80,10 @@ def test(model, loader, num_class=40):
     class_acc[:, 2] = class_acc[:, 0] / class_acc[:, 1]
     class_acc = np.mean(class_acc[:, 2])
     instance_acc = np.mean(mean_correct)
-
+    
     return instance_acc, class_acc
-
+    """
+    return loss
 
 def main(args):
     def log_string(str):
@@ -128,7 +133,7 @@ def main(args):
         train_dataset = HeadspaceDataLoader(root=data_path, args=args, split='train', process_data=args.process_data)
         test_dataset = HeadspaceDataLoader(root=data_path, args=args, split='test', process_data=args.process_data)
 
-    trainDataLoader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=0, drop_last=True) # num_workers was 10
+    trainDataLoader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=0)#, drop_last=True) # num_workers was 10
     testDataLoader = torch.utils.data.DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, num_workers=0) # num_workers was 10
 
     '''MODEL LOADING'''
@@ -146,12 +151,16 @@ def main(args):
         classifier = classifier.cuda()
         criterion = criterion.cuda()
 
-    try:
-        checkpoint = torch.load(str(exp_dir) + '/checkpoints/best_model.pth')
-        start_epoch = checkpoint['epoch']
-        classifier.load_state_dict(checkpoint['model_state_dict'])
-        log_string('Use pretrain model')
-    except:
+    if args.continue_train:
+        try:
+            checkpoint = torch.load(str(exp_dir) + '/checkpoints/best_model.pth')
+            start_epoch = checkpoint['epoch']
+            classifier.load_state_dict(checkpoint['model_state_dict'])
+            log_string('Use pretrain model')
+        except:
+            log_string('No existing model, starting training from scratch...')
+            start_epoch = 0
+    else:
         log_string('No existing model, starting training from scratch...')
         start_epoch = 0
 
@@ -195,10 +204,10 @@ def main(args):
 
             pred, trans_feat = classifier(points)
             loss = criterion(pred, target.long(), trans_feat)
-            pred_choice = pred.data.max(1)[1]
+            #pred_choice = pred.data.max(1)[1]
 
-            correct = pred_choice.eq(target.long().data).cpu().sum()
-            mean_correct.append(correct.item() / float(points.size()[0]))
+            #correct = pred_choice.eq(target.long().data).cpu().sum()
+            #mean_correct.append(correct.item() / float(points.size()[0]))
             loss.backward()
             optimizer.step()
             global_step += 1
@@ -207,8 +216,9 @@ def main(args):
         log_string('Train Instance Accuracy: %f' % train_instance_acc)
 
         with torch.no_grad():
-            instance_acc, class_acc = test(classifier.eval(), testDataLoader, num_class=num_class)
-
+            #instance_acc, class_acc = test(classifier.eval(), testDataLoader, num_class=num_class)
+            loss = test(classifier.eval(), testDataLoader, num_class=num_class)
+            """
             if (instance_acc >= best_instance_acc):
                 best_instance_acc = instance_acc
                 best_epoch = epoch + 1
@@ -230,6 +240,11 @@ def main(args):
                     'optimizer_state_dict': optimizer.state_dict(),
                 }
                 torch.save(state, savepath)
+            """
+            #savepath = str(checkpoints_dir) + '/best_model.pth'
+            #log_string('Saving at %s' % savepath)
+            #torch.save(state, savepath)
+            print("loss " + str(loss))
             global_epoch += 1
 
     logger.info('End of training...')

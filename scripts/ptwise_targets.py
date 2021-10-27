@@ -64,7 +64,7 @@ def closest_ldmk_dist(pcl, ldmks):
 
 # print(eucl_dist(1,1,1,2,1,1))
 
-rootdir = '/Users/carotenuto/Master Radboud/MscProj/headspace_pcl_hmap100_fullres/'
+rootdir = '/Users/carotenuto/Master Radboud/MscProj/headspace_pcl_hmap100_3k/'
 
 # per file
 #   per landmark
@@ -112,21 +112,22 @@ for filepath in tqdm(glob.iglob(rootdir + '*/13*.txt')):
 
     # go through each point and create activation depending on proximity to landmark point (heatmap)
 
-    output = np.array([])
+
     print(len(point_list))
     output_list = []
     for i, ldmk_point in enumerate(point_list):
+        output = np.array([])
         for n, point in enumerate(pcl):
             dist = dist_between_points(pcl, n, int(ldmk_point))
 
             # calculate activation
             if ldmk_point == n:
                 activation = 1
-            elif dist <= 1.5 and n != i:
+            elif dist <= 3 and n != i:
                 activation = 0.75
-            elif dist <= 2.4 and n != i:
+            elif dist <= 4.5 and n != i:
                 activation = 0.5
-            elif dist <= 3.2 and n != i:
+            elif dist <= 6 and n != i:
                 activation = 0.25
             else:
                 continue
@@ -136,6 +137,7 @@ for filepath in tqdm(glob.iglob(rootdir + '*/13*.txt')):
                 output = np.array([[n, activation]])
             else:
                 output = np.append(output, np.array([[n, activation]]), axis=0)
+        print(np.unique(output[:,1], return_counts = True))
         output_list.append(output)
     # output = np.zeros((68, len(pcl)))
     # print(len(point_list))

@@ -6,8 +6,8 @@ from pathlib import Path
 import os
 
 #rootdir = '/Users/carotenuto/Master Radboud/MscProj/subjects_1-150 copy/'
-rootdir = '/Users/carotenuto/Master Radboud/MscProj/subjects_1-150 copy/'
-new_folder = '/Users/carotenuto/Master Radboud/MscProj/headspace_pcl_hmap100_fullres/'
+rootdir = '/Users/carotenuto/Master Radboud/MscProj/headspace_nolabels/'
+new_folder = '/Users/carotenuto/Master Radboud/MscProj/headspace_nolabelspcl/'
 
 ms = pymeshlab.MeshSet()
 for filepath in glob.iglob(rootdir + '*/*.obj'):
@@ -16,7 +16,7 @@ for filepath in glob.iglob(rootdir + '*/*.obj'):
             print("loading " + filepath)
             ms.load_new_mesh(filepath)
             ms.texel_sampling(recovercolor=True)
-            #ms.point_cloud_simplification(samplenum=80000)
+            ms.point_cloud_simplification(samplenum=30000)
             #ms.save_current_mesh(filepath[:-4] + '_simplfd.obj', save_textures=False)
             print("saving " + filepath)
             ms.save_current_mesh(filepath[:-4] + '.xyz', save_textures=True)

@@ -48,10 +48,10 @@ decay_rate = 0.5
 
 # Important paths
 base_path = os.path.dirname(__file__)
-op_cache_dir = os.path.join(base_path, "headspace_pcl_hmap100_3k", "op_cache")
+op_cache_dir = os.path.join(base_path, "headspace_pcl_hmap2_3k", "op_cache")
 pretrain_path = os.path.join(base_path, "pretrained_models/headspace_ldmks_{}_4x128.pth".format(input_features))
 model_save_path = os.path.join(base_path, "saved_models/headspace_ldmks_{}_4x128.pth".format(input_features))
-dataset_path = os.path.join(base_path, "headspace_pcl_hmap100_3k")
+dataset_path = os.path.join(base_path, "headspace_pcl_hmap2_3k")
 
 
 # === Load datasets
@@ -212,6 +212,7 @@ def test():
             predstp = torch.transpose(preds, 0, 1)
             predstp = predstp.flatten()
 
+            diffusion_net.utils.ensure_dir_exists(os.path.join(dataset_path, 'preds'))
             f = open(dataset_path + '/preds/hmap_per_class' + str(folder_num) + ".pkl", "wb+")
             #f = open('/Users/carotenuto/clones/diffusion-net/experiments/headspace_ldmks/headspace_pcl_hmap100_fullres/preds/hmap_per_class' + str(folder_num) + ".pkl", "wb+")
             pickle.dump(np.asarray(preds.cpu()), f)

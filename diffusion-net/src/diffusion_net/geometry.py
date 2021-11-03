@@ -206,7 +206,7 @@ def edge_tangent_vectors(verts, frames, edges):
     return edge_tangent
 
 
-def build_grad(verts, edges, edge_tangent_vectors):
+def build_grad(verts, edges, edge_tangent_vectors): # slow
     """
     Build a (V, V) complex sparse matrix grad operator. Given real inputs at vertices, produces a complex (vector value) at vertices giving the gradient. All values pointwise.
     - edges: (2, E)
@@ -392,36 +392,35 @@ def compute_operators(verts, faces, k_eig, normals=None):
     return frames, massvec, L, evals, evecs, gradX, gradY
 
 
-def get_all_operators(verts_list, faces_list, k_eig, op_cache_dir=None, normals=None):
-    N = len(verts_list)
+def populate_cache(verts, faces, cache_dir, k_eig, op_cache_dir=None, normals=None):
             
-    frames = [None] * N
-    massvec = [None] * N
-    L = [None] * N
-    evals = [None] * N
-    evecs = [None] * N
-    gradX = [None] * N
-    gradY = [None] * N
+    # frames = [None] * N
+    # massvec = [None] * N
+    # L = [None] * N
+    # evals = [None] * N
+    # evecs = [None] * N
+    # gradX = [None] * N
+    # gradY = [None] * N
 
-    inds = [i for i in range(N)]
     # process in random order
     # random.shuffle(inds)
    
-    for num, i in enumerate(inds):
-        print("get_all_operators() processing {} / {} {:.3f}%".format(num, N, num / N * 100))
-        if normals is None:
-            outputs = get_operators(verts_list[i], faces_list[i], k_eig, op_cache_dir)
-        else:
-            outputs = get_operators(verts_list[i], faces_list[i], k_eig, op_cache_dir, normals=normals[i])
-        frames[i] = outputs[0]
-        massvec[i] = outputs[1]
-        L[i] = outputs[2]
-        evals[i] = outputs[3]
-        evecs[i] = outputs[4]
-        gradX[i] = outputs[5]
-        gradY[i] = outputs[6]
-        
+    #for num, i in enumerate(inds):
+    #print("get_all_operators() processing {} / {} {:.3f}%".format(num, N, num / N * 100))
+    if normals is None:
+        outputs = get_operators(verts, faces, k_eig, op_cache_dir)
+    else:
+        outputs = get_operators(verts, faces, k_eig, op_cache_dir, normals=normals)
+    frames = outputs[0]
+    massvec = outputs[1]
+    L = outputs[2]
+    evals = outputs[3]
+    evecs = outputs[4]
+    gradX = outputs[5]
+    gradY = outputs[6]
+
     return frames, massvec, L, evals, evecs, gradX, gradY
+    #return frames, massvec, L, evals, evecs, gradX, gradY
 
 def get_operators(verts, faces, k_eig=128, op_cache_dir=None, normals=None, overwrite_cache=False, truncate_cache=False):
     """

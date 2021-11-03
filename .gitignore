@@ -144,3 +144,5 @@ testacc_log.txt
 *.txt
 Pointnet/data/*
 Pointnet/log/*
+*.pt
+*.bmp

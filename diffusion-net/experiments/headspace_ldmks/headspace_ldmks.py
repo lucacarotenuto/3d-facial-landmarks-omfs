@@ -18,6 +18,7 @@ from headspace_ldmks_dataset import HeadspaceLdmksDataset
 parser = argparse.ArgumentParser()
 parser.add_argument("--evaluate", action="store_true", help="evaluate using the pretrained model")
 parser.add_argument("--input_features", type=str, help="what features to use as input ('xyz' or 'hks') default: hks", default = 'hks')
+parser.add_argument("--data_format", type=str, help="what format does the data have ('pcl' or 'mesh') default: mesh", default = 'mesh')
 args = parser.parse_args()
 
 
@@ -31,6 +32,7 @@ dtype = torch.float32
 
 # problem/dataset things
 n_class = 68
+data_format = args.data_format
 
 # model 
 input_features = args.input_features # one of ['xyz', 'hks']
@@ -38,7 +40,7 @@ k_eig = 128
 
 # training settings
 train = not args.evaluate
-n_epoch = 1
+n_epoch = 150
 lr = 1e-3
 decay_every = 50
 decay_rate = 0.5
@@ -48,24 +50,23 @@ decay_rate = 0.5
 
 # Important paths
 base_path = os.path.dirname(__file__)
-op_cache_dir = os.path.join(base_path, "headspace_pcl_hmap100_3k", "op_cache")
+op_cache_dir = os.path.join(base_path, "headspace_mesh5", "op_cache")
 pretrain_path = os.path.join(base_path, "pretrained_models/headspace_ldmks_{}_4x128.pth".format(input_features))
 model_save_path = os.path.join(base_path, "saved_models/headspace_ldmks_{}_4x128.pth".format(input_features))
-dataset_path = os.path.join(base_path, "headspace_pcl_hmap100_3k")
+dataset_path = os.path.join(base_path, "headspace_mesh5")
 
 
 # === Load datasets
 
 # Load the test dataset
-test_dataset = HeadspaceLdmksDataset(dataset_path, train=False, k_eig=k_eig, use_cache=True, op_cache_dir=op_cache_dir)
+test_dataset = HeadspaceLdmksDataset(dataset_path, data_format, train=False, k_eig=k_eig, use_cache=True, op_cache_dir=op_cache_dir)
 test_loader = DataLoader(test_dataset, batch_size=None)
+
 
 # Load the train dataset
 if train:
-    train_dataset = HeadspaceLdmksDataset(dataset_path, train=True, k_eig=k_eig, use_cache=True, op_cache_dir=op_cache_dir)
-    train_loader = DataLoader(train_dataset, batch_size=None, shuffle=True)
-
-
+    train_dataset = HeadspaceLdmksDataset(dataset_path, data_format, train=True, k_eig=k_eig, use_cache=True, op_cache_dir=op_cache_dir)
+    train_loader = DataLoader(train_dataset, batch_size=None)
 
 # === Create the model
 
@@ -76,7 +77,6 @@ model = diffusion_net.layers.DiffusionNet(C_in=C_in,
                                           C_width=128, 
                                           N_block=4, 
                                           #last_activation=lambda x : torch.mean(x,dim=1),
-                                          #last_activation=lambda x : torch.nn.Linear(x),
                                           outputs_at='vertices',
                                           dropout=True)
 
@@ -91,6 +91,31 @@ if not train:
 
 # === Optimize
 optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+
+def weighted_mse_loss(input, target, weight):
+    """
+    Weighted mean squared error loss
+
+    """
+    return (weight * (input - target) ** 2).mean()
+
+
+def point_weights(labels):
+    """
+    Creates per-point weights
+
+    Args:
+        labels: per-point labels
+
+    Returns: weights
+    """
+    weights = torch.clone(labels)
+    weights[weights == 1] = 100
+    weights[weights == 0.75] = 75
+    weights[weights == 0.5] = 50
+    weights[weights == 0.25] = 25
+    weights[weights == 0] = 1
+    return weights
 
 def train_epoch(epoch):
 
@@ -144,34 +169,17 @@ def train_epoch(epoch):
         predstp = torch.transpose(preds,0,1)
         predstp = predstp.flatten()
         labels = torch.cat([x for x in labels])
-        weights = torch.clone(labels)
-        weights[weights == 1] = 100
-        weights[weights == 0.75] = 75
-        weights[weights == 0.5] = 50
-        weights[weights == 0.25] = 25
-        weights[weights == 0] = 1
 
-        #labels = labels.float()
+        weights = point_weights(labels)
+
         # Evaluate loss
-        #loss = torch.nn.functional.nll_loss(preds, labels)
-        #lossf = torch.nn.MSELoss()
-        #lossf = weighted_mse_loss(preds)
         loss = weighted_mse_loss(predstp, labels, weights)
-#        loss =
         loss.backward()
-        
-        # track accuracy
-        #pred_labels = torch.max(preds, dim=1).indices
-        #this_correct = pred_labels.eq(labels).sum().item()
-        #this_num = labels.shape[0]
-        #correct += this_correct
-        #total_num += this_num
 
         # Step the optimizer
         optimizer.step()
         optimizer.zero_grad()
         loss_sum += loss
-    #train_acc = correct / total_num
     return loss_sum/len(train_dataset)
 
 
@@ -179,9 +187,7 @@ def train_epoch(epoch):
 def test():
     
     model.eval()
-    
-    correct = 0
-    total_num = 0
+
     with torch.no_grad():
         loss_sum = 0
         for data in tqdm(test_loader):
@@ -214,33 +220,14 @@ def test():
 
             diffusion_net.utils.ensure_dir_exists(os.path.join(dataset_path, 'preds'))
             f = open(dataset_path + '/preds/hmap_per_class' + str(folder_num) + ".pkl", "wb+")
-            #f = open('/Users/carotenuto/clones/diffusion-net/experiments/headspace_ldmks/headspace_pcl_hmap100_fullres/preds/hmap_per_class' + str(folder_num) + ".pkl", "wb+")
             pickle.dump(np.asarray(preds.cpu()), f)
-            #for e in preds:
-            #    f.write(str(float(e)) + '\n')
             f.close()
 
             labels = torch.cat([x for x in labels])
-            weights = torch.clone(labels)
-            weights[weights == 1] = 100
-            weights[weights == 0.75] = 75
-            weights[weights == 0.5] = 50
-            weights[weights == 0.25] = 25
-            weights[weights == 0] = 1
+            weights = point_weights(labels)
             loss_sum += weighted_mse_loss(predstp, labels, weights)
-            # track accuracy
-            #pred_labels = torch.max(preds, dim=1).indices
-            #this_correct = pred_labels.eq(labels).sum().item()
-            #this_num = labels.shape[0]
-            #correct += this_correct
-            #total_num += this_num
 
-    #test_acc = correct / total_num
     return loss_sum/len(test_dataset)
-    #return torch.nn.functional.l1_loss(predstp, labels)
-
-def weighted_mse_loss(input, target, weight):
-    return (weight * (input - target) ** 2).mean()
 
 if train:
     print("Training...")
@@ -254,7 +241,8 @@ if train:
     torch.save(model.state_dict(), model_save_path)
 
 
-
 # Test
 test_acc = test()
 print("Overall test accuracy: {}".format(test_acc))
+
+

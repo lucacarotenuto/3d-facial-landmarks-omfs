@@ -1,0 +1,39 @@
+#ifndef GEOMETRY_CUDA_H
+#define GEOMETRY_CUDA_H
+
+#include <string>
+
+#include <torch/extension.h>
+
+#include <cuda.h>
+#include <cuda_runtime.h>
+
+
+cudaEvent_t startTimer();
+void stopTimer(cudaEvent_t start, std::string kernelName);
+
+void checkError(std::string kernelName);
+
+
+namespace kernel {
+    __global__ void assign_vert_edge_outgoing_cuda_kernel(
+        const torch::PackedTensorAccessor32<int,2,torch::RestrictPtrTraits> edges,
+        torch::PackedTensorAccessor32<int,2,torch::RestrictPtrTraits> vert_edge_outgoing,
+        torch::PackedTensorAccessor32<int,1,torch::RestrictPtrTraits> vert_edge_outgoing_count
+    );
+
+    __global__ void build_grad_compressed_cuda_kernel(
+        const int num_vertices,
+        const torch::PackedTensorAccessor32<int,2,torch::RestrictPtrTraits> edges,
+        const torch::PackedTensorAccessor32<float,2,torch::RestrictPtrTraits> edge_tangent_vectors,
+        const torch::PackedTensorAccessor32<int,2,torch::RestrictPtrTraits> vert_edge_outgoing,
+        const torch::PackedTensorAccessor32<int,1,torch::RestrictPtrTraits> vert_edge_outgoing_count,
+        torch::PackedTensorAccessor32<int,1,torch::RestrictPtrTraits> row_inds,
+        torch::PackedTensorAccessor32<int,1,torch::RestrictPtrTraits> col_inds,
+        torch::PackedTensorAccessor32<float,1,torch::RestrictPtrTraits> data_vals_real,
+        torch::PackedTensorAccessor32<float,1,torch::RestrictPtrTraits> data_vals_imag,
+        const float eps_reg,
+        const float w_e
+    );
+}
+#endif

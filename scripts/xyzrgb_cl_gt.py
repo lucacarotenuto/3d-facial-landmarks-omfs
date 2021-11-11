@@ -9,12 +9,12 @@ import numpy as np
 import pickle
 import torch
 
-rootdir = '/Users/carotenuto/clones/diffusion-net/experiments/headspace_ldmks/headspace_pcl_hmap100_3k_noweights/test/00019/'
+rootdir = '/Users/carotenuto/Master Radboud/MscProj/preds_pcl_all_3k_256/'
 
 # Set True if single point colorization or False if heatmap colorization
 POINT_PREDS = True
 
-for filepath in glob.iglob(rootdir + '13*.txt'):
+for filepath in glob.iglob(rootdir + 'test/*/13*.txt'):
     # process pointcloud file
     lines = open(filepath, 'r').read().split('\n')[:-1]
     pcl = [[float(l) for l in lines[j].split(',')[:3]] for j in range(len(lines))]
@@ -24,7 +24,7 @@ for filepath in glob.iglob(rootdir + '13*.txt'):
     folder_num_int = int(folder_num)
 
     # open pred pkl
-    with open(rootdir + "/hmap_per_class.pkl", 'rb') as f:
+    with open("{}test/{}/hmap_per_class.pkl".format(rootdir, str(folder_num)), 'rb') as f:
         labels = pickle.load(f)
         #buffer = io.BytesIO(f.read())
         #preds = torch.load(f, map_location=torch.device('cpu'))

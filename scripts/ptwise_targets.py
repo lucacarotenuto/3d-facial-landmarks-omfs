@@ -10,9 +10,10 @@ from tqdm import tqdm
 
 import pickle
 
-ldmks = np.load('/Users/carotenuto/Master Radboud/MscProj/headspace_pointnet100/ldmks.pkl',
+ldmks = np.load('/Users/carotenuto/Master Radboud/MscProj/headspace_pcl_all/ldmks.pkl',
                 allow_pickle=True)  # shape (samples, landmarks + 1, 3)
 
+rootdir = '/Users/carotenuto/Master Radboud/MscProj/headspace_pcl_all/'
 
 def eucl_dist(orig_x, orig_y, orig_z, target_x, target_y, target_z):
     """
@@ -63,8 +64,6 @@ def closest_ldmk_dist(pcl, ldmks):
 
 
 # print(eucl_dist(1,1,1,2,1,1))
-
-rootdir = '/Users/carotenuto/Master Radboud/MscProj/headspace_pcl_hmap100_3k/'
 
 # per file
 #   per landmark

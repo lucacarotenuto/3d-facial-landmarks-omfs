@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-pred = np.load('/Users/carotenuto/Documents/GitHub/3d-facial-landmarks-omfs/MeshCNN/datasets/headspace_cust1/predictions.pkl')
+pred = np.load('//MeshCNN/datasets/headspace_cust1/predictions.pkl')
 pred = np.reshape(pred, (68,3))
 print(pred.shape)
 

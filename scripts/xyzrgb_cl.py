@@ -10,8 +10,8 @@ import pickle
 import torch
 from tqdm import tqdm
 
-rootdir = '/Users/carotenuto/clones/diffusion-net/experiments/headspace_ldmks/headspace_pcl_hmap100_3k/'
-POINT_PREDS = True
+rootdir = '/Users/carotenuto/Master Radboud/MscProj/preds_pcl_all_3k_256/'
+POINT_PREDS = False
 
 for filepath in glob.iglob(rootdir + 'test/*/13*.txt'):
     # process pointcloud file
@@ -23,7 +23,7 @@ for filepath in glob.iglob(rootdir + 'test/*/13*.txt'):
     folder_num_int = int(folder_num)
 
     # open pred pkl
-    with open(rootdir + "preds/hmap_per_class" + str(folder_num_int) + ".pkl", 'rb') as f:
+    with open(rootdir + "preds/hmap_per_class" + str(folder_num) + ".pkl", 'rb') as f:
         preds = pickle.load(f)
         #buffer = io.BytesIO(f.read())
         #preds = torch.load(f, map_location=torch.device('cpu'))

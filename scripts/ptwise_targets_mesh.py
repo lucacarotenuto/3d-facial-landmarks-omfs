@@ -1,20 +1,16 @@
 import math
 import glob
 import os
-
 from pathlib import Path
-
 import numpy as np
-
 from tqdm import tqdm
-
 import pickle
 
 ldmks = np.load('/Users/carotenuto/Master Radboud/MscProj/headspace_pcl_all/ldmks.pkl',
                 allow_pickle=True)  # shape (samples, landmarks + 1, 3)
 
-rootdir = '/Users/carotenuto/Master Radboud/MscProj/headspace_mesh_all/'
-target_dir = '/Users/carotenuto/Master Radboud/MscProj/headspace_mesh_all/' # copies obj and hmap_per_class to target dir
+rootdir = '/Users/carotenuto/Master Radboud/MscProj/headspace_mesh_all_5kf/'
+target_dir = '/Users/carotenuto/Master Radboud/MscProj/headspace_mesh_all_5kf/' # copies obj and hmap_per_class to target dir
 
 def eucl_dist(orig_x, orig_y, orig_z, target_x, target_y, target_z):
     """
@@ -90,8 +86,6 @@ def obj_data_to_mesh3d(odata):
 
     return np.array(vertices), np.array(faces)
 
-# print(eucl_dist(1,1,1,2,1,1))
-
 # per file
 #   per landmark
 #       take point in point cloud (origin) with smallest distance to landmark point (target)
@@ -138,7 +132,7 @@ for filepath in tqdm(glob.iglob(rootdir + '*/13*.obj')):
     point_list_ints = [int(l) for l in list(point_list)]
 
     # go through each point and create activation depending on proximity to landmark point (heatmap)
-    print(len(point_list))
+    #print(len(point_list))
     output_list = []
     for i, ldmk_point in enumerate(point_list):
         output = np.array([])
@@ -162,49 +156,9 @@ for filepath in tqdm(glob.iglob(rootdir + '*/13*.obj')):
                 output = np.array([[n, activation]])
             else:
                 output = np.append(output, np.array([[n, activation]]), axis=0)
-        print(np.unique(output[:,1], return_counts = True))
+        #print(np.unique(output[:,1], return_counts = True))
         output_list.append(output)
-    # output = np.zeros((68, len(pcl)))
-    # print(len(point_list))
-    # for i, ldmk_point in enumerate(point_list):
-    #     for n, point in enumerate(pcl):
-    #         dist = dist_between_points(pcl, n, int(ldmk_point))
-    # #        if ldmk_point == n:
-    # #            output[n] = 1
-    #         if dist <= 1.5:
-    #             if output[i, n] < 0.75:
-    #                 output[i, n] = 0.75
-    #         elif dist <= 2.4:
-    #             if output[i, n] < 0.5:
-    #                 output[i, n] = 0.5
-    #         elif dist <= 3.2:
-    #             if output[i, n] < 0.25:
-    #                 output[i, n] = 0.25
-    # output[i, point_list_ints] = 1
-    # print(np.unique(output, return_counts = True))
-    # print(np.unique(output[0], return_counts=True))
 
-    # print(np.unique(point_list_ints, return_counts=True))
-    # print(len(point_list) != len(set(point_list))) # have duplicate landmarks?
-
-    # create new xyz with intensity
-    # f = open(os.path.dirname(filepath) + "/vis.txt", "w+")
-    # for i, el in enumerate(output):
-    #     f.write(str(pcl[i])[1:-1] + ', ' + str(el) +  ', 0.0, 0.0\n')
-    # f.close()
-
-    # save points in file
-    # f = open(os.path.dirname(filepath) + "/hmap.txt", "w+")
-    # for i in range(output.shape[1]):
-    #     arr_str = np.char.mod('%f', output[:,i])
-    #     f.write(", ".join(arr_str) + '\n')
-    # f.close()
-
-    # f = open(os.path.dirname(filepath) + "/hmap.txt", "w+")
-    # for i in range(output.shape[1]):
-    #     arr_str = np.char.mod('%f', output[:, i])
-    #     f.write(", ".join(arr_str) + '\n')
-    # f.close()
     directory = os.path.join(target_dir, folder_num)
     if not os.path.exists(directory):
         os.makedirs(directory)

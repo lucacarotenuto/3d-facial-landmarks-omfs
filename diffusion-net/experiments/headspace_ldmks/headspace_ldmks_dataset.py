@@ -18,15 +18,15 @@ from pathlib import Path
 import glob
 
 class HeadspaceLdmksDataset(Dataset):
-    def __init__(self, root_dir, train, data_format, k_eig=128, use_cache=True, op_cache_dir=None):
+    def __init__(self, root_dir, train, data_format, num_landmarks, k_eig=128, use_cache=True, op_cache_dir=None):
         self.use_cache = use_cache
         self.train = train  # bool
         self.k_eig = k_eig
         self.root_dir = root_dir
         self.cache_dir = os.path.join(root_dir, "cache", "train" if self.train else "test")
         self.op_cache_dir = op_cache_dir
-        self.n_class = 3 * 68
         self.data_format = data_format
+        self.num_landmarks = num_landmarks
 
         # store in memory
         self.verts_list = []
@@ -38,7 +38,7 @@ class HeadspaceLdmksDataset(Dataset):
         mesh_files = []
 
 
-        filepattern = '/*/13*.txt' if data_format.equals('pcl') else '/*/13*.obj'
+        filepattern = '/*/13*.txt' if data_format == 'pcl' else '/*/13*.obj'
         for filepath in glob.iglob(os.path.join(self.root_dir, 'train' if self.train else 'test') + filepattern):
             self.num_samples += 1
             mesh_files.append(filepath)
@@ -47,12 +47,12 @@ class HeadspaceLdmksDataset(Dataset):
         # Load the actual files
         for iFile in range(len(mesh_files)):
             print("loading mesh " + str(mesh_files[iFile]))
-            if data_format.equals('mesh'):
+            if data_format == 'mesh':
                 verts, faces = pp3d.read_mesh(mesh_files[iFile])
             else: # 'pcl'
                 verts = pd.read_csv(mesh_files[iFile], sep=",", header=None)
                 verts = verts.to_numpy()[:, :3]
-            faces = np.array([])
+                faces = np.array([])
             folder_num = Path(mesh_files[iFile]).parts[-2]
 
             # to torch
@@ -69,7 +69,7 @@ class HeadspaceLdmksDataset(Dataset):
                 # Precompute operators
                 diffusion_net.utils.ensure_dir_exists(self.cache_dir)
                 frames, massvec, L, evals, evecs, gradX, gradY = diffusion_net.geometry.populate_cache(
-                    verts, faces, self.cache_dir, k_eig=self.k_eig, op_cache_dir=self.op_cache_dir)
+                    verts, faces, k_eig=self.k_eig, op_cache_dir=self.op_cache_dir)
                 torch.save((verts, faces, frames, massvec, L,
                             evals, evecs, gradX, gradY), os.path.join(self.cache_dir, folder_num + ".pt"))
 
@@ -82,19 +82,22 @@ class HeadspaceLdmksDataset(Dataset):
         verts, faces, frames, massvec, L, evals, evecs, gradX, gradY = torch.load(path_cache + ".pt")
 
         # create sparse labels
+        landmark_indices = {8,27,30,33,36,39,45,42,60,64} # indices start with 1
+
         with open(os.path.join(self.root_dir, 'train' if self.train else 'test', folder_num, \
                                'hmap_per_class.pkl'), 'rb') as fpath:
-            labels = pickle.load(fpath)
-        sparse_labels = self.createSparseLabels(verts, labels)
+            labels_sparse = pickle.load(fpath)
+        labels_sparse = [item for pos, item in enumerate(labels_sparse) if pos in landmark_indices]
+        labels = self.labelsFromSparse(verts, labels_sparse)
 
-        return verts, faces, frames, massvec, L, evals, evecs, gradX, gradY, sparse_labels, folder_num
+        return verts, faces, frames, massvec, L, evals, evecs, gradX, gradY, labels, folder_num
 
-    def createSparseLabels(self, verts, labels):
-        # create labels sparse list from labels list
-        labels_sparse = torch.zeros((68, len(verts)))
-        for j in range(len(labels)):
-            for k in range(len(labels[j])):
-                pos = labels[j][k, 0]
-                act = labels[j][k, 1]
-                labels_sparse[j, int(pos)] = act
-        return labels_sparse
+    def labelsFromSparse(self, verts, labels_sparse):
+        # create labels from sparse representation
+        labels = torch.zeros((self.num_landmarks, len(verts)))
+        for j in range(len(labels_sparse)):
+            for k in range(len(labels_sparse[j])):
+                pos = labels_sparse[j][k, 0]
+                act = labels_sparse[j][k, 1]
+                labels[j, int(pos)] = act
+        return labels

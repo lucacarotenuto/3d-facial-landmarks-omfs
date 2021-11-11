@@ -18,7 +18,7 @@ from headspace_ldmks_dataset import HeadspaceLdmksDataset
 parser = argparse.ArgumentParser()
 parser.add_argument("--evaluate", action="store_true", help="evaluate using the pretrained model")
 parser.add_argument("--input_features", type=str, help="what features to use as input ('xyz' or 'hks') default: hks", default = 'hks')
-parser.add_argument("--data_format", type=str, help="what format does the data have ('pcl' or 'mesh') default: mesh", default = 'mesh')
+parser.add_argument("--data_format", type=str, help="what format does the data have ('pcl' or 'mesh') default: pcl", default = 'pcl')
 args = parser.parse_args()
 
 
@@ -31,7 +31,7 @@ else:
 dtype = torch.float32
 
 # problem/dataset things
-n_class = 68
+n_class = 10
 data_format = args.data_format
 
 # model 
@@ -40,7 +40,7 @@ k_eig = 128
 
 # training settings
 train = not args.evaluate
-n_epoch = 150
+n_epoch = 1
 lr = 1e-3
 decay_every = 50
 decay_rate = 0.5
@@ -50,22 +50,23 @@ decay_rate = 0.5
 
 # Important paths
 base_path = os.path.dirname(__file__)
-op_cache_dir = os.path.join(base_path, "headspace_mesh5", "op_cache")
+op_cache_dir = os.path.join(base_path, "headspace_pcl4", "op_cache")
 pretrain_path = os.path.join(base_path, "pretrained_models/headspace_ldmks_{}_4x128.pth".format(input_features))
-model_save_path = os.path.join(base_path, "saved_models/headspace_ldmks_{}_4x128.pth".format(input_features))
-dataset_path = os.path.join(base_path, "headspace_mesh5")
-
+dataset_path = os.path.join(base_path, "headspace_pcl4")
+model_save_path = os.path.join(dataset_path, "saved_models/headspace_ldmks_{}_4x128.pth".format(input_features))
 
 # === Load datasets
 
 # Load the test dataset
-test_dataset = HeadspaceLdmksDataset(dataset_path, data_format, train=False, k_eig=k_eig, use_cache=True, op_cache_dir=op_cache_dir)
+test_dataset = HeadspaceLdmksDataset(dataset_path, data_format=data_format, train=False, num_landmarks=n_class,
+                                     k_eig=k_eig, use_cache=True, op_cache_dir=op_cache_dir)
 test_loader = DataLoader(test_dataset, batch_size=None)
 
 
 # Load the train dataset
 if train:
-    train_dataset = HeadspaceLdmksDataset(dataset_path, data_format, train=True, k_eig=k_eig, use_cache=True, op_cache_dir=op_cache_dir)
+    train_dataset = HeadspaceLdmksDataset(dataset_path, data_format=data_format, train=True, num_landmarks=n_class,
+                                          k_eig=k_eig,  use_cache=True, op_cache_dir=op_cache_dir)
     train_loader = DataLoader(train_dataset, batch_size=None)
 
 # === Create the model
@@ -74,7 +75,7 @@ C_in={'xyz':3, 'hks':16}[input_features] # dimension of input features
 
 model = diffusion_net.layers.DiffusionNet(C_in=C_in,
                                           C_out=n_class,
-                                          C_width=128, 
+                                          C_width=256,
                                           N_block=4, 
                                           #last_activation=lambda x : torch.mean(x,dim=1),
                                           outputs_at='vertices',
@@ -236,7 +237,11 @@ if train:
         train_acc = train_epoch(epoch)
         test_acc = test()
         print("Epoch {} - Train overall: {}  Test overall: {}".format(epoch, train_acc, test_acc))
-
+        if epoch % 10 == 0:
+            print(" ==> saving model to " + model_save_path)
+            diffusion_net.utils.ensure_dir_exists(os.path.join(dataset_path, 'saved_models'))
+            torch.save(model.state_dict(), model_save_path)
+    diffusion_net.utils.ensure_dir_exists(os.path.join(dataset_path, 'saved_models'))
     print(" ==> saving last model to " + model_save_path)
     torch.save(model.state_dict(), model_save_path)
 

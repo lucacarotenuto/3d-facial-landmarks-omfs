@@ -143,7 +143,7 @@ class MiniMLP(nn.Sequential):
             if dropout and i > 0:
                 self.add_module(
                     name + "_mlp_layer_dropout_{:03d}".format(i),
-                    nn.Dropout(p=.5)
+                    nn.Dropout(p=.1)
                 )
 
             # Affine map

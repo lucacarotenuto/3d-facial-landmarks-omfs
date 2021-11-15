@@ -40,7 +40,7 @@ k_eig = 128
 
 # training settings
 train = not args.evaluate
-n_epoch = 1
+n_epoch = 2
 lr = 1e-3
 decay_every = 50
 decay_rate = 0.5
@@ -50,10 +50,11 @@ decay_rate = 0.5
 
 # Important paths
 base_path = os.path.dirname(__file__)
-op_cache_dir = os.path.join(base_path, "headspace_pcl4", "op_cache")
-pretrain_path = os.path.join(base_path, "pretrained_models/headspace_ldmks_{}_4x128.pth".format(input_features))
-dataset_path = os.path.join(base_path, "headspace_pcl4")
-model_save_path = os.path.join(dataset_path, "saved_models/headspace_ldmks_{}_4x128.pth".format(input_features))
+dataset_path = os.path.join(base_path, "headspace_pcl_all")
+op_cache_dir = os.path.join(dataset_path, "op_cache")
+pretrain_path = os.path.join(dataset_path, "pretrained_models/headspace_ldmks_{}_4x128.pth".format(input_features))
+last_model_path = os.path.join(dataset_path, "saved_models/headspace_ldmks_last_{}_4x128.pth".format(input_features))
+best_model_path = os.path.join(dataset_path, "saved_models/headspace_ldmks_best_{}_4x128.pth".format(input_features))
 
 # === Load datasets
 
@@ -87,7 +88,10 @@ model = model.to(device)
 if not train:
     # load the pretrained model
     print("Loading pretrained model from: " + str(pretrain_path))
-    model.load_state_dict(torch.load(pretrain_path))
+    if torch.cuda.is_available():
+        model.load_state_dict(torch.load(pretrain_path))
+    else:
+        model.load_state_dict(torch.load(pretrain_path, map_location=torch.device('cpu')))
 
 
 # === Optimize
@@ -233,17 +237,21 @@ def test():
 if train:
     print("Training...")
 
+    best_acc = 99999
     for epoch in range(n_epoch):
         train_acc = train_epoch(epoch)
         test_acc = test()
         print("Epoch {} - Train overall: {}  Test overall: {}".format(epoch, train_acc, test_acc))
-        if epoch % 10 == 0:
-            print(" ==> saving model to " + model_save_path)
+        #if epoch % 10 == 0:
+        if test_acc < best_acc:
+            best_acc = test_acc
+            print(" ==> saving model to " + best_model_path)
             diffusion_net.utils.ensure_dir_exists(os.path.join(dataset_path, 'saved_models'))
-            torch.save(model.state_dict(), model_save_path)
+            torch.save(model.state_dict(), best_model_path)
+
     diffusion_net.utils.ensure_dir_exists(os.path.join(dataset_path, 'saved_models'))
-    print(" ==> saving last model to " + model_save_path)
-    torch.save(model.state_dict(), model_save_path)
+    print(" ==> saving last model to " + last_model_path)
+    torch.save(model.state_dict(), last_model_path)
 
 
 # Test

@@ -12,14 +12,16 @@ from tqdm import tqdm
 import potpourri3d as pp3d
 
 # Set directory with 'test' folder and 'preds' folder (if visualizing predictions)
-rootdir = '/Users/carotenuto/Master Radboud/MscProj/headspace_mesh_100_5kf/'
+rootdir = '/Users/carotenuto/Documents/GitHub/3d-facial-landmarks-omfs/diffusion-net/experiments/headspace_ldmks/headspace_pcl_all/'
 
 # Set true if single point colorization or False if heatmap colorization
-POINT_PREDS = True
+POINT_PREDS = False
 # Set true if pointcloud or false if mesh
-IS_PCL = False
+IS_PCL = True
 # Set true if you are visualizing ground truth or false if visualizing predictions
 IS_GT = False
+
+LANDMARK_INDICES = [8, 27, 30, 33, 36, 39, 45, 42, 60, 64]  # e.g. nosetip 31 has index 30
 
 searchpath = 'test/*/13*.txt' if IS_PCL else 'test/*/13*.obj'
 for filepath in glob.iglob(rootdir + searchpath):
@@ -40,8 +42,10 @@ for filepath in glob.iglob(rootdir + searchpath):
         # open gt label
         with open('{}test/{}/hmap_per_class.pkl'.format(rootdir, str(folder_num)), 'rb') as f:
             labels = pickle.load(f)
+        # only keep selected landmarks
+        labels = [item for pos, item in enumerate(labels) if pos in LANDMARK_INDICES]
         # restore sparse representation
-        labels_sparse = np.zeros((68, len(verts)))
+        labels_sparse = np.zeros((len(LANDMARK_INDICES), len(verts)))
         for j in range(len(labels)):
             for k in range(len(labels[j])):
                 pos = labels[j][k, 0]
@@ -55,6 +59,9 @@ for filepath in glob.iglob(rootdir + searchpath):
         # open predictions
         with open(rootdir + 'preds/hmap_per_class' + str(folder_num) + '.pkl', 'rb') as f:
             preds = pickle.load(f)
+        # only keep selected landmarks
+        #preds = [item for pos, item in enumerate(preds) if pos in LANDMARK_INDICES]
+        preds = preds[:, LANDMARK_INDICES]
         # restore original shape
         preds = np.transpose(preds)
         # make negative predictions zero
@@ -62,6 +69,7 @@ for filepath in glob.iglob(rootdir + searchpath):
     preds[preds < 0] = 0
 
     if POINT_PREDS:
+        # only keep highest activation
         preds_pt = np.zeros_like(preds)
         preds_pt[np.arange(len(preds)), preds.argmax(1)] = 1
 

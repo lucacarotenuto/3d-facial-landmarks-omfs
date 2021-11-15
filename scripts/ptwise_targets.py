@@ -7,23 +7,13 @@ from pathlib import Path
 import numpy as np
 
 from tqdm import tqdm
-
+from utils import eucl_dist
 import pickle
 
 ldmks = np.load('/Users/carotenuto/Master Radboud/MscProj/headspace_pcl_all/ldmks.pkl',
                 allow_pickle=True)  # shape (samples, landmarks + 1, 3)
 
 rootdir = '/Users/carotenuto/Master Radboud/MscProj/headspace_pcl_all/'
-
-def eucl_dist(orig_x, orig_y, orig_z, target_x, target_y, target_z):
-    """
-
-    Returns:
-        distance: distance between origin and target in 3 dimensional cartesian coordinate system
-    """
-    distance = math.sqrt(
-        math.pow(target_x - orig_x, 2) + math.pow(target_y - orig_y, 2) + math.pow(target_z - orig_z, 2))
-    return distance
 
 
 def dist_between_points(pointcl, idx_origin, idx_target):

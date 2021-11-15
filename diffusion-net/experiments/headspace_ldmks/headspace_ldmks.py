@@ -19,6 +19,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--evaluate", action="store_true", help="evaluate using the pretrained model")
 parser.add_argument("--input_features", type=str, help="what features to use as input ('xyz' or 'hks') default: hks", default = 'hks')
 parser.add_argument("--data_format", type=str, help="what format does the data have ('pcl' or 'mesh') default: pcl", default = 'pcl')
+parser.add_argument("--data_dir", type=str, help="directory name of dataset", default = 'pcl')
 args = parser.parse_args()
 
 
@@ -44,17 +45,22 @@ n_epoch = 2
 lr = 1e-3
 decay_every = 50
 decay_rate = 0.5
+n_block = 4
+c_width = 256
 #augment_random_rotate = (input_features == 'xyz')
 
 
 
 # Important paths
 base_path = os.path.dirname(__file__)
-dataset_path = os.path.join(base_path, "headspace_pcl_all")
+dataset_path = os.path.join(base_path, args.data_dir)
 op_cache_dir = os.path.join(dataset_path, "op_cache")
-pretrain_path = os.path.join(dataset_path, "pretrained_models/headspace_ldmks_{}_4x128.pth".format(input_features))
-last_model_path = os.path.join(dataset_path, "saved_models/headspace_ldmks_last_{}_4x128.pth".format(input_features))
-best_model_path = os.path.join(dataset_path, "saved_models/headspace_ldmks_best_{}_4x128.pth".format(input_features))
+pretrain_path = os.path.join(dataset_path, "pretrained_models/headspace_ldmks_{}_{}x{}.pth".format(input_features,
+                                                                            n_block, c_width))
+last_model_path = os.path.join(dataset_path, "saved_models/headspace_ldmks_last_{}_{}x{}.pth".format(input_features,
+                                                                            n_block, c_width))
+best_model_path = os.path.join(dataset_path, "saved_models/headspace_ldmks_best_{}_{}x{}.pth".format(input_features,
+                                                                            n_block, c_width))
 
 # === Load datasets
 
@@ -76,8 +82,8 @@ C_in={'xyz':3, 'hks':16}[input_features] # dimension of input features
 
 model = diffusion_net.layers.DiffusionNet(C_in=C_in,
                                           C_out=n_class,
-                                          C_width=256,
-                                          N_block=4, 
+                                          C_width=c_width,
+                                          N_block=n_block,
                                           #last_activation=lambda x : torch.mean(x,dim=1),
                                           outputs_at='vertices',
                                           dropout=True)

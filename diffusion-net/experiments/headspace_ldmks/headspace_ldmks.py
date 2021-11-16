@@ -32,7 +32,7 @@ else:
 dtype = torch.float32
 
 # problem/dataset things
-n_class = 10
+n_class = 11
 data_format = args.data_format
 
 # model 
@@ -103,6 +103,10 @@ if not train:
 # === Optimize
 optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
+# === Weight for CEL
+lm_weight = 100
+ce_loss = torch.nn.CrossEntropyLoss(weight=torch.Tensor([1,lm_weight,lm_weight,lm_weight,lm_weight,lm_weight,lm_weight,lm_weight,lm_weight,lm_weight,lm_weight]).to(device))
+
 def weighted_mse_loss(input, target, weight):
     """
     Weighted mean squared error loss
@@ -161,7 +165,13 @@ def train_epoch(epoch):
         gradX = gradX.to(device)
         gradY = gradY.to(device)
         #labels = labels.to(device)
-        labels = [x.to(device) for x in labels]
+        #labels = [x.to(device) for x in labels]
+
+        # Categorical
+        labels = labels.to(device)
+        labels[labels>0] = 1
+        ll = torch.cat([~torch.any(labels,0,keepdim=True),labels])
+        labelstp = torch.transpose(ll, 0, 1).long()
         
         # Randomly rotate positions
         #if augment_random_rotate:
@@ -177,14 +187,15 @@ def train_epoch(epoch):
         preds = model(features, mass, L=L, evals=evals, evecs=evecs, gradX=gradX, gradY=gradY, faces=faces)
 
         #preds = preds.float()
-        predstp = torch.transpose(preds,0,1)
-        predstp = predstp.flatten()
-        labels = torch.cat([x for x in labels])
+        # predstp = torch.transpose(preds,0,1)
+        # predstp = predstp.flatten()
+        # labels = torch.cat([x for x in labels])
 
-        weights = point_weights(labels)
+        # weights = point_weights(labels)
 
         # Evaluate loss
-        loss = weighted_mse_loss(predstp, labels, weights)
+        #loss = weighted_mse_loss(predstp, labels, weights)
+        loss = ce_loss(preds, torch.argmax(labelstp,1))
         loss.backward()
 
         # Step the optimizer
@@ -217,6 +228,8 @@ def test():
             gradX = gradX.to(device)
             gradY = gradY.to(device)
             labels = labels.to(device)
+            ll = torch.cat([~torch.any(labels,0,keepdim=True),labels])
+            labelstp = torch.transpose(ll, 0, 1).long()
             
             # Construct features
             if input_features == 'xyz':
@@ -226,17 +239,19 @@ def test():
 
             # Apply the model
             preds = model(features, mass, L=L, evals=evals, evecs=evecs, gradX=gradX, gradY=gradY, faces=faces)
-            predstp = torch.transpose(preds, 0, 1)
-            predstp = predstp.flatten()
+            #predstp = torch.transpose(preds, 0, 1)
+            #predstp = predstp.flatten()
 
             diffusion_net.utils.ensure_dir_exists(os.path.join(dataset_path, 'preds'))
             f = open(dataset_path + '/preds/hmap_per_class' + str(folder_num) + ".pkl", "wb+")
             pickle.dump(np.asarray(preds.cpu()), f)
             f.close()
 
-            labels = torch.cat([x for x in labels])
-            weights = point_weights(labels)
-            loss_sum += weighted_mse_loss(predstp, labels, weights)
+            #labels = torch.cat([x for x in labels])
+            #weights = point_weights(labels)
+            loss = ce_loss(preds, torch.argmax(labelstp,1))
+            #loss_sum += weighted_mse_loss(predstp, labels, weights)
+            loss_sum += loss
 
     return loss_sum/len(test_dataset)
 

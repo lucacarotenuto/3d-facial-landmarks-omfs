@@ -12,14 +12,14 @@ from tqdm import tqdm
 import potpourri3d as pp3d
 
 # Set directory with 'test' folder and 'preds' folder (if visualizing predictions)
-rootdir = '/Users/carotenuto/Documents/GitHub/3d-facial-landmarks-omfs/diffusion-net/experiments/headspace_ldmks/headspace_pcl_all/'
+rootdir = '/Users/carotenuto/Master Radboud/MscProj/preds_pcl_all_c256_l10/'
 
 # Set true if single point colorization or False if heatmap colorization
-POINT_PREDS = False
+POINT_PREDS = True
 # Set true if pointcloud or false if mesh
 IS_PCL = True
 # Set true if you are visualizing ground truth or false if visualizing predictions
-IS_GT = False
+IS_GT = True
 
 LANDMARK_INDICES = [8, 27, 30, 33, 36, 39, 45, 42, 60, 64]  # e.g. nosetip 31 has index 30
 
@@ -61,7 +61,7 @@ for filepath in glob.iglob(rootdir + searchpath):
             preds = pickle.load(f)
         # only keep selected landmarks
         #preds = [item for pos, item in enumerate(preds) if pos in LANDMARK_INDICES]
-        preds = preds[:, LANDMARK_INDICES]
+        #preds = preds[:, LANDMARK_INDICES]
         # restore original shape
         preds = np.transpose(preds)
         # make negative predictions zero
@@ -102,14 +102,14 @@ for filepath in glob.iglob(rootdir + searchpath):
         else:
             f = open(rootdir + 'preds/vis/pred_' + str(folder_num) + '.txt', 'w+')
     for i, el in tqdm(enumerate(outp_mask)):
-        if el[1] % 2 == 0:
-            if IS_PCL:
-                f.write(str(verts[i])[1:-1] + ', ' + str(el[0]) + ', 0.0, 0.0\n')
+        if IS_PCL:
+            if IS_GT:
+                f.write(str(verts[i])[1:-1] + ', 0.0, {}, 0.0\n'.format(el[0]))
             else:
-                f.write(', '.join(str(e) for e in verts[i]) + ', ' + str(el[0]) + ', 0.0, 0.0\n')
-        elif el[1] % 2 == 1:
-            if IS_PCL:
-                f.write(str(verts[i])[1:-1] + ', 0.0, ' + str(el[0]) + ', 0.0\n')
+                f.write(str(verts[i])[1:-1] + ', {}, 0.0, 0.0\n'.format(el[0]))
+        else:
+            if IS_GT:
+                f.write(', '.join(str(e) for e in verts[i]) + ', 0.0, {}, 0.0\n'.format(el[0]))
             else:
-                f.write(', '.join(str(e) for e in verts[i]) + ', 0.0, ' + str(el[0]) + ', 0.0\n')
+                f.write(', '.join(str(e) for e in verts[i]) + ', {}, 0.0, 0.0\n'.format(el[0]))
     f.close()

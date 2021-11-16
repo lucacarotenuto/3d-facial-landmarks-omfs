@@ -13,7 +13,7 @@ import pickle
 ldmks = np.load('/Users/carotenuto/Master Radboud/MscProj/headspace_pcl_all/ldmks.pkl',
                 allow_pickle=True)  # shape (samples, landmarks + 1, 3)
 
-rootdir = '/Users/carotenuto/Master Radboud/MscProj/headspace_pcl_all/'
+rootdir = '/Users/carotenuto/Master Radboud/MscProj/pcl_4/'
 
 
 def dist_between_points(pointcl, idx_origin, idx_target):
@@ -78,9 +78,26 @@ for filepath in tqdm(glob.iglob(rootdir + '*/13*.txt')):
             break
     ldmks_per_file = ldmks[ldmks_idx, 1:, :]  # shape (landmarks, 3)
 
+    # get mean dist between points
+    a = len(pcl)
+    dist_list = np.zeros((a))
+    for j in tqdm(range(a)):
+        shortest_dist = 99999999
+        for i in range(len(pcl)):
+            if j != i:
+                orig_coords = pcl[j]
+                target_coords= pcl[i]
+                dist = eucl_dist(orig_coords[0], orig_coords[1], orig_coords[2], target_coords[0], target_coords[1],
+                                 target_coords[2])
+                if dist < shortest_dist:
+                    shortest_dist = dist
+        dist_list[j] = shortest_dist
+    print(np.mean(dist_list))
+    """
     print("closest landmark distance: ", closest_ldmk_dist(pcl, ldmks_per_file))
 
     point_list = np.zeros((68))
+
     # per landmark n (starting from 0)
     for n, target_coords in enumerate(ldmks_per_file):
         shortest_dist = 99999999
@@ -94,6 +111,7 @@ for filepath in tqdm(glob.iglob(rootdir + '*/13*.txt')):
                 shortest_dist = dist
                 pt_shortest_dist = j
         point_list[n] = pt_shortest_dist
+
         # print(folder_num, n, target_coords, pt_shortest_dist, shortest_dist)
     # print(np.unique(point_list), len(point_list), max(point_list), len(pcl))
 
@@ -128,6 +146,7 @@ for filepath in tqdm(glob.iglob(rootdir + '*/13*.txt')):
                 output = np.append(output, np.array([[n, activation]]), axis=0)
         print(np.unique(output[:,1], return_counts = True))
         output_list.append(output)
+    """
     # output = np.zeros((68, len(pcl)))
     # print(len(point_list))
     # for i, ldmk_point in enumerate(point_list):
@@ -169,5 +188,8 @@ for filepath in tqdm(glob.iglob(rootdir + '*/13*.txt')):
     #     arr_str = np.char.mod('%f', output[:, i])
     #     f.write(", ".join(arr_str) + '\n')
     # f.close()
+
+    """
     f = open(os.path.dirname(filepath) + '/hmap_per_class.pkl', 'wb')
     pickle.dump(output_list, f)
+    """

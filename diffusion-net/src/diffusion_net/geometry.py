@@ -424,7 +424,7 @@ def compute_operators(verts, faces, k_eig, normals=None):
             # === WARNING DIFFUSION_NET_CUDA UNTESTED END ===
 
         else:
-            grad_mat_np = build_grad(verts, edges, edge_vecs)
+            grad_mat_np = build_grad_cpu(verts, edges, edge_vecs)
 
     if not cuda_available:
         # Split complex gradient in to two real sparse mats (torch doesn't like complex sparse matrices)

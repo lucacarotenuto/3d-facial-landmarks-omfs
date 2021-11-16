@@ -65,7 +65,7 @@ class HeadspaceLdmksDataset(Dataset):
             self.folder_num_list.append(folder_num)
 
             # if this file is not cached, populate
-            if not os.path.isfile(os.path.join(self.cache_dir, folder_num, '.pt')):
+            if not os.path.isfile(os.path.join(self.cache_dir, '{}.pt'.format(folder_num))):
                 # Precompute operators
                 diffusion_net.utils.ensure_dir_exists(self.cache_dir)
                 frames, massvec, L, evals, evecs, gradX, gradY = diffusion_net.geometry.populate_cache(

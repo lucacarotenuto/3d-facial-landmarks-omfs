@@ -8,7 +8,7 @@ import potpourri3d as pp3d
 from tqdm import tqdm
 from utils import eucl_dist
 
-ROOTDIR = '/Users/carotenuto/Documents/GitHub/3d-facial-landmarks-omfs/diffusion-net/experiments/headspace_ldmks/headspace_pcl_all'
+ROOTDIR = '/Users/carotenuto/Master Radboud/MscProj/preds_pcl_all_c256_l10'
 LANDMARK_INDICES = [8, 27, 30, 33, 36, 39, 42, 45, 60, 64]  # e.g. nosetip 31 has index 30
 
 # determine total prediction number and num landmarks
@@ -18,7 +18,7 @@ for path in glob.iglob(os.path.join(ROOTDIR, 'preds/hmap_per_class*.pkl')):
 with open(path, 'rb') as f:
     pred = pickle.load(f)
 num_ldmks = pred.shape[1]
-# num_ldmks = 10 # define landmarks manually if predictions include more landmarks
+#num_ldmks = 10 # define landmarks manually if predictions include more landmarks
 
 # error matrix (ldmks, preds)
 error_matrix = np.zeros((num_ldmks, total_preds))

@@ -84,6 +84,7 @@ model = diffusion_net.layers.DiffusionNet(C_in=C_in,
                                           C_out=n_class,
                                           C_width=c_width,
                                           N_block=n_block,
+                                          last_activation=torch.nn.CrossEntropyLoss(),
                                           #last_activation=lambda x : torch.mean(x,dim=1),
                                           outputs_at='vertices',
                                           dropout=True)

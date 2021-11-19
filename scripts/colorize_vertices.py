@@ -12,7 +12,7 @@ from tqdm import tqdm
 import potpourri3d as pp3d
 
 
-# Set directory with 'test' folder and 'preds' folder (if visualizing predictions)
+# Directory should contain 'test' folder and 'preds' folder (if visualizing predictions)
 rootdir = '/Users/carotenuto/Master Radboud/MscProj/preds_pcl_all_c256_l10/'
 
 # Set true if single point colorization or False if heatmap colorization

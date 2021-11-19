@@ -50,6 +50,7 @@ class HeadspaceLdmksDataset(Dataset):
             if data_format == 'mesh':
                 verts, faces = pp3d.read_mesh(mesh_files[iFile])
             else: # 'pcl'
+                # todo: remove pandas dependency
                 verts = pd.read_csv(mesh_files[iFile], sep=",", header=None)
                 verts = verts.to_numpy()[:, :3]
                 faces = np.array([])

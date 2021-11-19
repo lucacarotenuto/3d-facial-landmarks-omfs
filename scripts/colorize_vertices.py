@@ -11,15 +11,18 @@ import torch
 from tqdm import tqdm
 import potpourri3d as pp3d
 
+
 # Set directory with 'test' folder and 'preds' folder (if visualizing predictions)
 rootdir = '/Users/carotenuto/Master Radboud/MscProj/preds_pcl_all_c256_l10/'
 
 # Set true if single point colorization or False if heatmap colorization
-POINT_PREDS = True
+POINT_PREDS = False
 # Set true if pointcloud or false if mesh
 IS_PCL = True
 # Set true if you are visualizing ground truth or false if visualizing predictions
-IS_GT = True
+IS_GT = False
+# Set true if segmentation predictions
+IS_SEG = False
 
 LANDMARK_INDICES = [8, 27, 30, 33, 36, 39, 45, 42, 60, 64]  # e.g. nosetip 31 has index 30
 
@@ -106,7 +109,10 @@ for filepath in glob.iglob(rootdir + searchpath):
             if IS_GT:
                 f.write(str(verts[i])[1:-1] + ', 0.0, {}, 0.0\n'.format(el[0]))
             else:
-                f.write(str(verts[i])[1:-1] + ', {}, 0.0, 0.0\n'.format(el[0]))
+                if IS_SEG:
+                    f.write(str(verts[i])[1:-1] + ', {}, 0.0, 0.0\n'.format(1.0 if el[1] > 0 else 0.0))
+                else:
+                    f.write(str(verts[i])[1:-1] + ', {}, 0.0, 0.0\n'.format(el[0]))
         else:
             if IS_GT:
                 f.write(', '.join(str(e) for e in verts[i]) + ', 0.0, {}, 0.0\n'.format(el[0]))

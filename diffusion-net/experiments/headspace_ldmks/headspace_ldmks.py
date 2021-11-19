@@ -35,7 +35,7 @@ dtype = torch.float32
 n_class = 10
 data_format = args.data_format
 
-# model 
+# model
 input_features = args.input_features # one of ['xyz', 'hks']
 k_eig = 128
 

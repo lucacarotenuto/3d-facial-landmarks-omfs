@@ -13,7 +13,7 @@ import pickle
 ldmks = np.load('/Users/carotenuto/Master Radboud/MscProj/headspace_pcl_all/ldmks.pkl',
                 allow_pickle=True)  # shape (samples, landmarks + 1, 3)
 
-rootdir = '/Users/carotenuto/Master Radboud/MscProj/pcl_4/'
+rootdir = '/Users/carotenuto/Master Radboud/MscProj/headspace_pcl_testset_fullres/'
 
 
 def dist_between_points(pointcl, idx_origin, idx_target):
@@ -79,6 +79,7 @@ for filepath in tqdm(glob.iglob(rootdir + '*/13*.txt')):
     ldmks_per_file = ldmks[ldmks_idx, 1:, :]  # shape (landmarks, 3)
 
     # get mean dist between points
+    """
     a = len(pcl)
     dist_list = np.zeros((a))
     for j in tqdm(range(a)):
@@ -94,6 +95,7 @@ for filepath in tqdm(glob.iglob(rootdir + '*/13*.txt')):
         dist_list[j] = shortest_dist
     print(np.mean(dist_list))
     """
+
     print("closest landmark distance: ", closest_ldmk_dist(pcl, ldmks_per_file))
 
     point_list = np.zeros((68))
@@ -146,7 +148,7 @@ for filepath in tqdm(glob.iglob(rootdir + '*/13*.txt')):
                 output = np.append(output, np.array([[n, activation]]), axis=0)
         print(np.unique(output[:,1], return_counts = True))
         output_list.append(output)
-    """
+
     # output = np.zeros((68, len(pcl)))
     # print(len(point_list))
     # for i, ldmk_point in enumerate(point_list):
@@ -189,7 +191,6 @@ for filepath in tqdm(glob.iglob(rootdir + '*/13*.txt')):
     #     f.write(", ".join(arr_str) + '\n')
     # f.close()
 
-    """
+
     f = open(os.path.dirname(filepath) + '/hmap_per_class.pkl', 'wb')
     pickle.dump(output_list, f)
-    """

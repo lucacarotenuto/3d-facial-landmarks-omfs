@@ -7,8 +7,8 @@ import os
 from tqdm import tqdm
 
 #rootdir = '/Users/carotenuto/Master Radboud/MscProj/subjects_1-150 copy/'
-rootdir = '/Volumes/T7/headspace-full/headspace/headspaceOnline/subjects/'
-new_folder = '/Users/carotenuto/Master Radboud/MscProj/headspace_pcl_all5/'
+rootdir = '/Users/carotenuto/Master Radboud/MscProj/pcl_testset_fullres/'
+new_folder = '/Users/carotenuto/Master Radboud/MscProj/headspace_pcl_testset_fullres/'
 j= 0
 ms = pymeshlab.MeshSet()
 for filepath in tqdm(glob.iglob(rootdir + '*/*.obj')):
@@ -19,7 +19,7 @@ for filepath in tqdm(glob.iglob(rootdir + '*/*.obj')):
             print(str(j))
             ms.load_new_mesh(filepath)
             ms.texel_sampling(recovercolor=True)
-            ms.point_cloud_simplification(samplenum=30000)
+            #ms.point_cloud_simplification(samplenum=30000)
             #ms.save_current_mesh(filepath[:-4] + '_simplfd.obj', save_textures=False)
             print("saving " + filepath)
             ms.save_current_mesh(filepath[:-4] + '.xyz', save_textures=True)

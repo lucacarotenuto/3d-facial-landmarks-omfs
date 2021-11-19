@@ -8,7 +8,7 @@ import potpourri3d as pp3d
 from tqdm import tqdm
 from utils import eucl_dist
 
-ROOTDIR = '/Users/carotenuto/Master Radboud/MscProj/preds_pcl_all_c256_l10'
+ROOTDIR = '/Users/carotenuto/Documents/GitHub/3d-facial-landmarks-omfs/diffusion-net/experiments/headspace_ldmks/headspace_pcl_testset_fullres'
 LANDMARK_INDICES = [8, 27, 30, 33, 36, 39, 42, 45, 60, 64]  # e.g. nosetip 31 has index 30
 
 # determine total prediction number and num landmarks
@@ -83,6 +83,10 @@ for pred_idx, path in tqdm(enumerate(glob.iglob(os.path.join(ROOTDIR, 'preds/hma
 meanax0 = error_matrix.mean(axis=0)
 meanax1 = error_matrix.mean(axis=1)
 print(error_matrix.mean())
+stdax1 = error_matrix.std(axis=1)
+maxax1 = error_matrix.max(axis=1)
+print(error_matrix[error_matrix == 0.0])
+
 
 # write to txt
 with open(os.path.join(ROOTDIR, 'error.txt'), 'w') as f:
@@ -91,3 +95,11 @@ with open(os.path.join(ROOTDIR, 'error.txt'), 'w') as f:
     f.write('\n'.join(['{} {:.3f}'.format(i, e) for i, e in enumerate(meanax0)]))
     f.write('\n\nLandmark mean:\n')
     f.write('\n'.join(['{} {:.3f}'.format(i, e) for i, e in enumerate(meanax1)]))
+with open(os.path.join(ROOTDIR, 'error_std.txt'), 'w') as f:
+    f.write('Total std: {:.3f}'.format(error_matrix.std()))
+    f.write('\n\nLandmark std:\n')
+    f.write('\n'.join(['{} {:.3f}'.format(i, e) for i, e in enumerate(stdax1)]))
+with open(os.path.join(ROOTDIR, 'error_max.txt'), 'w') as f:
+    f.write('Total max: {:.3f}'.format(error_matrix.max()))
+    f.write('\n\nLandmark max:\n')
+    f.write('\n'.join(['{} {:.3f}'.format(i, e) for i, e in enumerate(maxax1)]))

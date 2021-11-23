@@ -8,35 +8,64 @@ import potpourri3d as pp3d
 from tqdm import tqdm
 from utils import eucl_dist
 
-ROOTDIR = '/Users/carotenuto/Documents/GitHub/3d-facial-landmarks-omfs/diffusion-net/experiments/headspace_ldmks/headspace_pcl_testset_fullres'
+
+ROOTDIR = '/Users/carotenuto/Documents/GitHub/3d-facial-landmarks-omfs/diffusion-net/experiments/refine_ldmks/pcl_all_c256_l10'
 LANDMARK_INDICES = [8, 27, 30, 33, 36, 39, 42, 45, 60, 64]  # e.g. nosetip 31 has index 30
+IS_REFINED = True # are predictions refined?
+LDMKS = np.load('/Users/carotenuto/Master Radboud/MscProj/headspace_pcl_all/ldmks.pkl',
+                allow_pickle=True)  # shape (samples, landmarks + 1, 3)
 
 # determine total prediction number and num landmarks
 total_preds = 0
-for path in glob.iglob(os.path.join(ROOTDIR, 'preds/hmap_per_class*.pkl')):
+for path in glob.iglob(os.path.join(ROOTDIR, 'preds/pred*.pkl')):
     total_preds += 1
 with open(path, 'rb') as f:
     pred = pickle.load(f)
-num_ldmks = pred.shape[1]
+
+if not IS_REFINED:
+    num_ldmks = pred.shape[1]
+else:
+    num_ldmks = 10
 #num_ldmks = 10 # define landmarks manually if predictions include more landmarks
 
-# error matrix (ldmks, preds)
-error_matrix = np.zeros((num_ldmks, total_preds))
+if not IS_REFINED:
+    # error matrix (ldmks, preds)
+    error_matrix = np.zeros((num_ldmks, total_preds))
+else:
+    error_matrix = np.zeros((num_ldmks, int(total_preds/10)))
 
+arr_folder_nums = []
 # for each prediction
-for pred_idx, path in tqdm(enumerate(glob.iglob(os.path.join(ROOTDIR, 'preds/hmap_per_class*.pkl')))):
+for pred_idx, path in tqdm(enumerate(glob.iglob(os.path.join(ROOTDIR, 'preds/pred*.pkl')))):
     with open(path, 'rb') as f:
         pred = pickle.load(f)
     # only keep selected landmarks e.g. if predictions include more landmarks than necessary
     #ldmk_indcs = [8, 27, 30, 33, 36, 39, 42, 45, 60, 64]
     #pred = pred[:, ldmk_indcs]
 
-    # get the num part e.g. '00004'
-    folder_num = path[-9:-4]
+    if IS_REFINED:
+        # get the num part e.g. '00004'
+        folder_num = os.path.basename(path).split('_')[0][4:]
+        folder_num_ldmk = os.path.basename(path).split('_')[1].split('.')[0]
+        if folder_num not in arr_folder_nums:
+            arr_folder_nums.append(folder_num)
+    else:
+        folder_num = os.path.basename(path)[-9:-4]
+
 
     # load target
-    with open(os.path.join(ROOTDIR, 'test/{}/hmap_per_class.pkl'.format(folder_num)), 'rb') as f:
-        target = pickle.load(f)
+    if IS_REFINED:
+        # identify landmark coordinates for file
+        for i in range(LDMKS.shape[0]):
+            if int(LDMKS[i, 0, 0]) == int(folder_num):
+                ldmks_idx = i
+                break
+        ldmks_per_file = LDMKS[ldmks_idx, 1:, :]  # shape (landmarks, 3)
+        target = ldmks_per_file
+    else:
+        path = os.path.join('test',folder_num, 'hmap_per_class.pkl')
+        with open(os.path.join(ROOTDIR, path, 'rb')) as f:
+            target = pickle.load(f)
     # only keep selected landmarks
     target = [item for pos, item in enumerate(target) if pos in LANDMARK_INDICES]
 
@@ -46,10 +75,10 @@ for pred_idx, path in tqdm(enumerate(glob.iglob(os.path.join(ROOTDIR, 'preds/hma
     pred_pt[np.arange(len(pred)), pred.argmax(1)] = 1
 
     # get vertex xyz coordinate
-    for file in os.listdir(os.path.join(ROOTDIR, 'test/{}'.format(folder_num))):
+    for file in os.listdir(os.path.join(ROOTDIR, 'test', folder_num, folder_num_ldmk if IS_REFINED else '')):
         # .txt extension for pcl
         if file.endswith('.txt'):
-            verts_filepath = os.path.join(ROOTDIR, 'test/{}'.format(folder_num), file)
+            verts_filepath = os.path.join(ROOTDIR, 'test', folder_num, folder_num_ldmk if IS_REFINED else '', file)
 
             # todo make helper function to load .txt into pcl array
             lines = open(verts_filepath, 'r').read().split('\n')[:-1]
@@ -72,14 +101,20 @@ for pred_idx, path in tqdm(enumerate(glob.iglob(os.path.join(ROOTDIR, 'preds/hma
         coords_pred = verts[indcs[i]]
 
         # target coords by looking for activation 1 in each landmark channel
-        ind = int(np.where(target[i] == 1)[0])
-        point = int(target[i][ind][0])
-        coords_target = verts[point]
+        if not IS_REFINED:
+            ind = int(np.where(target[i] == 1)[0])
+            point = int(target[i][ind][0])
+            coords_target = verts[point]
+        else:
+            coords_target = ldmks_per_file[LANDMARK_INDICES[int(folder_num_ldmk)]]
 
         dist = eucl_dist(coords_target[0],coords_target[1],coords_target[2],
                         coords_pred[0],coords_pred[1],coords_pred[2])
         #print(str(i) + " " + str(dist)
-        error_matrix[i, pred_idx] = dist
+        if not IS_REFINED:
+            error_matrix[i, pred_idx] = dist
+        else:
+            error_matrix[int(folder_num_ldmk)-1,arr_folder_nums.index(folder_num)] = dist
 meanax0 = error_matrix.mean(axis=0)
 meanax1 = error_matrix.mean(axis=1)
 print(error_matrix.mean())

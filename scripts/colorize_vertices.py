@@ -26,7 +26,7 @@ IS_SEG = False
 
 LANDMARK_INDICES = [8, 27, 30, 33, 36, 39, 45, 42, 60, 64]  # e.g. nosetip 31 has index 30
 
-searchpath = 'test/*/13*.txt' if IS_PCL else 'test/*/13*.obj'
+searchpath = 'test/00010/13*.txt' if IS_PCL else 'test/*/13*.obj'
 for filepath in glob.iglob(rootdir + searchpath):
     if IS_PCL:
         # process pointcloud file
@@ -112,7 +112,8 @@ for filepath in glob.iglob(rootdir + searchpath):
                 if IS_SEG:
                     f.write(str(verts[i])[1:-1] + ', {}, 0.0, 0.0\n'.format(1.0 if el[1] > 0 else 0.0))
                 else:
-                    f.write(str(verts[i])[1:-1] + ', {}, 0.0, 0.0\n'.format(el[0]))
+                    f.write(str(verts[i])[1:-1] + ', {}, 0.0, 0.0\n'.format(1.0 if el[1] == 4.0 and el[0] > 0.2 else 0.0))
+                    #f.write(str(verts[i])[1:-1] + ', {}, 0.0, 0.0\n'.format(el[0]))
         else:
             if IS_GT:
                 f.write(', '.join(str(e) for e in verts[i]) + ', 0.0, {}, 0.0\n'.format(el[0]))

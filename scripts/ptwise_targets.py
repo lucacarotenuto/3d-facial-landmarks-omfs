@@ -117,8 +117,6 @@ for filepath in tqdm(glob.iglob(rootdir + '*/13*.txt')):
         # print(folder_num, n, target_coords, pt_shortest_dist, shortest_dist)
     # print(np.unique(point_list), len(point_list), max(point_list), len(pcl))
 
-    point_list_ints = [int(l) for l in list(point_list)]
-
     # go through each point and create activation depending on proximity to landmark point (heatmap)
 
 

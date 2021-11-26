@@ -20,6 +20,8 @@ parser.add_argument("--evaluate", action="store_true", help="evaluate using the 
 parser.add_argument("--input_features", type=str, help="what features to use as input ('xyz' or 'hks') default: hks", default = 'hks')
 parser.add_argument("--data_format", type=str, help="what format does the data have ('pcl' or 'mesh') default: pcl", default = 'pcl')
 parser.add_argument("--data_dir", type=str, help="directory name of dataset", default = 'pcl')
+parser.add_argument("--test_without_score", action='store_true', help="do not evaluate with score")
+
 args = parser.parse_args()
 
 
@@ -37,11 +39,11 @@ data_format = args.data_format
 
 # model
 input_features = args.input_features # one of ['xyz', 'hks']
-k_eig = 16
+k_eig = 128
 
 # training settings
 train = not args.evaluate
-n_epoch = 3
+n_epoch = 200
 lr = 1e-3
 decay_every = 50
 decay_rate = 0.5
@@ -49,7 +51,7 @@ n_block = 4
 c_width = 256
 #augment_random_rotate = (input_features == 'xyz')
 
-test_without_score = True
+test_without_score = args.test_without_score
 
 # Important paths
 base_path = os.path.dirname(__file__)
@@ -66,14 +68,14 @@ best_model_path = os.path.join(dataset_path, "saved_models/headspace_ldmks_best_
 
 # Load the test dataset
 test_dataset = HeadspaceLdmksDataset(dataset_path, data_format=data_format, train=False, num_landmarks=n_class,
-                                     k_eig=k_eig, use_cache=True, op_cache_dir=op_cache_dir)
+                                     test_without_score=test_without_score, k_eig=k_eig, use_cache=True, op_cache_dir=op_cache_dir)
 test_loader = DataLoader(test_dataset, batch_size=None)
 
 
 # Load the train dataset
 if train:
     train_dataset = HeadspaceLdmksDataset(dataset_path, data_format=data_format, train=True, num_landmarks=n_class,
-                                          k_eig=k_eig,  use_cache=True, op_cache_dir=op_cache_dir)
+                                          test_without_score=test_without_score, k_eig=k_eig,  use_cache=True, op_cache_dir=op_cache_dir)
     train_loader = DataLoader(train_dataset, batch_size=None)
 
 # === Create the model
@@ -121,10 +123,10 @@ def point_weights(labels):
     Returns: weights
     """
     weights = torch.clone(labels)
-    weights[weights == 1] = 10
-    weights[weights == 0.75] = 7.5
-    weights[weights == 0.5] = 5
-    weights[weights == 0.25] = 2.5
+    weights[weights == 1] = 20
+    weights[weights == 0.75] = 15
+    weights[weights == 0.5] = 10
+    weights[weights == 0.25] = 5
     weights[weights == 0] = 1
     return weights
 
@@ -148,7 +150,7 @@ def train_epoch(epoch):
     for data in tqdm(train_loader):
 
         # Get data
-        verts, faces, frames, mass, L, evals, evecs, gradX, gradY, labels, folder_num = data
+        verts, faces, frames, mass, L, evals, evecs, gradX, gradY, labels, folder_num, folder_num_ldmk = data
 
         # Move to device
         verts = verts.to(device)
@@ -205,7 +207,7 @@ def test():
         for data in tqdm(test_loader):
 
             # Get data
-            verts, faces, frames, mass, L, evals, evecs, gradX, gradY, labels, folder_num, folder_num_ldkm = data
+            verts, faces, frames, mass, L, evals, evecs, gradX, gradY, labels, folder_num, folder_num_ldmk = data
 
             # Move to device
             verts = verts.to(device)
@@ -231,7 +233,7 @@ def test():
             predstp = predstp.flatten()
 
             diffusion_net.utils.ensure_dir_exists(os.path.join(dataset_path, 'preds'))
-            f = open(os.path.join(dataset_path,'preds', 'pred{}_{}.pkl'.format(folder_num, folder_num_ldkm)), 'wb+')
+            f = open(os.path.join(dataset_path,'preds', 'pred{}_{}.pkl'.format(folder_num, folder_num_ldmk)), 'wb+')
             pickle.dump(np.asarray(preds.cpu()), f)
             f.close()
 

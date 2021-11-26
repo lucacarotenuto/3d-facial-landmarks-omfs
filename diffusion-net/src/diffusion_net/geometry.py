@@ -348,7 +348,7 @@ def compute_operators(verts, faces, k_eig, normals=None):
 
     # Build the scalar Laplacian
     if is_cloud:
-        L, M = robust_laplacian.point_cloud_laplacian(verts_np)
+        L, M = robust_laplacian.point_cloud_laplacian(verts_np, n_neighbors=30)
         massvec_np = M.diagonal()
     else:
         # L, M = robust_laplacian.mesh_laplacian(verts_np, faces_np)

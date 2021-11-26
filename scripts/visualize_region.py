@@ -1,3 +1,5 @@
+# Cut region from high-resolution based on low-resolution predictions, and visualize or save pcl (for test set)
+
 import io
 import math
 import glob
@@ -11,6 +13,7 @@ from scipy.spatial import Delaunay
 import potpourri3d as pp3d
 import pptk # requires python 3.6!
 from tqdm import tqdm
+import utils
 
 def in_hull(p, hull):
     """
@@ -34,11 +37,12 @@ def main():
     HRES_DIR = '/Users/carotenuto/Master Radboud/MscProj/pcl_testset_fullres'
 
     # Save dir
-    SAVE_DIR = '/Users/carotenuto/Master Radboud/MscProj/refined_sets/pcl_all_c256_l10'
+    SAVE_DIR = '/Users/carotenuto/Master Radboud/MscProj/refined_sets/refined_subnasal6_test'
 
     VISUALIZE = False
 
-    LANDMARK_INDICES = [8, 27, 30, 33, 36, 39, 45, 42, 60, 64]  # e.g. nosetip 31 has index 30
+    #LANDMARK_INDICES = [8, 27, 30, 33, 36, 39, 45, 42, 60, 64]  # e.g. nosetip 31 has index 30
+    #LANDMARK_INDICES = [33]
     #searchpath = 'test/*/13*.txt'
     searchpath = 'test/*/13*.txt'
     for fp_pred in glob.iglob(PREDS_DIR + searchpath):
@@ -67,7 +71,7 @@ def main():
         # go through each landmark (each channel)
         #  create a region for each landmark
         #for i in range(preds.shape[1]):
-        for i in range(10):
+        for i in range(3,4):
             print('landmark {}'.format(i))
             # only take vertices where prediction in that landmark channel is bigger than value
             verts_refined_mask = (preds_sparse[:, 1] == i) & (preds_sparse[:, 0] > 0.1)
@@ -89,17 +93,16 @@ def main():
                 assert j == 0, "More than one highres .obj file found"
 
             high_res_points, _ = pp3d.read_mesh(fp_hres)
-
-            # take points from high-resolution point cloud that are in low-res preds hull
             print('preds points higher 0.1 {}'.format(len(verts_refined)))
 
             if len(verts_refined) == 0:
                 print('exception: not enough confident predictions in highres')
 
-            DELAUNAY = False
+            method = 'radius'
             high_res_region = []
             high_res_region_mask = np.full((len(high_res_points)), False, dtype=bool)
-            if DELAUNAY:
+            if method == 'delaunay':
+                # take points from high-resolution point cloud that are in low-res preds hull
                 if not isinstance(verts_refined, Delaunay):
                     hull = Delaunay(verts_refined)
                 for k, coords in enumerate(high_res_points):
@@ -108,7 +111,7 @@ def main():
                         high_res_region_mask[k] = True
                 print('highres points in hull {}'.format(len(high_res_region)))
 
-            else:
+            elif method == 'minmaxxyz':
                 xmin, xmax, ymin, ymax, zmin, zmax = verts_refined[:,0].min(), verts_refined[:,0].max(),\
                                                     verts_refined[:, 1].min(), verts_refined[:, 1].max(),\
                                                     verts_refined[:, 2].min(), verts_refined[:, 2].max()
@@ -118,8 +121,28 @@ def main():
                                 coords[2] > zmin and coords[2] < zmax:
                         high_res_region.append(coords)
                         high_res_region_mask[k] = True
+            elif method == 'radius':
+                high_res_region = []
+                point_max = preds[i,:].argmax()
+                coords_max = verts[point_max]
+
+                for k, coords in enumerate(high_res_points):
+                    dist = utils.eucl_dist(coords_max[0],coords_max[1],coords_max[2],
+                                           coords[0],coords[1],coords[2],)
+                    if dist < 25:
+                        high_res_region.append(high_res_points[k])
+
 
             high_res_region_np = np.array(high_res_region)
+
+            # c_highres_mask = np.full(len(high_res_points), False, dtype=bool)
+            # c_highres_mask[point_max] = True
+            # c_highres = np.zeros((len(high_res_points),3))
+            # c_highres[point_max] = [255,0,0]
+            # overlay = pptk.viewer(high_res_points, c_highres, show_axis=True)
+            # overlay.set(point_size=0.4, show_info=True)
+
+
 
             # # visualize high res points with
             # color = np.zeros((len(high_res_points), 3))
@@ -140,8 +163,8 @@ def main():
                 c_highres_region[c_highres_region_mask] = [0,255,0]
                 c_overlay = np.concatenate((c_verts_refined,
                                             c_highres_region))
-                #overlay = pptk.viewer(v_overlay, c_overlay, show_axis=True)
-                #overlay.set(point_size=0.4, show_info=True)
+                overlay = pptk.viewer(v_overlay, c_overlay, show_axis=True)
+                overlay.set(point_size=0.4, show_info=True)
 
                 # overlayed picture
                 #v_overlay = verts

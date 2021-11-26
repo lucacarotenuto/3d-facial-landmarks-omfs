@@ -11,9 +11,8 @@ import torch
 from tqdm import tqdm
 import potpourri3d as pp3d
 
-
 # Directory should contain 'test' folder and 'preds' folder (if visualizing predictions)
-rootdir = '/Users/carotenuto/Master Radboud/MscProj/preds_pcl_all_c256_l10/'
+rootdir = '/Users/carotenuto/Documents/GitHub/3d-facial-landmarks-omfs/diffusion-net/experiments/refine_ldmks/refined_subnasal6/'
 
 # Set true if single point colorization or False if heatmap colorization
 POINT_PREDS = False
@@ -23,10 +22,16 @@ IS_PCL = True
 IS_GT = False
 # Set true if segmentation predictions
 IS_SEG = False
+# Set true if refinement predictions
+IS_REFINED = True
 
-LANDMARK_INDICES = [8, 27, 30, 33, 36, 39, 45, 42, 60, 64]  # e.g. nosetip 31 has index 30
+#LANDMARK_INDICES = [8, 27, 30, 33, 36, 39, 45, 42, 60, 64]  # e.g. nosetip 31 has index 30
+LANDMARK_INDICES = [33]  # e.g. nosetip 31 has index 30
 
-searchpath = 'test/00010/13*.txt' if IS_PCL else 'test/*/13*.obj'
+if not IS_REFINED:
+    searchpath = 'test/*/13*.txt' if IS_PCL else 'test/*/13*.obj'
+else:
+    searchpath = 'test/*/*/13*.txt'
 for filepath in glob.iglob(rootdir + searchpath):
     if IS_PCL:
         # process pointcloud file
@@ -37,30 +42,47 @@ for filepath in glob.iglob(rootdir + searchpath):
         verts, faces = pp3d.read_mesh(filepath)
 
     # find folder num
-    folder_num = Path(filepath).parts[-2]
-    folder_num_int = int(folder_num)
+    if not IS_REFINED:
+        folder_num = Path(filepath).parts[-2]
+    else:
+        folder_num = Path(filepath).parts[-3]
+        folder_num_ldmk = Path(filepath).parts[-2]
 
     # open pred pkl
     if IS_GT:
         # open gt label
-        with open('{}test/{}/hmap_per_class.pkl'.format(rootdir, str(folder_num)), 'rb') as f:
-            labels = pickle.load(f)
-        # only keep selected landmarks
-        labels = [item for pos, item in enumerate(labels) if pos in LANDMARK_INDICES]
-        # restore sparse representation
-        labels_sparse = np.zeros((len(LANDMARK_INDICES), len(verts)))
-        for j in range(len(labels)):
-            for k in range(len(labels[j])):
-                pos = labels[j][k, 0]
-                if POINT_PREDS:
-                    act = 0 if labels[j][k, 1] < 1 else 1
-                else:
-                    act = labels[j][k, 1]
-                labels_sparse[j, int(pos)] = act
-        preds = labels_sparse
+        if not IS_REFINED:
+            with open('{}test/{}/hmap_per_class.pkl'.format(rootdir, str(folder_num)), 'rb') as f:
+                labels = pickle.load(f)
+            # only keep selected landmarks
+            labels = [item for pos, item in enumerate(labels) if pos in LANDMARK_INDICES]
+            # restore sparse representation
+            labels_sparse = np.zeros((len(LANDMARK_INDICES), len(verts)))
+            for j in range(len(labels)):
+                for k in range(len(labels[j])):
+                    pos = labels[j][k, 0]
+                    if POINT_PREDS:
+                        act = 0 if labels[j][k, 1] < 1 else 1
+                    else:
+                        act = labels[j][k, 1]
+                    labels_sparse[j, int(pos)] = act
+            preds = labels_sparse
+        else:
+            with open(os.path.join(rootdir, 'test', str(folder_num), folder_num_ldmk, 'hmap_per_class.pkl'), 'rb') as f:
+                labels = pickle.load(f)
+                # only keep selected landmarks
+                #labels = [item for pos, item in enumerate(labels) if pos in LANDMARK_INDICES]
+                # restore sparse representation
+                labels_sparse = np.zeros((1,len(verts)))
+                for j in range(len(labels)):
+                    act = labels[j][1]
+                    pos = labels[j][0]
+                    labels_sparse[0,int(pos)] = act
+                preds = labels_sparse
     else:
         # open predictions
-        with open(rootdir + 'preds/hmap_per_class' + str(folder_num) + '.pkl', 'rb') as f:
+        with open(rootdir + 'preds/pred' + str(folder_num) + ('_{}'.format(folder_num_ldmk)\
+                                                        if IS_REFINED else '') + '.pkl', 'rb') as f:
             preds = pickle.load(f)
         # only keep selected landmarks
         #preds = [item for pos, item in enumerate(preds) if pos in LANDMARK_INDICES]
@@ -98,12 +120,14 @@ for filepath in glob.iglob(rootdir + searchpath):
         if IS_GT:
             f = open(rootdir + 'gt_vis/gt_pt_' + str(folder_num) + '.txt', 'w+')
         else:
-            f = open(rootdir + 'preds/vis/pred_pt_' + str(folder_num) + '.txt', 'w+')
+            f = open(rootdir + 'preds/vis/pred_pt_' + str(folder_num) + ('_{}'.format(folder_num_ldmk
+                                                              if IS_REFINED else '')) + '.txt', 'w+')
     else:
         if IS_GT:
             f = open(rootdir + 'gt_vis/gt_' + str(folder_num) + '.txt', 'w+')
         else:
-            f = open(rootdir + 'preds/vis/pred_' + str(folder_num) + '.txt', 'w+')
+            f = open(rootdir + 'preds/vis/pred_' + str(folder_num) + ('_{}'.format(folder_num_ldmk
+                                                              if IS_REFINED else '')) + '.txt', 'w+')
     for i, el in tqdm(enumerate(outp_mask)):
         if IS_PCL:
             if IS_GT:
@@ -112,8 +136,8 @@ for filepath in glob.iglob(rootdir + searchpath):
                 if IS_SEG:
                     f.write(str(verts[i])[1:-1] + ', {}, 0.0, 0.0\n'.format(1.0 if el[1] > 0 else 0.0))
                 else:
-                    f.write(str(verts[i])[1:-1] + ', {}, 0.0, 0.0\n'.format(1.0 if el[1] == 4.0 and el[0] > 0.2 else 0.0))
-                    #f.write(str(verts[i])[1:-1] + ', {}, 0.0, 0.0\n'.format(el[0]))
+                    #f.write(str(verts[i])[1:-1] + ', {}, 0.0, 0.0\n'.format(1.0 if el[1] == 4.0 and el[0] > 0.2 else 0.0))
+                    f.write(str(verts[i])[1:-1] + ', {}, 0.0, 0.0\n'.format(el[0]))
         else:
             if IS_GT:
                 f.write(', '.join(str(e) for e in verts[i]) + ', 0.0, {}, 0.0\n'.format(el[0]))

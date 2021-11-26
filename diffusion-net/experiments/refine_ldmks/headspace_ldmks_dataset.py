@@ -18,7 +18,7 @@ from pathlib import Path
 import glob
 
 class HeadspaceLdmksDataset(Dataset):
-    def __init__(self, root_dir, train, data_format, num_landmarks, k_eig=128, use_cache=True, op_cache_dir=None):
+    def __init__(self, root_dir, train, data_format, num_landmarks, test_without_score, k_eig=128, use_cache=True, op_cache_dir=None):
         self.use_cache = use_cache
         self.train = train  # bool
         self.k_eig = k_eig
@@ -27,7 +27,7 @@ class HeadspaceLdmksDataset(Dataset):
         self.op_cache_dir = op_cache_dir
         self.data_format = data_format
         self.num_landmarks = num_landmarks
-        self.test_without_score = True
+        self.test_without_score = test_without_score
 
         # store in memory
         self.verts_list = []
@@ -94,14 +94,16 @@ class HeadspaceLdmksDataset(Dataset):
 
         # create sparse labels
         #landmark_indices = {8,27,30,33,36,39,45,42,60,64} # indices start with 1
-        if self.train and not self.test_without_score:
+        landmark_indices = {33}  # indices start with 1
+        if not self.train and self.test_without_score:
+            labels = np.array([])
+        else:
             with open(os.path.join(self.root_dir, 'train' if self.train else 'test', folder_num, folder_num_ldmk,\
                                    'hmap_per_class.pkl'), 'rb') as fpath:
                 labels_sparse = pickle.load(fpath)
             #labels_sparse = [item for pos, item in enumerate(labels_sparse) if pos in landmark_indices]
             labels = self.labelsFromSparse(verts, labels_sparse)
-        else:
-            labels = np.array([])
+
 
         return verts, faces, frames, massvec, L, evals, evecs, gradX, gradY, labels, folder_num, folder_num_ldmk
 

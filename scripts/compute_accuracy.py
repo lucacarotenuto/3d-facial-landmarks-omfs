@@ -9,7 +9,7 @@ from tqdm import tqdm
 from utils import eucl_dist
 
 
-ROOTDIR = '/Users/carotenuto/Documents/GitHub/3d-facial-landmarks-omfs/diffusion-net/experiments/refine_ldmks/pcl_all_c256_l10'
+ROOTDIR = '/Users/carotenuto/Documents/GitHub/3d-facial-landmarks-omfs/diffusion-net/experiments/refine_ldmks/refined_subnasal6'
 LANDMARK_INDICES = [8, 27, 30, 33, 36, 39, 42, 45, 60, 64]  # e.g. nosetip 31 has index 30
 IS_REFINED = True # are predictions refined?
 LDMKS = np.load('/Users/carotenuto/Master Radboud/MscProj/headspace_pcl_all/ldmks.pkl',
@@ -25,14 +25,14 @@ with open(path, 'rb') as f:
 if not IS_REFINED:
     num_ldmks = pred.shape[1]
 else:
-    num_ldmks = 10
+    num_ldmks = 4
 #num_ldmks = 10 # define landmarks manually if predictions include more landmarks
 
 if not IS_REFINED:
     # error matrix (ldmks, preds)
     error_matrix = np.zeros((num_ldmks, total_preds))
 else:
-    error_matrix = np.zeros((num_ldmks, int(total_preds/10)))
+    error_matrix = np.zeros((num_ldmks, 24))
 
 arr_folder_nums = []
 # for each prediction
@@ -63,9 +63,15 @@ for pred_idx, path in tqdm(enumerate(glob.iglob(os.path.join(ROOTDIR, 'preds/pre
         ldmks_per_file = LDMKS[ldmks_idx, 1:, :]  # shape (landmarks, 3)
         target = ldmks_per_file
     else:
-        path = os.path.join('test',folder_num, 'hmap_per_class.pkl')
-        with open(os.path.join(ROOTDIR, path, 'rb')) as f:
-            target = pickle.load(f)
+        #path = os.path.join('test',folder_num, 'hmap_per_class.pkl')
+        #with open(os.path.join(ROOTDIR, path), 'rb') as f:
+        #    target = pickle.load(f)
+        for i in range(LDMKS.shape[0]):
+            if int(LDMKS[i, 0, 0]) == int(folder_num):
+                ldmks_idx = i
+                break
+        ldmks_per_file = LDMKS[ldmks_idx, 1:, :]  # shape (landmarks, 3)
+        target = ldmks_per_file
     # only keep selected landmarks
     target = [item for pos, item in enumerate(target) if pos in LANDMARK_INDICES]
 
@@ -102,9 +108,10 @@ for pred_idx, path in tqdm(enumerate(glob.iglob(os.path.join(ROOTDIR, 'preds/pre
 
         # target coords by looking for activation 1 in each landmark channel
         if not IS_REFINED:
-            ind = int(np.where(target[i] == 1)[0])
-            point = int(target[i][ind][0])
-            coords_target = verts[point]
+            #ind = int(np.where(target[i] == 1)[0])
+            #point = int(target[i][ind][0])
+            #coords_target = verts[point]
+            coords_target = target[i]
         else:
             coords_target = ldmks_per_file[LANDMARK_INDICES[int(folder_num_ldmk)]]
 

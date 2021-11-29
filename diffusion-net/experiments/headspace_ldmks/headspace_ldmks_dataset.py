@@ -1,21 +1,18 @@
-import shutil
 import os
 import sys
-import random
 import numpy as np
 import pandas as pd
 import torch
+import glob
+import pickle
 from torch.utils.data import Dataset
-
 import potpourri3d as pp3d
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../src/"))  # add the path to the DiffusionNet src
 import diffusion_net
-from diffusion_net.utils import toNP
 
-import pickle
 from pathlib import Path
-import glob
+
 
 class HeadspaceLdmksDataset(Dataset):
     def __init__(self, root_dir, train, data_format, num_landmarks, k_eig=128, use_cache=True, op_cache_dir=None):
@@ -36,7 +33,6 @@ class HeadspaceLdmksDataset(Dataset):
         self.num_samples = 0
 
         mesh_files = []
-
 
         filepattern = '/*/13*.txt' if data_format == 'pcl' else '/*/13*.obj'
         for filepath in glob.iglob(os.path.join(self.root_dir, 'train' if self.train else 'test') + filepattern):
@@ -85,15 +81,15 @@ class HeadspaceLdmksDataset(Dataset):
         # create sparse labels
         landmark_indices = {8,27,30,33,36,39,45,42,60,64} # indices start with 1
 
-        with open(os.path.join(self.root_dir, 'train' if self.train else 'test', folder_num, \
+        with open(os.path.join(self.root_dir, 'train' if self.train else 'test', folder_num,
                                'hmap_per_class.pkl'), 'rb') as fpath:
             labels_sparse = pickle.load(fpath)
         labels_sparse = [item for pos, item in enumerate(labels_sparse) if pos in landmark_indices]
-        labels = self.labelsFromSparse(verts, labels_sparse)
+        labels = self.labels_from_sparse(verts, labels_sparse)
 
         return verts, faces, frames, massvec, L, evals, evecs, gradX, gradY, labels, folder_num
 
-    def labelsFromSparse(self, verts, labels_sparse):
+    def labels_from_sparse(self, verts, labels_sparse):
         # create labels from sparse representation
         labels = torch.zeros((self.num_landmarks, len(verts)))
         for j in range(len(labels_sparse)):

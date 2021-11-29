@@ -17,14 +17,15 @@ from headspace_ldmks_dataset import HeadspaceLdmksDataset
 # Parse a few args
 parser = argparse.ArgumentParser()
 parser.add_argument("--evaluate", action="store_true", help="evaluate using the pretrained model")
-parser.add_argument("--input_features", type=str, help="what features to use as input ('xyz' or 'hks') default: hks", default = 'hks')
-parser.add_argument("--data_format", type=str, help="what format does the data have ('pcl' or 'mesh') default: pcl", default = 'pcl')
-parser.add_argument("--data_dir", type=str, help="directory name of dataset", default = 'pcl')
+parser.add_argument("--input_features", type=str, help="what features to use as input ('xyz' or 'hks') default: hks",
+                    default='hks')
+parser.add_argument("--data_format", type=str, help="what format does the data have ('pcl' or 'mesh') default: pcl",
+                    default='pcl')
+parser.add_argument("--data_dir", type=str, help="directory name of dataset", default='pcl')
 args = parser.parse_args()
 
 
 # system things
-#device = torch.device('cuda:0') if
 if torch.cuda.is_available():
     device = torch.device('cuda')
 else:
@@ -36,7 +37,7 @@ n_class = 10
 data_format = args.data_format
 
 # model
-input_features = args.input_features # one of ['xyz', 'hks']
+input_features = args.input_features  # one of ['xyz', 'hks']
 k_eig = 128
 
 # training settings
@@ -47,8 +48,7 @@ decay_every = 50
 decay_rate = 0.5
 n_block = 4
 c_width = 256
-#augment_random_rotate = (input_features == 'xyz')
-
+# augment_random_rotate = (input_features == 'xyz')
 
 
 # Important paths
@@ -56,11 +56,11 @@ base_path = os.path.dirname(__file__)
 dataset_path = os.path.join(base_path, args.data_dir)
 op_cache_dir = os.path.join(dataset_path, "op_cache")
 pretrain_path = os.path.join(dataset_path, "pretrained_models/headspace_ldmks_{}_{}x{}.pth".format(input_features,
-                                                                            n_block, c_width))
+                                                                                                   n_block, c_width))
 last_model_path = os.path.join(dataset_path, "saved_models/headspace_ldmks_last_{}_{}x{}.pth".format(input_features,
-                                                                            n_block, c_width))
+                                                                                                     n_block, c_width))
 best_model_path = os.path.join(dataset_path, "saved_models/headspace_ldmks_best_{}_{}x{}.pth".format(input_features,
-                                                                            n_block, c_width))
+                                                                                                     n_block, c_width))
 
 # === Load datasets
 
@@ -78,13 +78,13 @@ if train:
 
 # === Create the model
 
-C_in={'xyz':3, 'hks':16}[input_features] # dimension of input features
+C_in = {'xyz': 3, 'hks': 16}[input_features]  # dimension of input features
 
 model = diffusion_net.layers.DiffusionNet(C_in=C_in,
                                           C_out=n_class,
                                           C_width=c_width,
                                           N_block=n_block,
-                                          #last_activation=lambda x : torch.mean(x,dim=1),
+                                          # last_activation=lambda x : torch.mean(x,dim=1),
                                           outputs_at='vertices',
                                           dropout=True)
 
@@ -102,6 +102,7 @@ if not train:
 
 # === Optimize
 optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+
 
 def weighted_mse_loss(input, target, weight):
     """
@@ -128,6 +129,7 @@ def point_weights(labels):
     weights[weights == 0] = 1
     return weights
 
+
 def train_epoch(epoch):
 
     # Implement lr decay
@@ -135,15 +137,12 @@ def train_epoch(epoch):
         global lr 
         lr *= decay_rate
         for param_group in optimizer.param_groups:
-            param_group['lr'] = lr 
-
+            param_group['lr'] = lr
 
     # Set model to 'train' mode
     model.train()
     optimizer.zero_grad()
-    
-    correct = 0
-    total_num = 0
+
     loss_sum = 0
     for data in tqdm(train_loader):
 
@@ -160,11 +159,11 @@ def train_epoch(epoch):
         evecs = evecs.to(device)
         gradX = gradX.to(device)
         gradY = gradY.to(device)
-        #labels = labels.to(device)
-        labels = [x.to(device) for x in labels]
+        # labels = labels.to(device)
+        # labels = [x.to(device) for x in labels]
         
         # Randomly rotate positions
-        #if augment_random_rotate:
+        # if augment_random_rotate:
         #    verts = diffusion_net.utils.random_rotate_points(verts)
 
         # Construct features
@@ -176,8 +175,8 @@ def train_epoch(epoch):
         # Apply the model
         preds = model(features, mass, L=L, evals=evals, evecs=evecs, gradX=gradX, gradY=gradY, faces=faces)
 
-        #preds = preds.float()
-        predstp = torch.transpose(preds,0,1)
+        # preds = preds.float()
+        predstp = torch.transpose(preds, 0, 1)
         predstp = predstp.flatten()
         labels = torch.cat([x for x in labels])
 
@@ -240,6 +239,7 @@ def test():
 
     return loss_sum/len(test_dataset)
 
+
 if train:
     print("Training...")
 
@@ -248,7 +248,7 @@ if train:
         train_acc = train_epoch(epoch)
         test_acc = test()
         print("Epoch {} - Train overall: {}  Test overall: {}".format(epoch, train_acc, test_acc))
-        #if epoch % 10 == 0:
+        # if epoch % 10 == 0:
         if test_acc < best_acc:
             best_acc = test_acc
             print(" ==> saving model to " + best_model_path)
@@ -263,5 +263,3 @@ if train:
 # Test
 test_acc = test()
 print("Overall test accuracy: {}".format(test_acc))
-
-

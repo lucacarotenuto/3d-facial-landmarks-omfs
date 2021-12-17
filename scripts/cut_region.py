@@ -11,12 +11,12 @@ from utils import eucl_dist
 from tqdm import tqdm
 
 def main():
-    TRAIN_DIR = '/Users/carotenuto/Master Radboud/MscProj/subjects_1-150_train'
-    LOWRES_DIR = '/Users/carotenuto/Master Radboud/MscProj/headspace_pcl_all'
-    SAVE_DIR = '/Users/carotenuto/Master Radboud/MscProj/refined_sets/refined_all_train'
-    LANDMARK_INDICES = [8, 27, 30, 33, 36, 39, 45, 42, 60, 64]
+    TRAIN_DIR = 'D:\\Master_proj\\subjects'
+    LOWRES_DIR = 'C:\\Users\\Luca\\Documents\\headspace_pcl141_30k'
+    SAVE_DIR = 'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\refine_ldmks\\refined_141_manual_3\\train'
+    LANDMARK_INDICES = [8, 27, 30, 31, 33, 35, 36, 39, 42, 45, 60, 64]
     # LANDMARK_INDICES = [33] # subnasal
-    LDMKS = np.load('/Users/carotenuto/Master Radboud/MscProj/headspace_pcl_all/ldmks.pkl',
+    LDMKS = np.load('C:\\Users\\Luca\\Documents\\headspace_pcl141_30k\\ldmks.pkl',
                     allow_pickle=True)  # shape (samples, landmarks + 1, 3)
     LANDMARK_INDICES = [x + 1 for x in LANDMARK_INDICES]
     LDMKS = LDMKS[:, np.concatenate(([0], LANDMARK_INDICES)), :]  # +1 because first row reserved for folder_num
@@ -27,8 +27,8 @@ def main():
 
         # REMOVE SELECTION LATER
         # if folder_num_int > 100 or (folder_num_int >= 9 and folder_num_int <= 38):
-        if folder_num_int > 3:
-            continue
+        # if folder_num_int > 3:
+        #     continue
 
         # targets = np.load(os.path.join(LOWRES_DIR, folder_num, 'hmap_per_class.pkl'), allow_pickle=True)
 
@@ -73,10 +73,10 @@ def main():
             #     pcl_hres_region = pcl_hres[(pcl_hres[:, 0] > xmin - d) & (pcl_hres[:, 0] < xmax + d) & \
             #                                 (pcl_hres[:, 1] > ymin - d) & (pcl_hres[:, 1] < ymax + d) & \
             #                                 (pcl_hres[:, 2] > zmin - d) & (pcl_hres[:, 2] < zmax + d)]
-            for o in range(2):
+            for o in range(1):
                 pcl_hres_region = []
                 # coords_max = verts[int(target[target[:,1] == 1.0][0][0])]
-                translate = -3 + (random.random() * (3 - (-3)))  # create random number and scale to range from -5 to 5
+                translate = -3 + (random.random() * (3 - (-3)))  # create random number and scale to range from -3 to 3
                 for k, coords in enumerate(pcl_hres):
                     ldmk_coords = [ldmks_per_file[m, 0] + translate, ldmks_per_file[m, 1] + translate,
                                    ldmks_per_file[m, 2] + translate]  # translate each coordinate
@@ -110,14 +110,17 @@ def main():
                 # go through each point and create activation depending on proximity to landmark point (heatmap)
                 ldmk_point = point_list[m]
                 output = np.array([])
+                min_dist = 9999
                 for n, point in enumerate(pcl_hres_region):
                     dist = eucl_dist(pcl_hres_region[n][0], pcl_hres_region[n][1], pcl_hres_region[n][2],
                                      ldmks_per_file[m, 0], ldmks_per_file[m, 1], ldmks_per_file[m, 2])
 
+                    # keep track of minimum distance to set activation of 1 later
+                    if dist < min_dist:
+                        min_dist, min_dist_pt = dist, n
+
                     # calculate activation
-                    if dist < 0.01:
-                        activation = 1
-                    elif dist <= 1.5:
+                    if  dist <= 1.5:
                         activation = 0.75
                     elif dist <= 3.0:
                         activation = 0.5
@@ -131,6 +134,13 @@ def main():
                         output = np.array([[n, activation]])
                     else:
                         output = np.append(output, np.array([[n, activation]]), axis=0)
+
+                # set activation of vertex with minimum distance to 1
+                output[output[:,0] == min_dist_pt] = [min_dist_pt, 1]
+
+                # ensure there is one point with activation 1, increasing num of points with decreasing activation
+                # to have similarity to gaussian heatmap
+                print(np.unique(output[:,1], return_counts=True))
 
                 with open(os.path.join(SAVE_DIR, folder_num + '_' + str(o), str(m), 'hmap_per_class.pkl'), 'wb') as f:
                     pickle.dump(output, f)

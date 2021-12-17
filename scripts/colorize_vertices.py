@@ -12,26 +12,30 @@ from tqdm import tqdm
 import potpourri3d as pp3d
 
 # Directory should contain 'test' folder and 'preds' folder (if visualizing predictions)
-rootdir = '/Users/carotenuto/Documents/GitHub/3d-facial-landmarks-omfs/diffusion-net/experiments/refine_ldmks/refined_subnasal6/'
+#rootdir = 'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\refine_ldmks\\refined_141_manual_inference\\'
+#rootdir = 'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\headspace_ldmks\\rough_preds\\'
+rootdir = 'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\refine_ldmks\\refined_141_manual_2\\'
 
 # Set true if single point colorization or False if heatmap colorization
-POINT_PREDS = False
+POINT_PREDS = True
 # Set true if pointcloud or false if mesh
 IS_PCL = True
 # Set true if you are visualizing ground truth or false if visualizing predictions
-IS_GT = False
+IS_GT = True
 # Set true if segmentation predictions
 IS_SEG = False
 # Set true if refinement predictions
 IS_REFINED = True
+# Test if True, Train if False
+IS_TEST = True
 
-#LANDMARK_INDICES = [8, 27, 30, 33, 36, 39, 45, 42, 60, 64]  # e.g. nosetip 31 has index 30
-LANDMARK_INDICES = [33]  # e.g. nosetip 31 has index 30
+LANDMARK_INDICES = [8, 27, 30, 31, 33, 35, 36, 39, 42, 45, 60, 64]  # e.g. nosetip 31 has index 30
+#LANDMARK_INDICES = [30]  # e.g. nosetip 31 has index 30
 
 if not IS_REFINED:
-    searchpath = 'test/*/13*.txt' if IS_PCL else 'test/*/13*.obj'
+    searchpath = 'test\\*\\13*.txt' if IS_PCL else 'test/*/13*.obj'
 else:
-    searchpath = 'test/*/*/13*.txt'
+    searchpath = ('test' if IS_TEST else 'train') + '\\*\\*\\13*.txt'
 for filepath in glob.iglob(rootdir + searchpath):
     if IS_PCL:
         # process pointcloud file
@@ -47,6 +51,9 @@ for filepath in glob.iglob(rootdir + searchpath):
     else:
         folder_num = Path(filepath).parts[-3]
         folder_num_ldmk = Path(filepath).parts[-2]
+
+    #if int(folder_num_ldmk) < 7:
+    #    continue
 
     # open pred pkl
     if IS_GT:
@@ -68,7 +75,7 @@ for filepath in glob.iglob(rootdir + searchpath):
                     labels_sparse[j, int(pos)] = act
             preds = labels_sparse
         else:
-            with open(os.path.join(rootdir, 'test', str(folder_num), folder_num_ldmk, 'hmap_per_class.pkl'), 'rb') as f:
+            with open(os.path.join(rootdir, 'test' if IS_TEST else 'train', str(folder_num), folder_num_ldmk, 'hmap_per_class.pkl'), 'rb') as f:
                 labels = pickle.load(f)
                 # only keep selected landmarks
                 #labels = [item for pos, item in enumerate(labels) if pos in LANDMARK_INDICES]
@@ -81,8 +88,9 @@ for filepath in glob.iglob(rootdir + searchpath):
                 preds = labels_sparse
     else:
         # open predictions
-        with open(rootdir + 'preds/pred' + str(folder_num) + ('_{}'.format(folder_num_ldmk)\
-                                                        if IS_REFINED else '') + '.pkl', 'rb') as f:
+        #with open(rootdir + 'preds\\hmap_per_class' + str(folder_num) + ('_{}'.format(folder_num_ldmk)\
+        #                                                if IS_REFINED else '') + '.pkl', 'rb') as f:
+        with open(os.path.join(rootdir, 'preds', 'hmap_per_class' + str(folder_num) + ('_{}'.format(folder_num_ldmk) if IS_REFINED else '') + '.pkl'), 'rb') as f:
             preds = pickle.load(f)
         # only keep selected landmarks
         #preds = [item for pos, item in enumerate(preds) if pos in LANDMARK_INDICES]
@@ -118,13 +126,15 @@ for filepath in glob.iglob(rootdir + searchpath):
     # create new xyzrgb with intensity and alternate between rgb channel
     if POINT_PREDS:
         if IS_GT:
-            f = open(rootdir + 'gt_vis/gt_pt_' + str(folder_num) + '.txt', 'w+')
+            f = open(rootdir + 'gt_vis/gt_pt_' + str(folder_num) +  ('_{}'.format(folder_num_ldmk
+                                                                     if IS_REFINED else '')) +'.txt', 'w+')
         else:
             f = open(rootdir + 'preds/vis/pred_pt_' + str(folder_num) + ('_{}'.format(folder_num_ldmk
                                                               if IS_REFINED else '')) + '.txt', 'w+')
     else:
         if IS_GT:
-            f = open(rootdir + 'gt_vis/gt_' + str(folder_num) + '.txt', 'w+')
+            f = open(rootdir + 'gt_vis/gt_' + str(folder_num) + ('_{}.'.format(folder_num_ldmk
+                                                                 if IS_REFINED else '')) + '.txt', 'w+')
         else:
             f = open(rootdir + 'preds/vis/pred_' + str(folder_num) + ('_{}'.format(folder_num_ldmk
                                                               if IS_REFINED else '')) + '.txt', 'w+')

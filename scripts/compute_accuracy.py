@@ -10,12 +10,13 @@ from utils import eucl_dist
 
 
 def main():
-    ROOTDIR = '/Users/carotenuto/Master Radboud/MscProj/preds_pcl_all_c256_l10'
-    LANDMARK_INDICES = [8, 27, 30, 33, 36, 39, 42, 45, 60, 64]  # e.g. nosetip 31 has index 30
-    IS_REFINED = False # are predictions refined?
-    LDMKS = np.load('/Users/carotenuto/Master Radboud/MscProj/headspace_pcl_all/ldmks.pkl',
+    ROOTDIR = 'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\refine_ldmks\\refined_141_manual_2'
+    LANDMARK_INDICES = [8, 27, 30, 31, 33, 35, 36, 39, 42, 45, 60, 64]  # e.g. nosetip 31 has index 30
+    IS_REFINED = True # are predictions refined?
+    #LDMKS = np.load('C:\\Users\\Luca\\Documents\\headspace_pcl_all\\ldmks.pkl',
+    #                allow_pickle=True)  # shape (samples, landmarks + 1, 3)
+    LDMKS = np.load('C:\\Users\\Luca\\Documents\\headspace_pcl141_30k\\ldmks.pkl',
                     allow_pickle=True)  # shape (samples, landmarks + 1, 3)
-
     # determine total prediction number and num landmarks
     total_preds = 0
     for path in glob.iglob(os.path.join(ROOTDIR, 'preds', 'hmap_per_class*.pkl')):
@@ -26,14 +27,14 @@ def main():
     if not IS_REFINED:
         num_ldmks = pred.shape[1]
     else:
-        num_ldmks = 4
+        num_ldmks = 12
     #num_ldmks = 10 # define landmarks manually if predictions include more landmarks
 
     if not IS_REFINED:
         # error matrix (ldmks, preds)
         error_matrix = np.zeros((num_ldmks, total_preds))
     else:
-        error_matrix = np.zeros((num_ldmks, 24))
+        error_matrix = np.zeros((num_ldmks, int(int(total_preds)/num_ldmks)))
 
     arr_folder_nums = []
     # for each prediction
@@ -46,16 +47,22 @@ def main():
 
         if IS_REFINED:
             # get the num part e.g. '00004'
-            folder_num = os.path.basename(path).split('_')[0][4:]
-            folder_num_ldmk = os.path.basename(path).split('_')[1].split('.')[0]
+            folder_num = os.path.basename(path).split('hmap_per_class')[1][:5]
+            folder_num_ldmk = os.path.basename(path).split('hmap_per_class')[1].split('.')[0].split('_')[-1]
         else:
-            folder_num = os.path.basename(path)[-9:-4]
+            folder_num = os.path.basename(path)[-11:-6]
         if folder_num not in arr_folder_nums:
             arr_folder_nums.append(folder_num)
 
 
         # load target
         if IS_REFINED:
+            # choose target by proximation of closest point
+            #path = os.path.join('test', folder_num + '_0', folder_num_ldmk, 'hmap_per_class.pkl')
+            #with open(os.path.join(ROOTDIR, path), 'rb') as f:
+            #    target = pickle.load(f)
+
+            # take actual landmark coordinate target
             # identify landmark coordinates for file
             for i in range(LDMKS.shape[0]):
                 if int(LDMKS[i, 0, 0]) == int(folder_num):
@@ -64,9 +71,12 @@ def main():
             ldmks_per_file = LDMKS[ldmks_idx, 1:, :]  # shape (landmarks, 3)
             target = ldmks_per_file
         else:
+            # choose target by proximation of closest point
             #path = os.path.join('test',folder_num, 'hmap_per_class.pkl')
             #with open(os.path.join(ROOTDIR, path), 'rb') as f:
             #    target = pickle.load(f)
+
+            # take actual landmark coordinate target
             for i in range(LDMKS.shape[0]):
                 if int(LDMKS[i, 0, 0]) == int(folder_num):
                     ldmks_idx = i
@@ -82,10 +92,10 @@ def main():
         pred_pt[np.arange(len(pred)), pred.argmax(1)] = 1
 
         # get vertex xyz coordinate
-        for file in os.listdir(os.path.join(ROOTDIR, 'test', folder_num, folder_num_ldmk if IS_REFINED else '')):
+        for file in os.listdir(os.path.join(ROOTDIR, 'test', folder_num + '_0', folder_num_ldmk if IS_REFINED else '')):
             # .txt extension for pcl
             if file.endswith('.txt'):
-                verts_filepath = os.path.join(ROOTDIR, 'test', folder_num, folder_num_ldmk if IS_REFINED else '', file)
+                verts_filepath = os.path.join(ROOTDIR, 'test', folder_num + '_0', folder_num_ldmk if IS_REFINED else '', file)
 
                 # todo make helper function to load .txt into pcl array
                 lines = open(verts_filepath, 'r').read().split('\n')[:-1]
@@ -122,7 +132,7 @@ def main():
             if not IS_REFINED:
                 error_matrix[i, pred_idx] = dist
             else:
-                error_matrix[int(folder_num_ldmk)-1,arr_folder_nums.index(folder_num)] = dist
+                error_matrix[int(folder_num_ldmk),arr_folder_nums.index(folder_num)] = dist
     meanax0 = error_matrix.mean(axis=0)
     meanax1 = error_matrix.mean(axis=1)
     print(error_matrix.mean())

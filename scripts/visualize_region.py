@@ -30,13 +30,13 @@ def in_hull(p, hull):
 
 def main():
     # Directory should contain 'test' folder and 'preds' folder
-    PREDS_DIR = '/Users/carotenuto/Master Radboud/MscProj/preds_pcl_all_c256_l10/'
+    PREDS_DIR = 'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\headspace_ldmks\\rough_preds'
 
     # High res .obj directory
-    HRES_DIR = '/Users/carotenuto/Master Radboud/MscProj/pcl_testset_fullres'
+    HRES_DIR = 'C:\\Users\\Luca\\Documents\\pcl_testset_fullres_manual'
 
     # Save dir
-    SAVE_DIR = '/Users/carotenuto/Master Radboud/MscProj/refined_sets/refined_all_test'
+    SAVE_DIR = 'C:\\Users\\Luca\\Documents\\refined_all_test_manual'
 
     VISUALIZE = False
 
@@ -69,7 +69,7 @@ def main():
         # go through each landmark (each channel)
         #  create a region for each landmark
         # for i in range(preds.shape[1]):
-        for i in range(10):
+        for i in range(12):
             print('landmark {}'.format(i))
             # only take vertices where prediction in that landmark channel is bigger than value
             verts_refined_mask = (preds_sparse[:, 1] == i) & (preds_sparse[:, 0] > 0.1)

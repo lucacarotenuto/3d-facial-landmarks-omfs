@@ -1,3 +1,4 @@
+print('test')
 import os
 import sys
 import argparse
@@ -8,7 +9,7 @@ import numpy as np
 import pickle
 import shutil
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../../src/"))  # add the path to the DiffusionNet src
+sys.path.append(os.path.join(os.path.dirname(__file__), "..\\..\\src\\"))  # add the path to the DiffusionNet src
 import diffusion_net
 from refine_ldmks_dataset import HeadspaceLdmksDataset
 
@@ -139,12 +140,12 @@ def test():
             diffusion_net.utils.ensure_dir_exists(os.path.join(dataset_path, 'preds' + ('_validation' if train
                                                                                                    else '')))
             f = open(os.path.join(dataset_path, 'preds' + ('_validation' if train else ''),
-                     'pred{}_{}.pkl'.format(folder_num, folder_num_ldmk)), 'wb+')
+                     'hmap_per_class{}_{}.pkl'.format(folder_num, folder_num_ldmk)), 'wb+')
             pickle.dump(np.asarray(preds.cpu()), f)
             f.close()
 
             if not test_without_score:
-                labels = torch.FloatTensor(labels)
+                #labels = torch.FloatTensor(labels)
                 weights = point_weights(labels)
                 loss_sum += weighted_mse_loss(predstp, labels, weights)
 
@@ -167,7 +168,6 @@ args = parser.parse_args()
 
 
 # system things
-#device = torch.device('cuda:0') if
 if torch.cuda.is_available():
     device = torch.device('cuda')
 else:
@@ -186,7 +186,7 @@ k_eig = 128
 train = not args.evaluate
 test_without_score = args.test_without_score
 validate = args.validate
-n_epoch = 2
+n_epoch = 200
 lr = 1e-3
 decay_every = 50
 decay_rate = 0.5
@@ -195,15 +195,15 @@ c_width = 256
 #augment_random_rotate = (input_features == 'xyz')
 
 
-for ldmk_iter in [0, 4, 5, 6, 7, 8, 9]:
+for ldmk_iter in range(7):
 
     # Important paths
     base_path = os.path.dirname(__file__)
     dataset_path = os.path.join(base_path, args.data_dir)
     op_cache_dir = os.path.join(dataset_path, "op_cache")
-    last_model_path = os.path.join(dataset_path, "saved_models/headspace_ldmks_last_{}_{}x{}_ldmk{}.pth".format(input_features,
+    last_model_path = os.path.join(dataset_path, "saved_models\\headspace_ldmks_last_{}_{}x{}_ldmk{}.pth".format(input_features,
                                                                                 n_block, c_width, ldmk_iter))
-    best_model_path = os.path.join(dataset_path, "saved_models/headspace_ldmks_best_{}_{}x{}_ldmk{}.pth".format(input_features,
+    best_model_path = os.path.join(dataset_path, "saved_models\\headspace_ldmks_best_{}_{}x{}_ldmk{}.pth".format(input_features,
                                                                                 n_block, c_width, ldmk_iter))
     pretrain_path = best_model_path
 

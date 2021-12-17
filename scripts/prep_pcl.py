@@ -7,19 +7,20 @@ import os
 from tqdm import tqdm
 
 #rootdir = '/Users/carotenuto/Master Radboud/MscProj/subjects_1-150 copy/'
-rootdir = '/Users/carotenuto/Master Radboud/MscProj/pcl_testset_fullres/'
-new_folder = '/Users/carotenuto/Master Radboud/MscProj/headspace_pcl_testset_fullres/'
+rootdir = '/Users/carotenuto/Master Radboud/MscProj/manual_labels/headspace141-180_ownlabels/'
+new_folder = '/Users/carotenuto/Master Radboud/MscProj/headspace_pcl141-180_30k/'
 j= 0
 ms = pymeshlab.MeshSet()
-for filepath in tqdm(glob.iglob(rootdir + '*/*.obj')):
+for filepath in tqdm(glob.iglob(os.path.join(rootdir, '*/*.obj'))):
     for File in os.listdir(os.path.dirname(filepath)):
-        if all([File.endswith(".txt") and File.startswith("ldmks")]):
+        # if all([File.endswith(".txt") and File.startswith("ldmks")]):
+        if all([File.endswith(".csv") and File.startswith("ldmks")]):
             j += 1
             print("loading " + filepath)
             print(str(j))
             ms.load_new_mesh(filepath)
             ms.texel_sampling(recovercolor=True)
-            #ms.point_cloud_simplification(samplenum=30000)
+            ms.point_cloud_simplification(samplenum=30000)
             #ms.save_current_mesh(filepath[:-4] + '_simplfd.obj', save_textures=False)
             print("saving " + filepath)
             ms.save_current_mesh(filepath[:-4] + '.xyz', save_textures=True)

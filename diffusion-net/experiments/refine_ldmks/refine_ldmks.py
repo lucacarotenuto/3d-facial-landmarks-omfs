@@ -139,7 +139,7 @@ def test():
             diffusion_net.utils.ensure_dir_exists(os.path.join(dataset_path, 'preds' + ('_validation' if train
                                                                                                    else '')))
             f = open(os.path.join(dataset_path, 'preds' + ('_validation' if train else ''),
-                     'pred{}_{}.pkl'.format(folder_num, folder_num_ldmk)), 'wb+')
+                     'hmap_per_class{}_{}.pkl'.format(folder_num, folder_num_ldmk)), 'wb+')
             pickle.dump(np.asarray(preds.cpu()), f)
             f.close()
 

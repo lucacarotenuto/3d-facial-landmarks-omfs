@@ -30,13 +30,13 @@ def in_hull(p, hull):
 
 def main():
     # Directory should contain 'test' folder and 'preds' folder
-    PREDS_DIR = 'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\headspace_ldmks\\rough_preds'
+    PREDS_DIR = 'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\headspace_ldmks\\pcl_196_30k'
 
     # High res .obj directory
-    HRES_DIR = 'C:\\Users\\Luca\\Documents\\pcl_testset_fullres_manual'
+    HRES_DIR = 'D:\\Master_proj\\subjects_196_labelled'
 
     # Save dir
-    SAVE_DIR = 'C:\\Users\\Luca\\Documents\\refined_all_test_manual'
+    SAVE_DIR = 'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\refine_ldmks\\refined_196_manual_inference'
 
     VISUALIZE = False
 

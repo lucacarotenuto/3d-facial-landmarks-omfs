@@ -51,6 +51,9 @@ class HeadspaceLdmksDataset(Dataset):
                 verts, faces = pp3d.read_mesh(mesh_files[iFile])
             else:  # 'pcl'
                 verts = np.loadtxt(mesh_files[iFile], delimiter=',')
+
+
+
                 faces = np.array([])
             folder_num = Path(mesh_files[iFile]).parts[-3]
             folder_num_lmkd = Path(mesh_files[iFile]).parts[-2]
@@ -100,7 +103,18 @@ class HeadspaceLdmksDataset(Dataset):
             # labels_sparse = [item for pos, item in enumerate(labels_sparse) if pos in landmark_indices]
             labels = self.labels_from_sparse(verts, labels_sparse)
 
+
+
+        exr = labels[36]  # vec origin
+        exl = labels[45]  # vec target
+
+        R = self.rotation_matrix_from_vectors(np.array([exl[0] - exr[0], exl[1] - exr[1], exl[2] - exr[2]]),
+                                         np.array([1, 0, 0]))
+
+        d = np.dot(verts, R.T)
+
         return verts, faces, frames, massvec, L, evals, evecs, gradX, gradY, labels, folder_num, folder_num_ldmk
+
 
     def labels_from_sparse(self, verts, labels_sparse):
         # create labels from sparse representation
@@ -110,3 +124,17 @@ class HeadspaceLdmksDataset(Dataset):
             act = labels_sparse[k, 1]
             labels[int(pos)] = act
         return labels
+
+
+    def rotation_matrix_from_vectors(self, vec1, vec2):
+        """ Find the rotation matrix that aligns vec1 to vec2
+        :param vec1: A 3d "source" vector
+        :param vec2: A 3d "destination" vector
+        :return mat: A transform matrix (3x3) which when applied to vec1, aligns it with vec2.
+        """
+        a, b = (vec1 / np.linalg.norm(vec1)).reshape(3), (vec2 / np.linalg.norm(vec2)).reshape(3)
+        v = np.cross(a, b)
+        c = np.dot(a, b)
+        s = np.linalg.norm(v)
+        kmat = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
+        rotation_matrix = np.eye(3) + kmat + kmat.dot(kmat) * ((1 - c) / (s ** 2))

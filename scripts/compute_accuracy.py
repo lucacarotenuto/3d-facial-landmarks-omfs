@@ -10,12 +10,12 @@ from utils import eucl_dist
 
 
 def main():
-    ROOTDIR = 'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\refine_ldmks\\refined_141_manual_2'
+    ROOTDIR = 'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\refine_ldmks\\refined_196_manual_mult'
     LANDMARK_INDICES = [8, 27, 30, 31, 33, 35, 36, 39, 42, 45, 60, 64]  # e.g. nosetip 31 has index 30
     IS_REFINED = True # are predictions refined?
     #LDMKS = np.load('C:\\Users\\Luca\\Documents\\headspace_pcl_all\\ldmks.pkl',
     #                allow_pickle=True)  # shape (samples, landmarks + 1, 3)
-    LDMKS = np.load('C:\\Users\\Luca\\Documents\\headspace_pcl141_30k\\ldmks.pkl',
+    LDMKS = np.load('D:\\Master_proj\\subjects_196_pcl\\ldmks.pkl',
                     allow_pickle=True)  # shape (samples, landmarks + 1, 3)
     # determine total prediction number and num landmarks
     total_preds = 0
@@ -50,7 +50,7 @@ def main():
             folder_num = os.path.basename(path).split('hmap_per_class')[1][:5]
             folder_num_ldmk = os.path.basename(path).split('hmap_per_class')[1].split('.')[0].split('_')[-1]
         else:
-            folder_num = os.path.basename(path)[-11:-6]
+            folder_num = os.path.basename(path).split('.')[0][-5:]
         if folder_num not in arr_folder_nums:
             arr_folder_nums.append(folder_num)
 
@@ -92,10 +92,10 @@ def main():
         pred_pt[np.arange(len(pred)), pred.argmax(1)] = 1
 
         # get vertex xyz coordinate
-        for file in os.listdir(os.path.join(ROOTDIR, 'test', folder_num + '_0', folder_num_ldmk if IS_REFINED else '')):
+        for file in os.listdir(os.path.join(ROOTDIR, 'test', folder_num + '', folder_num_ldmk if IS_REFINED else '')):
             # .txt extension for pcl
             if file.endswith('.txt'):
-                verts_filepath = os.path.join(ROOTDIR, 'test', folder_num + '_0', folder_num_ldmk if IS_REFINED else '', file)
+                verts_filepath = os.path.join(ROOTDIR, 'test', folder_num + '', folder_num_ldmk if IS_REFINED else '', file)
 
                 # todo make helper function to load .txt into pcl array
                 lines = open(verts_filepath, 'r').read().split('\n')[:-1]

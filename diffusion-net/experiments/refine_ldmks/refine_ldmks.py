@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 import numpy as np
 import pickle
+import gc
 import shutil
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..\\..\\src\\"))  # add the path to the DiffusionNet src
@@ -186,7 +187,7 @@ k_eig = 128
 train = not args.evaluate
 test_without_score = args.test_without_score
 validate = args.validate
-n_epoch = 200
+n_epoch = 75
 lr = 1e-3
 decay_every = 50
 decay_rate = 0.5
@@ -195,7 +196,8 @@ c_width = 256
 #augment_random_rotate = (input_features == 'xyz')
 
 
-for ldmk_iter in range(7):
+#for ldmk_iter in [11]:
+for ldmk_iter in range(12):
 
     # Important paths
     base_path = os.path.dirname(__file__)
@@ -250,6 +252,9 @@ for ldmk_iter in range(7):
     # === Optimize
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
+    for param in model.parameters():
+        print(param.requires_grad)
+
 
 
     if train:
@@ -279,6 +284,11 @@ for ldmk_iter in range(7):
     # remove cache and op_cache
     shutil.rmtree(os.path.join(dataset_path, 'cache'))
     shutil.rmtree(os.path.join(dataset_path, 'op_cache'))
+
+    del model
+    torch.cuda.empty_cache()
+
+    gc.collect()
 
 
 

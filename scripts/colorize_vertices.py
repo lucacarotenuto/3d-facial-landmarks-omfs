@@ -14,14 +14,14 @@ import potpourri3d as pp3d
 # Directory should contain 'test' folder and 'preds' folder (if visualizing predictions)
 #rootdir = 'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\refine_ldmks\\refined_141_manual_inference\\'
 #rootdir = 'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\headspace_ldmks\\rough_preds\\'
-rootdir = 'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\refine_ldmks\\refined_141_manual_2\\'
+rootdir = 'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\refine_ldmks\\refined_196_manual_inference\\'
 
 # Set true if single point colorization or False if heatmap colorization
 POINT_PREDS = True
 # Set true if pointcloud or false if mesh
 IS_PCL = True
 # Set true if you are visualizing ground truth or false if visualizing predictions
-IS_GT = True
+IS_GT = False
 # Set true if segmentation predictions
 IS_SEG = False
 # Set true if refinement predictions
@@ -33,7 +33,7 @@ LANDMARK_INDICES = [8, 27, 30, 31, 33, 35, 36, 39, 42, 45, 60, 64]  # e.g. noset
 #LANDMARK_INDICES = [30]  # e.g. nosetip 31 has index 30
 
 if not IS_REFINED:
-    searchpath = 'test\\*\\13*.txt' if IS_PCL else 'test/*/13*.obj'
+    searchpath = 'validation\\*\\13*.txt' if IS_PCL else 'test/*/13*.obj'
 else:
     searchpath = ('test' if IS_TEST else 'train') + '\\*\\*\\13*.txt'
 for filepath in glob.iglob(rootdir + searchpath):

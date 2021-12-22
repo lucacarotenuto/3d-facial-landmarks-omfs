@@ -12,11 +12,11 @@ from tqdm import tqdm
 
 def main():
     TRAIN_DIR = 'D:\\Master_proj\\subjects'
-    LOWRES_DIR = 'C:\\Users\\Luca\\Documents\\headspace_pcl141_30k'
-    SAVE_DIR = 'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\refine_ldmks\\refined_141_manual_3\\train'
+    LOWRES_DIR = 'D:\\Master_proj\\subjects_196_pcl'
+    SAVE_DIR = 'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\refine_ldmks\\refined_196_manual_mult\\train'
     LANDMARK_INDICES = [8, 27, 30, 31, 33, 35, 36, 39, 42, 45, 60, 64]
     # LANDMARK_INDICES = [33] # subnasal
-    LDMKS = np.load('C:\\Users\\Luca\\Documents\\headspace_pcl141_30k\\ldmks.pkl',
+    LDMKS = np.load('D:\\Master_proj\\subjects_196_pcl\\ldmks.pkl',
                     allow_pickle=True)  # shape (samples, landmarks + 1, 3)
     LANDMARK_INDICES = [x + 1 for x in LANDMARK_INDICES]
     LDMKS = LDMKS[:, np.concatenate(([0], LANDMARK_INDICES)), :]  # +1 because first row reserved for folder_num
@@ -73,7 +73,7 @@ def main():
             #     pcl_hres_region = pcl_hres[(pcl_hres[:, 0] > xmin - d) & (pcl_hres[:, 0] < xmax + d) & \
             #                                 (pcl_hres[:, 1] > ymin - d) & (pcl_hres[:, 1] < ymax + d) & \
             #                                 (pcl_hres[:, 2] > zmin - d) & (pcl_hres[:, 2] < zmax + d)]
-            for o in range(1):
+            for o in range(3):
                 pcl_hres_region = []
                 # coords_max = verts[int(target[target[:,1] == 1.0][0][0])]
                 translate = -3 + (random.random() * (3 - (-3)))  # create random number and scale to range from -3 to 3

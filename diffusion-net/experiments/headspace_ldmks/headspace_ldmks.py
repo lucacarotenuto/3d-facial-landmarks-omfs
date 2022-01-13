@@ -24,6 +24,9 @@ parser.add_argument("--data_format", type=str, help="what format does the data h
 parser.add_argument("--data_dir", type=str, help="directory name of dataset", default='pcl')
 args = parser.parse_args()
 
+args.input_features = 'xyz'
+args.data_dir = 'headspace_pcl4'
+
 
 # system things
 if torch.cuda.is_available():
@@ -42,13 +45,14 @@ k_eig = 128
 
 # training settings
 train = not args.evaluate
-n_epoch = 2
+n_epoch = 1
 lr = 1e-3
 decay_every = 50
 decay_rate = 0.5
 n_block = 4
 c_width = 256
-# augment_random_rotate = (input_features == 'xyz')
+augment_random_rotate = (input_features == 'xyz') and False
+use_rgb = False
 
 
 # Important paths
@@ -78,7 +82,7 @@ if train:
 
 # === Create the model
 
-C_in = {'xyz': 3, 'hks': 16}[input_features]  # dimension of input features
+C_in = {'xyz': 6 if use_rgb else 3, 'hks': 16}[input_features]  # dimension of input features
 
 model = diffusion_net.layers.DiffusionNet(C_in=C_in,
                                           C_out=n_class,
@@ -147,11 +151,12 @@ def train_epoch(epoch):
     for data in tqdm(train_loader):
 
         # Get data
-        verts, faces, frames, mass, L, evals, evecs, gradX, gradY, labels, folder_num = data
+        verts, faces, rgb, frames, mass, L, evals, evecs, gradX, gradY, labels, folder_num = data
 
         # Move to device
         verts = verts.to(device)
         faces = faces.to(device)
+        rgb = rgb.to(device)
         frames = frames.to(device)
         mass = mass.to(device)
         L = L.to(device)
@@ -163,17 +168,17 @@ def train_epoch(epoch):
         # labels = [x.to(device) for x in labels]
         
         # Randomly rotate positions
-        # if augment_random_rotate:
-        #    verts = diffusion_net.utils.random_rotate_points(verts)
+        if augment_random_rotate:
+           verts = diffusion_net.utils.random_rotate_points_y(verts)
 
         # Construct features
         if input_features == 'xyz':
-            features = verts
+            features = torch.cat((verts.float(), rgb.float()), dim=1) if use_rgb else verts
         elif input_features == 'hks':
             features = diffusion_net.geometry.compute_hks_autoscale(evals, evecs, 16)
 
         # Apply the model
-        preds = model(features, mass, L=L, evals=evals, evecs=evecs, gradX=gradX, gradY=gradY, faces=faces)
+        preds = model(features.float(), mass, L=L, evals=evals, evecs=evecs, gradX=gradX, gradY=gradY, faces=faces)
 
         # preds = preds.float()
         predstp = torch.transpose(preds, 0, 1)
@@ -183,7 +188,7 @@ def train_epoch(epoch):
         weights = point_weights(labels)
 
         # Evaluate loss
-        loss = weighted_mse_loss(predstp, labels, weights)
+        loss = weighted_mse_loss(predstp.to(device), labels.to(device), weights.to(device))
         loss.backward()
 
         # Step the optimizer
@@ -203,11 +208,12 @@ def test():
         for data in tqdm(test_loader):
 
             # Get data
-            verts, faces, frames, mass, L, evals, evecs, gradX, gradY, labels, folder_num = data
+            verts, faces, rgb, frames, mass, L, evals, evecs, gradX, gradY, labels, folder_num = data
 
             # Move to device
             verts = verts.to(device)
             faces = faces.to(device)
+            rgb = rgb.to(device)
             frames = frames.to(device)
             mass = mass.to(device)
             L = L.to(device)
@@ -219,7 +225,7 @@ def test():
             
             # Construct features
             if input_features == 'xyz':
-                features = verts
+                features = torch.cat((verts, rgb.float()), dim=1) if use_rgb else verts
             elif input_features == 'hks':
                 features = diffusion_net.geometry.compute_hks_autoscale(evals, evecs, 16)
 
@@ -235,7 +241,7 @@ def test():
 
             labels = torch.cat([x for x in labels])
             weights = point_weights(labels)
-            loss_sum += weighted_mse_loss(predstp, labels, weights)
+            loss_sum += weighted_mse_loss(predstp.to(device), labels.to(device), weights.to(device))
 
     return loss_sum/len(test_dataset)
 

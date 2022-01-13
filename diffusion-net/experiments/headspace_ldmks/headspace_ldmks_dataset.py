@@ -24,6 +24,7 @@ class HeadspaceLdmksDataset(Dataset):
         self.op_cache_dir = op_cache_dir
         self.data_format = data_format
         self.num_landmarks = num_landmarks
+        self.augment_mirror = False
 
         # store in memory
         self.verts_list = []
@@ -48,6 +49,7 @@ class HeadspaceLdmksDataset(Dataset):
             else: # 'pcl'
                 # todo: remove pandas dependency
                 verts = pd.read_csv(mesh_files[iFile], sep=",", header=None)
+                rgb = verts.to_numpy()[:, 3:]
                 verts = verts.to_numpy()[:, :3]
                 faces = np.array([])
             folder_num = Path(mesh_files[iFile]).parts[-2]
@@ -61,33 +63,44 @@ class HeadspaceLdmksDataset(Dataset):
 
             self.folder_num_list.append(folder_num)
 
+            # create sparse labels
+            landmark_indices = {8,27,30,33,36,39,45,42,60,64} # indices start with 1
+
+            with open(os.path.join(self.root_dir, 'train' if self.train else 'test', folder_num,
+                                'hmap_per_class.pkl'), 'rb') as fpath:
+                labels_sparse = pickle.load(fpath)
+            labels_sparse = [item for pos, item in enumerate(labels_sparse) if pos in landmark_indices]
+            labels = self.labels_from_sparse(verts, labels_sparse)
+
             # if this file is not cached, populate
             if not os.path.isfile(os.path.join(self.cache_dir, '{}.pt'.format(folder_num))):
                 # Precompute operators
                 diffusion_net.utils.ensure_dir_exists(self.cache_dir)
                 frames, massvec, L, evals, evecs, gradX, gradY = diffusion_net.geometry.populate_cache(
                     verts, faces, k_eig=self.k_eig, op_cache_dir=self.op_cache_dir)
-                torch.save((verts, faces, frames, massvec, L,
+                torch.save((verts, faces, rgb, labels, frames, massvec, L,
                             evals, evecs, gradX, gradY), os.path.join(self.cache_dir, folder_num + ".pt"))
+            
+            if self.augment_mirror:
+                self.num_samples += 1
+
+                # create mirrored pcl and mirrored landmark heatmaps
+                verts = diffusion_net.geometry.mirror(verts, labels)
+
+
+                
 
     def __len__(self):
         return self.num_samples
 
+
     def __getitem__(self, idx):
         folder_num = self.folder_num_list[idx]
         path_cache = os.path.join(self.cache_dir, folder_num)
-        verts, faces, frames, massvec, L, evals, evecs, gradX, gradY = torch.load(path_cache + ".pt")
+        verts, faces, rgb, labels, frames, massvec, L, evals, evecs, gradX, gradY = torch.load(path_cache + ".pt")
 
-        # create sparse labels
-        landmark_indices = {8,27,30,33,36,39,45,42,60,64} # indices start with 1
+        return verts, faces, rgb, frames, massvec, L, evals, evecs, gradX, gradY, labels, folder_num
 
-        with open(os.path.join(self.root_dir, 'train' if self.train else 'test', folder_num,
-                               'hmap_per_class.pkl'), 'rb') as fpath:
-            labels_sparse = pickle.load(fpath)
-        labels_sparse = [item for pos, item in enumerate(labels_sparse) if pos in landmark_indices]
-        labels = self.labels_from_sparse(verts, labels_sparse)
-
-        return verts, faces, frames, massvec, L, evals, evecs, gradX, gradY, labels, folder_num
 
     def labels_from_sparse(self, verts, labels_sparse):
         # create labels from sparse representation

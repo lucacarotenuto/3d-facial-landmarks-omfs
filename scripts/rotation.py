@@ -19,11 +19,11 @@ def rotation_matrix_from_vectors(vec1, vec2):
 
 
 def main():
-    LDMKS = np.load('D:\\Master_proj\\subjects_196_pcl\\ldmks.pkl',
+    LDMKS = np.load('/Users/carotenuto/Downloads/ldmks_manual_196.pkl',
                     allow_pickle=True)  # shape (samples, landmarks + 1, 3)
 
     pcl = np.loadtxt(
-        'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\headspace_ldmks\\pcl_196_30k\\test\\00164\\130929164827.txt',
+        '/Users/carotenuto/Master Radboud/MscProj/manual_results/pcl_196_30k/test/00164/130929164827.txt',
         delimiter=',')
     pcl = pcl[:, :3]
 
@@ -44,6 +44,9 @@ def main():
     v = pptk.viewer(c, show_axis=False)
     v.set(point_size=0.5, show_axis=True, show_info=True)
     '''
+    #v = pptk.viewer(pcl, show_axis=False)
+    #v.set(point_size=0.5, show_axis=True, show_info=True)
+
     exr = ldmks_per_file[36]  # vec origin
     exl = ldmks_per_file[45]  # vec target
 
@@ -55,10 +58,12 @@ def main():
     v = pptk.viewer(d, show_axis=False)
     v.set(point_size=0.5, show_axis=True, show_info=True)
 
-    e = d
+    e = d.copy()
     e[:, 0] = -e[:, 0]
 
-    v = pptk.viewer(e, show_axis=False)
+    f = np.concatenate((e,d))
+
+    v = pptk.viewer(f, show_axis=False)
     v.set(point_size=0.5, show_axis=True, show_info=True)
 
     print('end')

@@ -83,6 +83,7 @@ def hash_arrays(arrs):
         running_hash.update(binarr)
     return running_hash.hexdigest()
 
+
 def random_rotation_matrix(randgen=None):
     """
     Creates a random rotation matrix.
@@ -120,6 +121,7 @@ def random_rotation_matrix(randgen=None):
 
     M = (np.outer(V, V) - np.eye(3)).dot(R)
     return M
+
 
 # Python string/file utilities
 def ensure_dir_exists(d):

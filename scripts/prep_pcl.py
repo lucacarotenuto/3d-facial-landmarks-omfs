@@ -9,15 +9,17 @@ from tqdm import tqdm
 
 def main():
     # Rootdir that contains the full resolution meshes, only meshes with manual labelled .csv files are prepared
-    ROOTDIR = '/Volumes/Extreme SSD/subjects_196_labelled copy'
+    ROOTDIR = 'F:\\subjects'
     # New folder where simplified point cloud should be saved
-    NEW_FOLDER = '/Volumes/Extreme SSD/pcl_196_rgb'
+    NEW_FOLDER = 'F:\\pcl_all_rgb'
     j= 0
     ms = pymeshlab.MeshSet()
     for filepath in tqdm(glob.iglob(os.path.join(ROOTDIR, '*', '*.obj'))):
         for File in os.listdir(os.path.dirname(filepath)):
-            if all([File.endswith(".txt") and File.startswith("ldmks")]):
-            #if all([File.endswith(".csv") and File.startswith("ldmks")]):
+            # use this for headspace landmarks
+            if all([File.endswith(".txt") and File.startswith("ldmks")]) and os.path.exists(filepath[:-4] + '.bmp'):
+            # use this for manual landmarks
+            #if all([File.endswith(".csv") and File.startswith("ldmks")]) and os.path.exists(filepath[:-4] + '.bmp'):
                 j += 1
                 print("loading " + filepath)
                 print(str(j))

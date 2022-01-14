@@ -25,6 +25,7 @@ class HeadspaceLdmksDataset(Dataset):
         self.data_format = data_format
         self.num_landmarks = num_landmarks
         self.augment_mirror = False
+        self.no_op = True
 
         # store in memory
         self.verts_list = []
@@ -35,7 +36,10 @@ class HeadspaceLdmksDataset(Dataset):
 
         mesh_files = []
 
-        filepattern = '/*/13*.txt' if data_format == 'pcl' else '/*/13*.obj'
+        if not self.no_op:
+            filepattern = '/*/13*.txt' if data_format == 'pcl' else '/*/13*.obj'
+        else:
+            filepattern = '/*.txt' if data_format == 'pcl' else '/*.obj'
         for filepath in glob.iglob(os.path.join(self.root_dir, 'train' if self.train else 'test') + filepattern):
             self.num_samples += 1
             mesh_files.append(filepath)
@@ -52,7 +56,10 @@ class HeadspaceLdmksDataset(Dataset):
                 rgb = verts.to_numpy()[:, 3:]
                 verts = verts.to_numpy()[:, :3]
                 faces = np.array([])
-            folder_num = Path(mesh_files[iFile]).parts[-2]
+            if not self.no_op:
+                folder_num = Path(mesh_files[iFile]).parts[-2]
+            else:
+                folder_num = Path(mesh_files[iFile]).parts[-1]
 
             # to torch
             verts = torch.tensor(np.ascontiguousarray(verts)).float()
@@ -64,13 +71,16 @@ class HeadspaceLdmksDataset(Dataset):
             self.folder_num_list.append(folder_num)
 
             # create sparse labels
-            landmark_indices = {8,27,30,33,36,39,45,42,60,64} # indices start with 1
+            landmark_indices = {8,27,30,31,33,35,36,39,45,42,60,64} # indices start with 1
 
-            with open(os.path.join(self.root_dir, 'train' if self.train else 'test', folder_num,
-                                'hmap_per_class.pkl'), 'rb') as fpath:
-                labels_sparse = pickle.load(fpath)
-            labels_sparse = [item for pos, item in enumerate(labels_sparse) if pos in landmark_indices]
-            labels = self.labels_from_sparse(verts, labels_sparse)
+            if self.train:
+                with open(os.path.join(self.root_dir, 'train' if self.train else 'test', folder_num,
+                                    'hmap_per_class.pkl'), 'rb') as fpath:
+                    labels_sparse = pickle.load(fpath)
+                labels_sparse = [item for pos, item in enumerate(labels_sparse) if pos in landmark_indices]
+                labels = self.labels_from_sparse(verts, labels_sparse)
+            else:
+                labels = np.array([])
 
             # if this file is not cached, populate
             if not os.path.isfile(os.path.join(self.cache_dir, '{}.pt'.format(folder_num))):

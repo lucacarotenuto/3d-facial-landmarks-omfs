@@ -13,8 +13,8 @@ import potpourri3d as pp3d
 
 # Directory should contain 'test' folder and 'preds' folder (if visualizing predictions)
 #rootdir = 'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\refine_ldmks\\refined_141_manual_inference\\'
-#rootdir = 'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\headspace_ldmks\\rough_preds\\'
-rootdir = 'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\refine_ldmks\\refined_196_manual_inference\\'
+rootdir = '/Users/carotenuto/Documents/GitHub/3d-facial-landmarks-omfs/diffusion-net/experiments/headspace_ldmks/no_op/'
+#rootdir = '/Users/carotenuto/Master Radboud/MscProj/manual_results/pcl_196_30k/'
 
 # Set true if single point colorization or False if heatmap colorization
 POINT_PREDS = True
@@ -25,17 +25,22 @@ IS_GT = False
 # Set true if segmentation predictions
 IS_SEG = False
 # Set true if refinement predictions
-IS_REFINED = True
+IS_REFINED = False
 # Test if True, Train if False
 IS_TEST = True
+NO_OP = True
 
 LANDMARK_INDICES = [8, 27, 30, 31, 33, 35, 36, 39, 42, 45, 60, 64]  # e.g. nosetip 31 has index 30
 #LANDMARK_INDICES = [30]  # e.g. nosetip 31 has index 30
 
 if not IS_REFINED:
-    searchpath = 'validation\\*\\13*.txt' if IS_PCL else 'test/*/13*.obj'
+    if not NO_OP:
+        searchpath = 'test/*/13*.txt' if IS_PCL else 'test/*/13*.obj'
+    else:
+        searchpath = ('test' if IS_TEST else 'train') + '/*.txt'
 else:
-    searchpath = ('test' if IS_TEST else 'train') + '\\*\\*\\13*.txt'
+    searchpath = ('test' if IS_TEST else 'train') + '/*/*/13*.txt'
+
 for filepath in glob.iglob(rootdir + searchpath):
     if IS_PCL:
         # process pointcloud file
@@ -47,7 +52,10 @@ for filepath in glob.iglob(rootdir + searchpath):
 
     # find folder num
     if not IS_REFINED:
-        folder_num = Path(filepath).parts[-2]
+        if not NO_OP:
+            folder_num = Path(filepath).parts[-2]
+        else: 
+            folder_num = Path(filepath).parts[-1]
     else:
         folder_num = Path(filepath).parts[-3]
         folder_num_ldmk = Path(filepath).parts[-2]

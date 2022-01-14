@@ -49,12 +49,14 @@ def main():
 
     exr = ldmks_per_file[36]  # vec origin
     exl = ldmks_per_file[45]  # vec target
+    np.savetxt('orig00164.txt', pcl, fmt='%10.5f', delimiter=',')
+
 
     R = rotation_matrix_from_vectors(np.array([exl[0] - exr[0], exl[1] - exr[1], exl[2] - exr[2]]),
                                      np.array([1, 0, 0]))
 
     d = np.dot(pcl, R.T)
-
+    np.savetxt('aligned00164.txt', d, fmt='%10.5f', delimiter=',')
     v = pptk.viewer(d, show_axis=False)
     v.set(point_size=0.5, show_axis=True, show_info=True)
 
@@ -67,6 +69,8 @@ def main():
     v.set(point_size=0.5, show_axis=True, show_info=True)
 
     print('end')
+
+    np.savetxt('mirrored00164.txt', e, fmt='%10.5f', delimiter=',')
 
 if __name__ == '__main__':
     main()

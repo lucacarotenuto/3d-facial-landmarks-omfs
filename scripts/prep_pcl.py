@@ -9,23 +9,31 @@ from tqdm import tqdm
 
 def main():
     # Rootdir that contains the full resolution meshes, only meshes with manual labelled .csv files are prepared
-    ROOTDIR = 'F:\\subjects'
+    ROOTDIR = '/Volumes/Extreme SSD/MscProject/no-op/no-op_2'
     # New folder where simplified point cloud should be saved
-    NEW_FOLDER = 'F:\\pcl_all_rgb'
+    NEW_FOLDER = '/Volumes/Extreme SSD/MscProject/no-op/no-op_2/pcl2'
+    NO_OP = True
     j= 0
     ms = pymeshlab.MeshSet()
-    for filepath in tqdm(glob.iglob(os.path.join(ROOTDIR, '*', '*.obj'))):
+    if not NO_OP:
+        p = os.path.join(ROOTDIR, '*', '*.obj')
+    else:
+        p = os.path.join(ROOTDIR, '*.obj')
+    for filepath in tqdm(glob.iglob(p)):
         for File in os.listdir(os.path.dirname(filepath)):
             # use this for headspace landmarks
-            if all([File.endswith(".txt") and File.startswith("ldmks")]) and os.path.exists(filepath[:-4] + '.bmp'):
+            #if all([File.endswith(".txt") and File.startswith("ldmks")]) and os.path.exists(filepath[:-4] + '.bmp'):
             # use this for manual landmarks
             #if all([File.endswith(".csv") and File.startswith("ldmks")]) and os.path.exists(filepath[:-4] + '.bmp'):
                 j += 1
                 print("loading " + filepath)
                 print(str(j))
                 ms.load_new_mesh(filepath)
-                ms.texel_sampling(recovercolor=True)
-                ms.point_cloud_simplification(samplenum=30000)
+                try:
+                    ms.texel_sampling(recovercolor=True)
+                except:
+                    pass
+                ms.point_cloud_simplification(samplenum=60000)
                 #ms.save_current_mesh(filepath[:-4] + '_simplfd.obj', save_textures=False)
                 print("saving " + filepath)
                 ms.save_current_mesh(filepath[:-4] + '.obj', save_textures=True)

@@ -17,6 +17,7 @@ from headspace_ldmks_dataset import HeadspaceLdmksDataset
 # Parse a few args
 parser = argparse.ArgumentParser()
 parser.add_argument("--evaluate", action="store_true", help="evaluate using the pretrained model")
+parser.add_argument("--test_without_score", action="store_true", help="test without score")
 parser.add_argument("--input_features", type=str, help="what features to use as input ('xyz' or 'hks') default: hks",
                     default='hks')
 parser.add_argument("--data_format", type=str, help="what format does the data have ('pcl' or 'mesh') default: pcl",
@@ -25,7 +26,9 @@ parser.add_argument("--data_dir", type=str, help="directory name of dataset", de
 args = parser.parse_args()
 
 args.input_features = 'xyz'
-args.data_dir = 'headspace_pcl4'
+args.data_dir = 'no_op'
+args.test_without_score = True
+args.evaluate = True
 
 
 # system things
@@ -36,7 +39,7 @@ else:
 dtype = torch.float32
 
 # problem/dataset things
-n_class = 10
+n_class = 12
 data_format = args.data_format
 
 # model
@@ -51,7 +54,7 @@ decay_every = 50
 decay_rate = 0.5
 n_block = 4
 c_width = 256
-augment_random_rotate = (input_features == 'xyz') and False
+augment_random_rotate = (input_features == 'xyz') and True
 use_rgb = False
 
 
@@ -166,7 +169,7 @@ def train_epoch(epoch):
         gradY = gradY.to(device)
         # labels = labels.to(device)
         # labels = [x.to(device) for x in labels]
-        
+
         # Randomly rotate positions
         if augment_random_rotate:
            verts = diffusion_net.utils.random_rotate_points_y(verts)
@@ -183,7 +186,10 @@ def train_epoch(epoch):
         # preds = preds.float()
         predstp = torch.transpose(preds, 0, 1)
         predstp = predstp.flatten()
-        labels = torch.cat([x for x in labels])
+        if len(labels) != 0:
+            labels = torch.cat([x for x in labels])
+        else:
+            labels = torch.Tensor([])
 
         weights = point_weights(labels)
 
@@ -223,6 +229,15 @@ def test():
             gradY = gradY.to(device)
             labels = labels.to(device)
             
+            np.savetxt('orig.txt', verts, fmt='%10.5f', delimiter=',')
+
+            # Randomly rotate positions
+            if augment_random_rotate:
+                verts = diffusion_net.utils.random_rotate_points(verts)
+
+
+            np.savetxt('rotated.txt', verts, fmt='%10.5f', delimiter=',')
+
             # Construct features
             if input_features == 'xyz':
                 features = torch.cat((verts, rgb.float()), dim=1) if use_rgb else verts
@@ -239,9 +254,13 @@ def test():
             pickle.dump(np.asarray(preds.cpu()), f)
             f.close()
 
-            labels = torch.cat([x for x in labels])
-            weights = point_weights(labels)
-            loss_sum += weighted_mse_loss(predstp.to(device), labels.to(device), weights.to(device))
+            if len(labels) != 0:
+                labels = torch.cat([x for x in labels])
+            else:
+                labels = torch.Tensor([])
+            if not args.test_without_score:
+                weights = point_weights(labels)
+                loss_sum += weighted_mse_loss(predstp.to(device), labels.to(device), weights.to(device))
 
     return loss_sum/len(test_dataset)
 
@@ -254,14 +273,16 @@ if train:
         train_acc = train_epoch(epoch)
         test_acc = test()
         print("Epoch {} - Train overall: {}  Test overall: {}".format(epoch, train_acc, test_acc))
-        # if epoch % 10 == 0:
+        diffusion_net.utils.ensure_dir_exists(os.path.join(dataset_path, 'saved_models'))
+        if epoch % 10 == 0:
+            print(" ==> saving last model to " + last_model_path)
+            torch.save(model.state_dict(), last_model_path)
         if test_acc < best_acc:
             best_acc = test_acc
             print(" ==> saving model to " + best_model_path)
             diffusion_net.utils.ensure_dir_exists(os.path.join(dataset_path, 'saved_models'))
             torch.save(model.state_dict(), best_model_path)
 
-    diffusion_net.utils.ensure_dir_exists(os.path.join(dataset_path, 'saved_models'))
     print(" ==> saving last model to " + last_model_path)
     torch.save(model.state_dict(), last_model_path)
 

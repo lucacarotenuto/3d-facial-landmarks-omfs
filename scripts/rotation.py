@@ -15,7 +15,7 @@ def rotation_matrix_from_vectors(vec1, vec2):
     s = np.linalg.norm(v)
     kmat = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
     rotation_matrix = np.eye(3) + kmat + kmat.dot(kmat) * ((1 - c) / (s ** 2))
-    return rotation_matrix
+    return rotation_cmatrix
 
 
 def main():
@@ -33,20 +33,8 @@ def main():
             ldmks_idx = i
             break
     ldmks_per_file = LDMKS[ldmks_idx, 1:, :]  # shape (landmarks, 3)
-    '''
-    pog = ldmks_per_file[8] # vec origin
-    nas = ldmks_per_file[27] # vec target
-
-    R = rotation_matrix_from_vectors(np.array([pog[0] - nas[0], pog[1] - nas[1], pog[2] - nas[2]]), np.array([0,0,-1]))
-
-    c = np.dot(pcl, R.T)
-
-    v = pptk.viewer(c, show_axis=False)
-    v.set(point_size=0.5, show_axis=True, show_info=True)
-    '''
-    #v = pptk.viewer(pcl, show_axis=False)
-    #v.set(point_size=0.5, show_axis=True, show_info=True)
-
+    
+    # align x with exr - exl
     exr = ldmks_per_file[36]  # vec origin
     exl = ldmks_per_file[45]  # vec target
     np.savetxt('orig00164.txt', pcl, fmt='%10.5f', delimiter=',')
@@ -56,10 +44,23 @@ def main():
                                      np.array([1, 0, 0]))
 
     d = np.dot(pcl, R.T)
-    np.savetxt('aligned00164.txt', d, fmt='%10.5f', delimiter=',')
+    np.savetxt('alignedx00164.txt', d, fmt='%10.5f', delimiter=',')
     v = pptk.viewer(d, show_axis=False)
     v.set(point_size=0.5, show_axis=True, show_info=True)
 
+    # align z with pg - nasion
+    pg = ldmks_per_file[8]  # vec origin
+    ns = ldmks_per_file[27]  # vec target
+    np.savetxt('orig00164.txt', pcl, fmt='%10.5f', delimiter=',')
+
+
+    R = rotation_matrix_from_vectors(np.array([ns[0] - pg[0], ns[1] - pg[1], ns[2] - pg[2]]),
+                                     np.array([0, 0, 1]))
+
+    d = np.dot(d, R.T)
+    np.savetxt('alignedz00164.txt', d, fmt='%10.5f', delimiter=',')
+
+    # mirror
     e = d.copy()
     e[:, 0] = -e[:, 0]
 

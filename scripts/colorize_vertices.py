@@ -17,7 +17,7 @@ rootdir = '/Users/carotenuto/Documents/GitHub/3d-facial-landmarks-omfs/diffusion
 #rootdir = '/Users/carotenuto/Master Radboud/MscProj/manual_results/pcl_196_30k/'
 
 # Set true if single point colorization or False if heatmap colorization
-POINT_PREDS = True
+POINT_PREDS = False
 # Set true if pointcloud or false if mesh
 IS_PCL = True
 # Set true if you are visualizing ground truth or false if visualizing predictions
@@ -30,7 +30,10 @@ IS_REFINED = False
 IS_TEST = True
 NO_OP = True
 
-LANDMARK_INDICES = [8, 27, 30, 31, 33, 35, 36, 39, 42, 45, 60, 64]  # e.g. nosetip 31 has index 30
+#LANDMARK_INDICES = [8, 27, 30, 31, 33, 35, 36, 39, 42, 45, 60, 64]  # e.g. nosetip 31 has index 30
+#LANDMARK_INDICES = [8, 27, 30, 33, 36, 39, 42, 45, 60, 64]  
+LANDMARK_INDICES = [30, 39, 42, 60, 64]
+
 #LANDMARK_INDICES = [30]  # e.g. nosetip 31 has index 30
 
 if not IS_REFINED:
@@ -109,6 +112,12 @@ for filepath in glob.iglob(rootdir + searchpath):
 
     preds[preds < 0] = 0
 
+    for it in range(preds.shape[0]):
+        f = open(rootdir + 'preds/vis/pred_' + str(folder_num) + ('_{}'.format(folder_num_ldmk
+                                                                if IS_REFINED else '')) + '_CLASS{}.txt'.format(it), 'w+')
+        for i in range(preds.shape[1]):
+            f.write(str(verts[i])[1:-1] + ', {}, 0.0, 0.0\n'.format(preds[it][i]))
+
     if POINT_PREDS:
         # only keep highest activation
         preds_pt = np.zeros_like(preds)
@@ -131,7 +140,7 @@ for filepath in glob.iglob(rootdir + searchpath):
     else:
         pathlib.Path(rootdir + '/preds/vis').mkdir(parents=True, exist_ok=True)
 
-    # create new xyzrgb with intensity and alternate between rgb channel
+    # create new txt file
     if POINT_PREDS:
         if IS_GT:
             f = open(rootdir + 'gt_vis/gt_pt_' + str(folder_num) +  ('_{}'.format(folder_num_ldmk
@@ -146,6 +155,7 @@ for filepath in glob.iglob(rootdir + searchpath):
         else:
             f = open(rootdir + 'preds/vis/pred_' + str(folder_num) + ('_{}'.format(folder_num_ldmk
                                                               if IS_REFINED else '')) + '.txt', 'w+')
+    # write intensity
     for i, el in tqdm(enumerate(outp_mask)):
         if IS_PCL:
             if IS_GT:

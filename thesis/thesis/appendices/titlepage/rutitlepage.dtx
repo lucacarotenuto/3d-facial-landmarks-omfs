@@ -1,0 +1,263 @@
+% \iffalse meta-comment
+%
+% rutitlepage - A Radboud University titlepage
+% Copyright 2017-2019 Mart Lubbers (mart@cs.ru.nl)
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+%
+%<*driver>
+% \fi
+\ProvidesFile{rutitlepage.dtx}[2019/05/09 v2.3 Radboud University Titlepage]
+% \iffalse
+\documentclass{ltxdoc}
+\usepackage{rutitlepage}
+\usepackage{booktabs}
+\usepackage{url}
+\GetFileInfo{rutitlepage.dtx}
+
+\urlstyle{tt}
+\def\thetitle{A Radboud University titlepage}
+\title{\thetitle}
+\date{\filedate{}}
+\author{Mart Lubbers}
+
+\begin{document}
+ \DocInput{\filename}
+ \PrintChanges{}
+\end{document}
+%</driver>
+% \fi
+%
+% \changes{v2.3}{2019/05/08}{Minor patches and typos}
+% \changes{v2.2}{2019/05/08}{Fixed packaging, copyright year}
+% \changes{v2.1}{2018/11/10}{Fix bug for default layout in manual, rename images}
+% \changes{v2.0}{2018/10/16}{New layout following the guidelines}
+% \changes{v1.0}{2017/05/30}{Initial package}
+% \maketitle
+%
+% \section{Introduction}
+% \texttt{rutitlepage} is an unofficial \LaTeX{} package to generate titlepages
+% for Radboud University. It uses official vector logos by the university. The
+% package depends on \texttt{geometry}, \texttt{graphicx}, \texttt{ifpdf},
+% \texttt{keyval} and \texttt{iflang}. The logo changes when
+% \texttt{babel-dutch} is loaded; this package does not depend on it.
+%
+% \subsection{Contributors}
+% \texttt{rutitlepage} is maintained by Mart Lubbers but work has been done by
+% (in order of date of contribution):
+% \begin{itemize}
+% 	\item Camil Staps\footnote{\url{https://github.com/camilstaps}}
+% 	\item Daan Sprenkels\footnote{\url{https://github.com/dsprenkels}}
+% 	\item Chris Kamphuis\footnote{\url{https://github.com/chriskamphuis}}
+% \end{itemize}
+%
+% Previously, this titlepage flew around on the university for at least several
+% years in many forms. I'm not sure who created it first but credits to them!
+%
+% \section{Usage}
+% \DescribeMacro\maketitleru
+% This macro creates the actual titlepage.
+% It has several options that can be passed in a \texttt{keyval} manner (see the examples below).
+% All options are optional. The available options are:
+%
+% \medskip
+% \begin{tabular}{lp{.5\linewidth}lp{.15\linewidth}}
+% 	\toprule
+%	Option & Description & Layouts\footnotemark & Default\\
+% 	\midrule
+% \texttt{authors}
+% 	& The name(s) of the primary author(s).
+% 	& \texttt{t}, \texttt{17} & \texttt{\textbackslash{}@author}\\
+% \texttt{authorstext}
+% 	& A text describing the author(s).
+% 	& \texttt{t} & \texttt{Author:}\\
+% \texttt{colour}
+% 	& Gives the logo colours. No value needed.
+% 	& \texttt{17}\\
+% \texttt{course}
+% 	& The name of the course.
+% 	& \texttt{t}\\
+% \texttt{date}
+% 	& The date.
+% 	& \texttt{t}, \texttt{17} & \texttt{\textbackslash{}@date}\\
+% \texttt{institution}
+% 	& The institution the document was written at.
+% 	& \texttt{t} & Radboud University Nijmegen\footnotemark\\
+% \texttt{layout}
+% 	& The layout: \texttt{traditional} or \texttt{seventeen}.
+% 		See the examples below.
+% 	& \texttt{t}, \texttt{17} & \texttt{seventeen}\\
+% \texttt{nextpagenr}
+% 	& The page number of the next page.
+% 	& \texttt{t}, \texttt{17} & \texttt{\textbackslash{}thepage+1}\\
+% \texttt{others}
+% 	& Groups of other important people, besides the author(s).
+% 		The syntax is: \texttt{\{Header\}\{Names\}}.
+% 		For more than one group, use: \texttt{\{\{\dots\}\{\dots\},\{\dots\}\{\dots\}\}}.
+% 	& \texttt{t}, \texttt{17}\\
+% \texttt{subtitle}
+% 	& The italic text under the title.
+% 	& \texttt{t}, \texttt{17}\\
+% \texttt{title}
+% 	& The main document title.
+% 	& \texttt{t}, \texttt{17} & \texttt{\textbackslash{}@title}\\
+% 	\bottomrule
+% \end{tabular}
+% \addtocounter{footnote}{-1}
+% \footnotetext{Describes in which layouts the key is applicable.
+% 	\texttt{t} stands for `traditional'; \texttt{17} for `seventeen'.
+% 	See the \texttt{layout} option and the examples below.}
+% \addtocounter{footnote}{1}
+% \footnotetext{When \texttt{babel-dutch} is loaded,
+% 	`Radboud Universiteit Nijmegen'.}
+%
+% \section{Examples}
+% The following code generates the two titlepages below:
+%
+% \medskip
+% \noindent{\tt\textbackslash{}maketitleru[\\
+% \null\qquad authors=\{John Doe\},\\
+% \null\qquad date=\{Tomorrow\},\\
+% \null\qquad others=\{\{Supervisor:\}\{Jane Doe\},\{Second reader:\}\{Joanne Dune\}\},\\
+% \null\qquad course=\{Master's Thesis\},\\
+% \null\qquad title=\{The `traditional' layout\},\\
+% \null\qquad subtitle=\{Simple elegance\}]}
+%
+% \medskip
+% \noindent{\tt\textbackslash{}maketitleru[\\
+% \null\qquad layout=seventeen,\\
+% \null\qquad authors=\{John Doe\},\\
+% \null\qquad date=\{Tomorrow\},\\
+% \null\qquad others=\{\{Supervisor:\}\{Jane Doe\},\{Second reader:\}\{Joanne Dune\}\},\\
+% \null\qquad title=\{The `seventeen' layout\},\\
+% \null\qquad subtitle=\{Based on the latest corporate identity guidelines\}]}\\
+%
+% \maketitleru[
+% 	authors={John Doe},
+% 	date={Tomorrow},
+% 	others={{Supervisor:}{Jane Doe},{Second reader:}{Joanne Dune}},
+% 	course={Master's Thesis},
+% 	layout=traditional,
+% 	title={The `traditional' layout},
+% 	subtitle={Simple elegance}]
+%
+% \maketitleru[
+% 	layout=seventeen,
+% 	authors={John Doe},
+% 	date={Tomorrow},
+% 	others={{Supervisor:}{Jane Doe},{Second reader:}{Joanne Dune}},
+% 	title={The `seventeen' layout},
+% 	subtitle={Based on the latest corporate identity guidelines}]
+%\endinput
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{rutitlepage}[2017/09/07 Mart Lubbers]
+\RequirePackage{geometry,graphicx,ifpdf,keyval,iflang}
+\def\@rutitleauthors{\@author}
+\def\@rutitleauthorstext{Aut\IfLanguageName{dutch}{eu}{ho}r:}
+\def\@rutitledate{\@date}
+\def\@rutitleinst{Radboud Universit\IfLanguageName{dutch}{eit}{y} Nijmegen}
+\def\@rutitletitle{\@title}
+\def\@rutitlelayout{seventeen}
+\newif\if@rutitlecolour\@rutitlecolourfalse
+\define@key{maketitleru}{authors}{\def\@rutitleauthors{#1}}
+\define@key{maketitleru}{authorstext}{\def\@rutitleauthorstext{#1}}
+\define@key{maketitleru}{colour}[true]{\@rutitlecolourtrue}
+\define@key{maketitleru}{course}{\def\@rutitlecourse{#1}}
+\define@key{maketitleru}{date}{\def\@rutitledate{#1}}
+\define@key{maketitleru}{institution}{\def\@rutitleinst{#1}}
+\define@key{maketitleru}{layout}{\def\@rutitlelayout{#1}}
+\define@key{maketitleru}{nextpagenr}{\def\@rutitlenextpagenr{#1}}
+\define@key{maketitleru}{others}{\def\@rutitleothers{#1}}
+\define@key{maketitleru}{subtitle}{\def\@rutitlesubtitle{#1}}
+\define@key{maketitleru}{title}{\def\@rutitletitle{#1}}
+\newcommand*{\rutitlepage@printothers}[2]{\textit{#1}\\#2}
+\newcommand*{\rutitlepage@sepothers}{\\[\baselineskip]}
+\newcommand*{\rutitlepage@others}[2]{%
+	\rutitlepage@printothers{#1}{#2}%
+	\kernel@ifnextchar,{\rutitlepage@sepothers\rutitlepage@otherslist@}\relax}
+\newcommand*{\rutitlepage@otherslist}[1]{%
+	\expandafter\rutitlepage@others#1}
+\def\rutitlepage@otherslist@,#1{\rutitlepage@otherslist{{#1}}}
+\newcommand{\rutitle@layout@seventeen}[0]{
+	\newgeometry{left=25mm,top=25mm,right=15mm,bottom=10mm,hmarginratio=1:1}
+	\begin{titlepage}%
+		\null\vfill%
+		\parindent0pt
+		{\Huge\bfseries\@rutitletitle}%
+		\ifdefined\@rutitlesubtitle{\\[2\baselineskip]\large\it\@rutitlesubtitle\/}\fi\\[4\baselineskip]
+		{\Large\sc\@rutitleauthors}\\[\baselineskip]
+		{\large\@rutitledate}
+		\vfill
+
+		\ifdefined\@rutitleothers\rutitlepage@otherslist\@rutitleothers\fi
+		\vfill
+
+		\hfill
+		\ifpdf\includegraphics[width=80mm]{rutitlepage-logo-\IfLanguageName{dutch}{nl-}{}\if@rutitlecolour cmyk\else bw\fi.pdf}\\
+		\else\includegraphics[width=80mm]{rutitlepage-logo-\IfLanguageName{dutch}{nl-}{}\if@rutitlecolour cmyk\else bw\fi.eps}\\
+		\fi
+	\end{titlepage}
+	\restoregeometry%
+}
+\newcommand{\rutitle@layout@traditional}[0]{
+	\newgeometry{hmarginratio=1:1}
+	\begin{titlepage}
+		\begin{center}
+			\ifdefined\@rutitlecourse\textsc{\LARGE\@rutitlecourse}\\[1.5cm]\fi
+			\ifpdf\includegraphics[height=150pt]{rutitlepage-logo.pdf}\\
+			\else\includegraphics[height=150pt]{rutitlepage-logo.eps}\\
+			\fi
+			\vspace{0.4cm}
+			\textsc{\Large\@rutitleinst}\\[1cm]
+			\hrule
+			\vspace{0.4cm}
+			\textbf{\large\@rutitletitle}\\[0.4cm]
+			\hrule
+			\ifdefined\@rutitlesubtitle
+				\vspace{0.4cm}
+				\textit{\@rutitlesubtitle}\\[1cm]
+			\else
+				\vspace{2cm}
+			\fi
+			\begin{minipage}[t]{0.45\textwidth}
+				\begin{flushleft}\large
+					\textit{\@rutitleauthorstext}\\
+					\@rutitleauthors{}
+				\end{flushleft}
+			\end{minipage}
+			\begin{minipage}[t]{0.45\textwidth}
+				\begin{flushright}\large
+					\ifdefined\@rutitleothers
+					\renewcommand{\rutitlepage@printothers}[2]{\textit{##1}\\##2}
+					\renewcommand{\rutitlepage@sepothers}[0]{
+
+						\vspace{8mm}}
+					\rutitlepage@otherslist\@rutitleothers
+					\fi
+				\end{flushright}
+			\end{minipage}
+			\vfill
+			{\large\@rutitledate}
+		\end{center}
+	\end{titlepage}
+	\restoregeometry%
+}
+\newcommand{\maketitleru}[1][]{
+	\setkeys{maketitleru}{#1}
+	\ifcsname%
+		rutitle@layout@\@rutitlelayout\endcsname
+		\expandafter\csname rutitle@layout@\@rutitlelayout\endcsname
+	\else
+		\PackageError{rutitlepage}
+			{Unknown layout `\@rutitlelayout'.}
+			{The `layout' key of \maketitleru\space contained an unknown layout.\MessageBreak{}
+			 Check the package documentation for the possible layouts.}
+	\fi
+	\ifdefined\@rutitlenextpagenr\setcounter{page}{\@rutitlenextpagenr}\fi%
+}

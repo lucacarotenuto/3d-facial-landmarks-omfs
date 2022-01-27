@@ -1,0 +1,46 @@
+\documentclass[class=article, crop=false]{standalone}
+
+\usepackage{amsfonts}
+\usepackage{import}
+\usepackage{multicol}
+\usepackage[subpreambles=false]{standalone}
+
+\usepackage[backend=biber]{biblatex}
+\addbibresource{references.bib}
+
+\usepackage{geometry}
+\geometry{
+   a4paper,
+   left=20mm, right=20mm,
+   top=20mm, bottom=25mm
+}
+ 
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=black,
+}
+
+
+\begin{document}
+
+
+
+
+\section{Related Work}
+\label{sec:works}
+There is extensive reasearch about 2D facial landmarking. Many non-medical tasks such as person identification, expression transfer or emotion recognition require automatic landmarking as a necessary step \cite{perrot:hal-02884592}. Existing methods for facial landmark detection can be classified into two categories: generative and discriminative. Generative methods model the facial shape as a probabilistic distribution. This category includes part-based generative models such as ASM and holistic generative models such as AAM, that capture variations in the shape or texture by Principal Component Analysis (PCA), or Gauss- Newton Deformable Part Models (GN-DPM) \cite{yan:hal-02892002}. Discriminative models take a different approach and directly look for relevant features which can be used to localize the landmarks given the input. Discriminative methods include Cascaded Regression models, but also neural networks. With the emergence of Convolutional Neural Networks (CNNs), many traditional methods have been outperformed by neural networks. Most research on facial landmarking focuses on 2D. In this paper, we focus on 3D facial landmarking with deep neural networks. As there is little research about deep learning for the case of 3D facial landmark detection, we focus in this chapter on more general works on 3D deep learning.
+Most authors that develop novel network architectures only report their results for the more common 3D tasks classification, segmentation, object detection or shape correspondence. Since results for keypoint detection are less common, the performance results of the networks can only be regarded as a rough reference for their potential feature extraction.
+
+Conventionally, deep learning methods for facial landmarking are applied to 2D images for 
+
+
+
+Unlike for the euclidean case, there is no universal concept for convolutions in 3D. Different approaches have been developed to address this problem. 
+
+unorderedness and irregularity in the data. Promising approaches are PointNet \cite{Qi2017} that use point clouds and consider the permutation invariance of points in the input. Variations of PointNet are PointNet++ \cite{Qi2017b} that manage to improve classification and segmentation performance by modelling local regions through sampling and grouping or PointCNN \cite{Li2018} that take into account the correlation between points in the local regions.
+An approach that operates directly on triangular mesh data is MeshCNN \cite{Hanocka2019}, which applies convolutions on edges and the four edges of their incident triangles, and pooling is applied via an edge collapse operation.
+
+general work: \cite{Bello2020}
+\end{document}

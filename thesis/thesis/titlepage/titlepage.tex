@@ -1,0 +1,40 @@
+\documentclass[class=article, crop=false]{standalone}
+
+ \usepackage{geometry}
+\geometry{
+   a4paper,
+   left=20mm, right=20mm,
+   top=20mm, bottom=25mm
+}
+ 
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+}
+
+\usepackage{rutitlepage}
+
+\begin{document}
+
+% \includegraphics[width=80mm]{Niels.png}
+
+\maketitleru[
+  layout=seventeen,
+  authors={Luca Carotenuto \\ {\normalsize s1047465}},
+  date={\today},
+  others={
+    {Daily Affiliated Supervisor and Second Reader:}{Guido de Jong\textit{*}},
+    {Internal Supervisor:}{dr. Tom Heskes\textit{**}},
+    % {Second reader:}{xx\textit{**}},
+    {}{},
+    {}{},
+    {*}{3D Lab, Radboudumc, Nijmegen, The Netherlands \\ Deparment of Oral and Maxillofacial Surgery, Radboudumc, Nijmegen, the Netherlands},
+    {**}{Department of Data Science, Radboud University, Nijmegen, The Netherlands},
+  },
+  title={Three-dimensional Facial Landmark Detection in 3D Photos},
+  subtitle={Master's Thesis in Data Science},
+]
+
+
+\end{document}

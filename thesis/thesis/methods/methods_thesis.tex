@@ -1,0 +1,67 @@
+\documentclass[class=article, crop=false]{standalone}
+
+
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{import}
+\usepackage{multicol}
+\usepackage[subpreambles=false]{standalone}
+\usepackage{tikz}
+
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\newcommand\commentfont[1]{\footnotesize\ttfamily\textcolor{blue}{#1}}
+\SetCommentSty{commentfont}
+
+\usepackage[backend=biber]{biblatex}
+\addbibresource{references.bib}
+
+\usepackage{geometry}
+\geometry{
+   a4paper,
+   left=20mm, right=20mm,
+   top=20mm, bottom=25mm
+}
+ 
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=black,
+}
+
+
+\begin{document}
+
+
+
+
+\section{Methods}
+\label{sec:methods}
+
+\subsection{Data set}
+\import{}{stereobmp.tex}
+Headspace dataset \cite{Dai2019}, which contains face and cranium 3D data and is available for University-based non-commercial research.
+Headspace: good illumination, high quality..., details. Own annotations. UMC data.
+
+\subsection{Pre-processing}
+The 3D meshes are stored as ‘wavefront object’ files (.obj file). This  file format contains information for vertices, edges, faces, normal vectors and texture.
+Vertices are points in the Cartesian coordinate system defined by x, y and z. Meshes also contain surface data in the form of edges and faces that define the interconnectivity between vertices. Normals \cite{Jong}.
+To simplify the problem, our network processes point clouds instead of meshes.
+The meshes of the Headspace dataset are already pose normalized.
+
+The 68 landmarks in the Headspace data are given by a reference to the vertex index in the mesh. The manually annotated landmarks in 3DMedX are saved as coordinates. As the meshes are simplified in the pre-processing pipeline we also need to calculate the coordinates for the Headspace landmarks. Then, after the mesh simplification step, the corresponding landmark point for the downsampled mesh is re-calculated by picking the vertex with the smallest distance to the original coordinate. Currently, this is done in a naive way by iterating through each vertex in the mesh. This step can be sped up significantly by choosing more sophisticated algorithms. The ground truth not only consists of point landmarks. Heatmaps are generated around the landmark point to create regions that the network can learn more easily. Moreover, increasing the proportion of points with an activation higher than zero improves the class imbalance problem. Labels sparse representation why?
+
+\subsection{DiffusionNet}
+We define a point set \begin{math}X=\{X_i \in \mathbb{R}^F,\hspace{0.3cm}i = 1,2,...,N\}\end{math} as the input of our model, where N defines the number of points in the point cloud, F the dimension, and $x_i$ is the 3D coordinate of each point in the Cartesian reference system. Note, that even in a 3-dimensional reference system, $F$ is not restricted to 3 as we can use other point-based features such as the color or the normal vector with respect to the surface.
+
+Graph-based method in spatial-domain combined with a point-wise MLP. Spectral methods are used for accelerating for the computation of the diffusion operation.
+Most machine learning algorithms require a fixed input size. DiffusionNet is able to deal with a flexible input size, making sampling or simplification for the purpose of standardizing the number of vertices unnecessary.
+
+\subsection{Shape Variants}
+3D shapes can come in different variants that the network should be invariant to, such as different orientations or different discretization. Different camera setups or different pre-processing can lead to very different orientations of the head in the space. The network should give the same result regardless of how the head is rotated. The perhaps most straightforward approach is to perform data augmentation. While it can work to make the network more robust to the presented augmented variants, data augmentation does not scale well as it is not feasible to sample all variations. Additionally, including slightly varied samples in the training quickly increases training times. The preferred approach to deal with shape variants is to design a network that is inherently invariant to rotations. There is still ongoing research on how to most efficiently design such invariant networks. One way is to use input features such as the Heat Kernel Signature (HKS) that are invariant to isometric deformations, thus also to different poses. DiffusionNet deals with the problem by... adds robustness but not true invariance.
+
+
+
+\end{document}

@@ -1,0 +1,25 @@
+\documentclass[class=article, crop=false]{standalone}
+
+\usepackage{geometry}
+
+\begin{document}
+
+
+\newgeometry{
+   left=34mm, right=33mm,
+   top=50mm, bottom=25mm
+}
+
+\pagestyle{empty}
+
+
+\section*{\centering Abstract}
+
+Three-dimensional (3D) landmarks are used in various fields within medicine. Oral and maxillofacial surgery involves reconstructive operations on the head, face and jaw as well as facial cosmetic surgery. Landmarks are being during the planning, follow-up and diagnostics of surgical interventions. However, placing 3D landmarks manually can be tedious and inconsistent. AI-assisted landmark detection can help to automatize this process by making use of recent developments in the field of 3D deep learning.
+This work leverages DiffusionNet for feature extraction of 3D triangle meshes and point clouds. DiffusionNet is a representation independent network structure based on heat diffusion.
+This work presents a point-wise regression method that predicts heatmaps around landmark points. First results already show promising localization accuracy. As DiffusionNet suffers from time-consuming preprocessing, CUDA-acceleration is added to enable real-time inference scenarios. A direct coordinate regression shows lower localization accuracy and only performs better than point-wise regression for high error thresholds.
+
+\noindent
+\clearpage
+
+\end{document}

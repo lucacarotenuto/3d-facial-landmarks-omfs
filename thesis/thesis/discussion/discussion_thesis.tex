@@ -1,0 +1,66 @@
+\documentclass[class=article, crop=false]{standalone}
+\usepackage[utf8]{inputenc}
+
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage[english]{babel}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{csquotes}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{import}
+\usepackage{multirow}
+\usepackage{pdfpages}
+\usepackage{rutitlepage}
+\usepackage[subpreambles=false]{standalone}
+\usepackage{subcaption}
+\usepackage[flushleft]{threeparttable}
+\usepackage{tikz}
+
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\newcommand\mycommfont[1]{\footnotesize\ttfamily\textcolor{blue}{#1}}
+\SetCommentSty{mycommfont}
+
+\usepackage[backend=biber,sorting=none]{biblatex}
+\addbibresource{references.bib}
+
+\usepackage{ftnright}
+\renewcommand\footnoterule{{\hrule height 0.8pt}}
+
+\usepackage{geometry}
+\geometry{
+   a4paper,
+   left=20mm, right=20mm,
+   top=20mm, bottom=25mm
+ }
+ 
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  citecolor=black,
+  urlcolor=blue,
+}
+
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.3}
+ 
+ 
+\setlength{\columnsep}{10pt}  % Default value: 35pt
+\setlength{\tabcolsep}{2pt}  % Default value: 6pt
+\renewcommand{\arraystretch}{1}  % Default value: 1
+
+
+\begin{document}
+
+
+
+
+\section{Discussion}
+\label{sec:discussion}
+\subsection{Limitations}
+Requires pre-computed operations. Processes point clouds instead of meshes. Not universally applicable: subjects should be able to be landmarked independently of variations in pose, expression, illumination, background, occlusion, and image quality.
+
+
+\end{document}

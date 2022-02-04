@@ -35,9 +35,10 @@
 
 \section{Introduction}
 \label{sec:introduction}
-Three-dimensional (3D) landmarks find application in various fields within medicine, such as cephalometry, the study and measurement of the head. Jaw surgery, also known as orthognatic surgery, deals with correcting irregularities of the jaw bones. Orthognatic surgery and orthodontics often aims at creating facial balance or harmony \cite{Plooij2009}. Landmarks help the surgeon during the diagnosis, planning and documentation of surgical interventions. Moreover, they are used to retrospectively judge whether the interventions have been successful. 
+Three-dimensional (3D) landmarks find application in various fields within medicine, such as cephalometry, the study and measurement of the head. Jaw surgery, also known as orthognatic surgery, deals with correcting irregularities of the jaw bones. Orthognatic surgery and orthodontics often aims at creating facial balance or harmony \cite{Plooij2009}. Landmarks help the surgeon during the diagnosis, planning and documentation of surgical interventions. Moreover, they are used to retrospectively judge whether the interventions have been successful. % perform objective post-operative evaluation of surgical results based on the available 3D scans of a patient
 
-Conventionally, landmarks are placed by the surgeon manually. This process is tedious and introduces human error. It can suffer from a high variability caused by the way the same surgeon places landmarks due to human error (intraobserver variability) and from how different surgeons place landmarks due to different landmarking habits (interobserver variability).
+Conventionally, landmarks are placed by the surgeon %practitioner
+manually. This process is tedious and introduces human error. It can suffer from a high variability caused by the way the same surgeon places landmarks due to human error (intraobserver variability) and from how different surgeons place landmarks due to different landmarking habits (interobserver variability).
 AI-assisted landmarking can automate the landmarking procedure by making use of recent advances in the field of deep learning.
 
 In machine learning, a distinction is made between object localization and object detection. The former only locates the presence of an object, whereas the latter also assigns a class label to the object. In this work, we tackle a landmark detection problem to allow for a distinction between landmark types.
@@ -65,6 +66,7 @@ Despite these challenges, in recent years, the field of geometrical deep learnin
 \captionof{table}{\textbf{Landmarks that are considered in this work.}
 Definitions from \cite{Bidra2009} and \cite{Plooij2009}
     }
+\label{table:landmark_names}
 \begin{tabularx}{\textwidth}{l|l|L}
 \toprule
 Landmark               & Abbreviation & Definition          

@@ -49,13 +49,44 @@
 
 
 
-\section{Appendix title}
+\section{Explanation of important concepts}
 \label{sec:app1}
-explain different transformations (rigid...), centering, rotating..
+% \explain different transformations (rigid...), centering, rotating..
+\begin{description}
+    \item[Rigid deformation] Deformation describes the transformation of an object from an initial to some final geometry. A rigid deformation, in contrast to non-rigid deformation, does not change the position and orientation of the object relative to the internal reference frame. Rotation around an axis is an example of a rigid operation that changes the configuration of the points relative to the external, but not to the internal reference frame. Translation is another rigid transformation, in the sense that it only affects the external reference frame, as the points within the object are all moved along parallel paths to the axis.
+    \import{}{import/rigid.tex}
+    
+    \item[Non-rigid deformation] Non-rigid deformations can affect points within the object relative to both the internal and external reference frame. Distortion is an example of a non-rigid operation that changes the spacing of points within the object and consequently changes the overall shape of the object. Dilation or scaling is another non-rigid operation that changes the volume of the object, but differently to distortion, retains the same shape for the object.
+    \import{}{import/nonrigid.tex}
+    
+    \item[Isometric deformation/Isometry] 
+    
+    \item[Intrinsic/extrinsic deep learning] Extrinsic deep learning methods treat the geometric data as Euclidean data. Voxel-based representation methods discretize the 3D data by defining a voxel as the smallest unit in the 3D space. Then, the object can be divided into a 3D grid. A typical network architecture that falls into this category is 3DSN. However, most voxel-based methods suffer from a large memory consumption and long training times due to the added third dimension. Also, some information is lost due to the discretization. Other deep learning methods are based on multi-view representations, such as the multiview-based CNN MVCNN \cite{mvcnn}. Similarly to how the human eye manages to perceive depth, the methods combine views from multiple angles and process them into a single 3D image. Multi-view CNNs render the images from many different views, apply a CNN to each of the 2D image and perform a view pooling operation to combine the features. However, multi-view based methods suffer from different illumination, object occlusion and information loss during the reconstruction of the objects from different views.
+    \import{}{import/ex-intrinsic_dl.tex}
+    
+    \item[Shape descriptor] A shape descriptor characterizes the local geometriy of the surface. Examples for shape descriptors are the Gaussian curvature $K(x) = \kappa_1(x)\kappa_2(x)$ and the mean curvature $H(x) = \kappa_1(x)+\kappa_2(x)$. Good shape descriptors are robust to noise in the triangulation and against small deformations. They should also be invariant under rigid transformation and other isometries. \cite{stanfod_iso}
+    
+    \item[Heat Kernel Signature] The Heat Kernel Signature (HKS) is a popular shape descriptor that is derived from the Laplacian. 
+    % If we define $k_t(x,y)$ as the solution to the heat equation
+    
+    % \begin{equation}
+    %     u_t = u
+    % \end{equation}
+    For a fixed time $t$, it is defined as 
+    \begin{equation}
+        HKS(x) = k_t(x,x) = \sum_{i} e^{-\lambda_i t}\phi_i(x)^2
+    \end{equation}
+    \import{}{import/hks_dragon.tex}
+    The Wave Kernel Signature (WKS) is a shape descriptor similar to HKS but is based on the Schrödinger wave equation. HKS and WKS both have the advantage of isometry-invariance and being easy to compute.
+
+    
+\end{description}
+
 
 \section{Background for choice of the network}
 \label{sec:app2}
 The project started with exploring different networks that can tackle the problem of 3D landmark detection. This phase also lead to insights regarding networks that do not work well for the problem at hand. PointNet is one of the earliest and simpler model architectures that operates on point clouds was a straightforward choice  We tried the Pytorch implementation of the extension of PointNet, called PointNet++. The extensio in MeshCNN and Pointnet; many network architectures don't scale well
 
+% write about manual landmark annotations, how long it takes, which landmarks are easy, which hard...
 
 \end{document}

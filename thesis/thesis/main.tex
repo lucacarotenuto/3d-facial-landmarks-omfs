@@ -19,6 +19,7 @@
 \usepackage[flushleft]{threeparttable}
 \usepackage{tikz}
 \usepackage{tabularx}
+\usepackage[colorinlistoftodos]{todonotes}
 
 \usepackage[linesnumbered,ruled,vlined]{algorithm2e}
 \newcommand\mycommfont[1]{\footnotesize\ttfamily\textcolor{blue}{#1}}
@@ -55,8 +56,8 @@
 
 \begin{document}
 
-%   \includepdf[pages=-]{titlepage/titlepage.pdf}
-  \subimport{titlepage}{titlepage}
+   \includepdf[pages=-]{titlepage/titlepage.pdf} % create with pdfescape.com
+ % \subimport{titlepage}{titlepage}
 
   \subimport{introduction}{abstract_thesis}
   \restoregeometry
@@ -74,11 +75,11 @@
   \clearpage
 
 \begin{refsection}
+
 \twocolumn
 \appendix
   \subimport{appendices}{1}
-   \clearpage
-
+  \clearpage
 \onecolumn  
   \printbibliography
 \end{refsection}

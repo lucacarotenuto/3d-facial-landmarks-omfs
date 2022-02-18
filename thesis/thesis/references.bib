@@ -120,13 +120,15 @@ url="https://doi.org/10.1007/s11263-019-01260-7"
    year = {2011},
 }
 
-@misc{sharp2022diffusionnet,
-      title={DiffusionNet: Discretization Agnostic Learning on Surfaces}, 
-      author={Nicholas Sharp and Souhaib Attaiki and Keenan Crane and Maks Ovsjanikov},
-      year={2022},
-      eprint={2012.00888},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
+@article{sharp2022diffusion,
+  author = {Sharp, Nicholas and Attaiki, Souhaib and Crane, Keenan and Ovsjanikov, Maks},
+  title = {DiffusionNet: Discretization Agnostic Learning on Surfaces},
+  journal = {ACM Trans. Graph.},
+  volume = {01},
+  number = {1},
+  year = {2022},
+  publisher = {ACM},
+  address = {New York, NY, USA},
 }
 
 @inproceedings{Qi2017,
@@ -245,3 +247,86 @@ year = {2020}
   number={},
   pages={945-953},
   doi={10.1109/ICCV.2015.114}}
+  
+  @book{Botsch2010,
+   abstract = {Geometry processing, or mesh processing, is a fast-growing area of research that uses concepts from applied mathematics, computer science, and engineering to design efficient algorithms for the acquisition, reconstruction, analysis, manipulation, simulation, and transmission of complex 3D models. Applications of geometry processing algorithms already cover a wide range of areas from multimedia, entertainment, and classical computer-aided design, to biomedical computing, reverse engineering, and scientific computing. Over the last several years, triangle meshes have become increasingly popular, as irregular triangle meshes have developed into a valuable alternative to traditional spline surfaces. This book discusses the whole geometry processing pipeline based on triangle meshes. The pipeline starts with data input, for example, a model acquired by 3D scanning techniques. This data can then go through processes of error removal, mesh creation, smoothing, conversion, morphing, and more. The authors detail techniques for those processes using triangle meshes. A supplemental website contains downloads and additional information.},
+   author = {Mario Botsch and Leif Kobbelt and Mark Pauly and Pierre Alliez and Bruno Levy},
+   doi = {10.1201/b10688},
+   journal = {Polygon Mesh Processing},
+   title = {Polygon Mesh Processing},
+   year = {2010},
+}
+
+@Manual{blender, 
+   title = {Blender - a 3D modelling and rendering package}, 
+   author = {Blender Online Community}, 
+   organization = {Blender Foundation}, 
+   address = {Stichting Blender Foundation, Amsterdam}, 
+   year = {2018}, 
+   url = {http://www.blender.org}, 
+ }
+ 
+ @inproceedings {meshlab, 
+ booktitle = {Eurographics Italian Chapter Conference}, editor = {Vittorio Scarano and Rosario De Chiara and Ugo Erra}, title = {{MeshLab: an Open-Source Mesh Processing Tool}}, author = {Cignoni, Paolo and Callieri, Marco and Corsini, Massimiliano and Dellepiane, Matteo and Ganovelli, Fabio and Ranzuglia, Guido}, year = {2008}, publisher = {The Eurographics Association}, ISBN = {978-3-905673-68-5}, DOI = {10.2312/LocalChapterEvents/ItalChap/ItalianChapConf2008/129-136} }
+ 
+ @article{DBLP:journals/corr/abs-1904-08755,
+  author    = {Christopher B. Choy and
+               JunYoung Gwak and
+               Silvio Savarese},
+  title     = {4D Spatio-Temporal ConvNets: Minkowski Convolutional Neural Networks},
+  journal   = {CoRR},
+  volume    = {abs/1904.08755},
+  year      = {2019},
+  url       = {http://arxiv.org/abs/1904.08755},
+  eprinttype = {arXiv},
+  eprint    = {1904.08755},
+  timestamp = {Mon, 24 Feb 2020 15:00:26 +0100},
+  biburl    = {https://dblp.org/rec/journals/corr/abs-1904-08755.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@generic{Guo2021,
+   abstract = {Point cloud learning has lately attracted increasing attention due to its wide applications in many areas, such as computer vision, autonomous driving, and robotics. As a dominating technique in AI, deep learning has been successfully used to solve various 2D vision problems. However, deep learning on point clouds is still in its infancy due to the unique challenges faced by the processing of point clouds with deep neural networks. Recently, deep learning on point clouds has become even thriving, with numerous methods being proposed to address different problems in this area. To stimulate future research, this paper presents a comprehensive review of recent progress in deep learning methods for point clouds. It covers three major tasks, including 3D shape classification, 3D object detection and tracking, and 3D point cloud segmentation. It also presents comparative results on several publicly available datasets, together with insightful observations and inspiring future research directions.},
+   author = {Yulan Guo and Hanyun Wang and Qingyong Hu and Hao Liu and Li Liu and Mohammed Bennamoun},
+   doi = {10.1109/TPAMI.2020.3005434},
+   issn = {19393539},
+   issue = {12},
+   journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+   title = {Deep Learning for 3D Point Clouds: A Survey},
+   volume = {43},
+   year = {2021},
+}
+
+
+@inproceedings{Maturana2015,
+   abstract = {Robust object recognition is a crucial skill for robots operating autonomously in real world environments. Range sensors such as LiDAR and RGBD cameras are increasingly found in modern robotic systems, providing a rich source of 3D information that can aid in this task. However, many current systems do not fully utilize this information and have trouble efficiently dealing with large amounts of point cloud data. In this paper, we propose VoxNet, an architecture to tackle this problem by integrating a volumetric Occupancy Grid representation with a supervised 3D Convolutional Neural Network (3D CNN). We evaluate our approach on publicly available benchmarks using LiDAR, RGBD, and CAD data. VoxNet achieves accuracy beyond the state of the art while labeling hundreds of instances per second.},
+   author = {Daniel Maturana and Sebastian Scherer},
+   doi = {10.1109/IROS.2015.7353481},
+   issn = {21530866},
+   journal = {IEEE International Conference on Intelligent Robots and Systems},
+   title = {VoxNet: A 3D Convolutional Neural Network for real-time object recognition},
+   volume = {2015-December},
+   year = {2015},
+}
+
+@inproceedings{Wu2015,
+   abstract = {3D shape is a crucial but heavily underutilized cue in today's computer vision systems, mostly due to the lack of a good generic shape representation. With the recent availability of inexpensive 2.5D depth sensors (e.g. Microsoft Kinect), it is becoming increasingly important to have a powerful 3D shape representation in the loop. Apart from category recognition, recovering full 3D shapes from view-based 2.5D depth maps is also a critical part of visual understanding. To this end, we propose to represent a geometric 3D shape as a probability distribution of binary variables on a 3D voxel grid, using a Convolutional Deep Belief Network. Our model, 3D ShapeNets, learns the distribution of complex 3D shapes across different object categories and arbitrary poses from raw CAD data, and discovers hierarchical compositional part representation automatically. It naturally supports joint object recognition and shape completion from 2.5D depth maps, and it enables active object recognition through view planning. To train our 3D deep learning model, we construct ModelNet - a large-scale 3D CAD model dataset. Extensive experiments show that our 3D deep representation enables significant performance improvement over the-state-of-the-arts in a variety of tasks.},
+   author = {Zhirong Wu and Shuran Song and Aditya Khosla and Fisher Yu and Linguang Zhang and Xiaoou Tang and Jianxiong Xiao},
+   doi = {10.1109/CVPR.2015.7298801},
+   issn = {10636919},
+   journal = {Proceedings of the IEEE Computer Society Conference on Computer Vision and Pattern Recognition},
+   title = {3D ShapeNets: A deep representation for volumetric shapes},
+   volume = {07-12-June-2015},
+   year = {2015},
+}
+
+@incollection{NEURIPS2019_9015,
+title = {PyTorch: An Imperative Style, High-Performance Deep Learning Library},
+author = {Paszke, Adam and Gross, Sam and Massa, Francisco and Lerer, Adam and Bradbury, James and Chanan, Gregory and Killeen, Trevor and Lin, Zeming and Gimelshein, Natalia and Antiga, Luca and Desmaison, Alban and Kopf, Andreas and Yang, Edward and DeVito, Zachary and Raison, Martin and Tejani, Alykhan and Chilamkurthy, Sasank and Steiner, Benoit and Fang, Lu and Bai, Junjie and Chintala, Soumith},
+booktitle = {Advances in Neural Information Processing Systems 32},
+editor = {H. Wallach and H. Larochelle and A. Beygelzimer and F. d\textquotesingle Alch\'{e}-Buc and E. Fox and R. Garnett},
+pages = {8024--8035},
+year = {2019},
+publisher = {Curran Associates, Inc.},
+url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-performance-deep-learning-library.pdf}
+}

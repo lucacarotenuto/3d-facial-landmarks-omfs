@@ -1,0 +1,23 @@
+\documentclass[crop=false]{standalone}
+
+\usepackage[subpreambles=false]{standalone}
+\usepackage{import}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{tikz}
+
+\begin{document}
+
+\begin{figure*}
+  \centering
+  % \hspace*{-0.08\linewidth}
+  \includegraphics[width=\linewidth]{thesis/methods/import/imgs/diffusionnet_architecture.png}
+  %\vspace*{-0.06\linewidth}
+  \captionof{figure}{
+    \textbf{DiffusionNet architecture.}
+    \small After precomputation of necessary operators, the input is applied to a number of blocks. In each block, spatial gradients and diffused features are fed into a point-wise MLP and residual connections are used to facilitate training. In this work, diffusion is computed by spectral acceleration. 
+  }
+  \label{fig:diffusionnet_architecture}
+\end{figure*}
+
+\end{document}

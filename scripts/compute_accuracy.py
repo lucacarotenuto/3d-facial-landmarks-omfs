@@ -7,16 +7,21 @@ import numpy as np
 import potpourri3d as pp3d
 from tqdm import tqdm
 from utils import eucl_dist
+from sympy import Plane, Point3D
 
 
 def main():
-    ROOTDIR = 'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\refine_ldmks\\refined_196_manual_mult'
+    ROOTDIR = '/Users/carotenuto/Documents/GitHub/3d-facial-landmarks-omfs/diffusion-net/experiments/refine_ldmks/refined_500_mult_25_3'
     LANDMARK_INDICES = [8, 27, 30, 31, 33, 35, 36, 39, 42, 45, 60, 64]  # e.g. nosetip 31 has index 30
+    #LANDMARK_INDICES = [8, 27, 30, 33, 36, 39, 42, 45, 60, 64]
+    #LANDMARK_INDICES = [8, 27, 30, 33, 36, 39, 42, 45, 60, 64]
     IS_REFINED = True # are predictions refined?
     #LDMKS = np.load('C:\\Users\\Luca\\Documents\\headspace_pcl_all\\ldmks.pkl',
     #                allow_pickle=True)  # shape (samples, landmarks + 1, 3)
-    LDMKS = np.load('D:\\Master_proj\\subjects_196_pcl\\ldmks.pkl',
+    LDMKS = np.load('/Users/carotenuto/Master Radboud/MscProj/manual_results/subjects_196_labelled/ldmks.pkl',
                     allow_pickle=True)  # shape (samples, landmarks + 1, 3)
+    REMOVE_SYMMETRICAL_PREDS = False
+
     # determine total prediction number and num landmarks
     total_preds = 0
     for path in glob.iglob(os.path.join(ROOTDIR, 'preds', 'hmap_per_class*.pkl')):
@@ -27,7 +32,7 @@ def main():
     if not IS_REFINED:
         num_ldmks = pred.shape[1]
     else:
-        num_ldmks = 12
+        num_ldmks = 5   
     #num_ldmks = 10 # define landmarks manually if predictions include more landmarks
 
     if not IS_REFINED:
@@ -86,11 +91,6 @@ def main():
         # only keep selected landmarks
         target = [item for pos, item in enumerate(target) if pos in LANDMARK_INDICES]
 
-        # make point activations (pred is non-sparse representation (ldmks, verts))
-        pred = np.transpose(pred)
-        pred_pt = np.zeros_like(pred)
-        pred_pt[np.arange(len(pred)), pred.argmax(1)] = 1
-
         # get vertex xyz coordinate
         for file in os.listdir(os.path.join(ROOTDIR, 'test', folder_num + '', folder_num_ldmk if IS_REFINED else '')):
             # .txt extension for pcl
@@ -106,6 +106,46 @@ def main():
                 verts_filepath = os.path.join(ROOTDIR, 'test/{}'.format(folder_num), file)
                 verts, _ = pp3d.read_mesh(verts_filepath)
                 break
+
+        pred = np.transpose(pred)
+        
+        if REMOVE_SYMMETRICAL_PREDS:
+            # get nasion, pronasale and subnasale coordinates
+            ns = verts[np.argmax(pred[1,:])]
+            prn = verts[np.argmax(pred[2,:])]
+            sn = verts[np.argmax(pred[3,:])]
+
+            # create a plane
+            plane = Plane(Point3D(ns), Point3D(prn), Point3D(sn))
+
+            # as computation is expensive, sort activations descending for each channel, if point found at the right side, set activation 1.0 and leave loop
+            right = [3, 6, 7, 10] if len(LANDMARK_INDICES) == 12 else [4, 5, 8]
+            left = [5, 8, 9, 11] if len(LANDMARK_INDICES) == 12 else [6, 7, 9]
+            sorted_indices_r = [np.argsort(pred[x,:])[::-1] for x in right]
+            sorted_indices_l = [np.argsort(pred[x,:])[::-1] for x in left]
+            # check on which side of the plane prediction points are by checking if plane equation is:
+            #   smaller 0, then point is at right side of mid-face plane (subjects perspective)
+            #   bigger 0, then point is at left side of mid-face plane (subjects perspective)
+            for i, channel in enumerate(sorted_indices_r):
+                for j, ind in enumerate(channel):
+                    if plane.equation(verts[ind][0], verts[ind][1], verts[ind][2]) < 0:
+                        pred[right[i], ind] = 1.0
+                        print(i, j)
+                        break
+                    if j == 80:
+                        break
+            for i, channel in enumerate(sorted_indices_l):
+                for j, ind in enumerate(channel):
+                    if plane.equation(verts[ind][0], verts[ind][1], verts[ind][2]) > 0:
+                        pred[left[i], ind] = 1.0
+                        print(i, j)
+                        break
+                    if j == 80:
+                        break
+
+        # make point activations (pred is non-sparse representation (ldmks, verts))
+        pred_pt = np.zeros_like(pred)
+        pred_pt[np.arange(len(pred)), pred.argmax(1)] = 1
 
         # pred indices with activation 1
         indcs = np.where(pred_pt == 1)[1]

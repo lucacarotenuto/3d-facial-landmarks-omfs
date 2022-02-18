@@ -58,9 +58,24 @@
 
 
 \section{Discussion}
+% diffusion net paper says raw points clouds restrict to real A for learned pointwise products. For meshes, symmetical features might be better captured
+
+% weighting scheme can be optimized by more carefully tuning, or focal loss?
+
+% activation scheme too
+
+% trade off: initial network slow, refinement quick; by reducing inital resolution and  times could be quicker while only slightly reducing accuracy
+
+% DiffusionNets ability for deals with the problem by learning pairwise gradient products. The inner product between pairs of feature gradients are invariant to rotations ... adds robustness but not true invariance.
+
 \label{sec:discussion}
 \subsection{Limitations}
-Requires pre-computed operations. Processes point clouds instead of meshes. Not universally applicable: subjects should be able to be landmarked independently of variations in pose, expression, illumination, background, occlusion, and image quality.
+% Requires pre-computed operations. Processes point clouds instead of meshes. Not universally applicable: subjects should be able to be landmarked independently of variations in pose, expression, illumination, background, occlusion, and image quality.
+
+\subsection{Future work}
+% maybe approaching problem as a segmentation instead of point-wise regression yields better results
+
+% transfer learning, hs set, refined ldmks...
 
 
 \end{document}

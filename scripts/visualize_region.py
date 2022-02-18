@@ -30,13 +30,13 @@ def in_hull(p, hull):
 
 def main():
     # Directory should contain 'test' folder and 'preds' folder
-    PREDS_DIR = 'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\headspace_ldmks\\pcl_196_30k'
+    PREDS_DIR = '/Users/carotenuto/Master Radboud/MscProj/manual_results/pcl_196_30k'
 
     # High res .obj directory
-    HRES_DIR = 'D:\\Master_proj\\subjects_196_labelled'
+    HRES_DIR = '/Volumes/Extreme SSD/MscProject/annotations_manual/annotations_luc_har_raw'
 
     # Save dir
-    SAVE_DIR = 'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\refine_ldmks\\refined_196_manual_inference'
+    SAVE_DIR = '/Volumes/Extreme SSD/MscProject/pcl_196_rgb/refine_ldmks/refined_500_manual_inference'
 
     VISUALIZE = False
 
@@ -127,7 +127,7 @@ def main():
                 for k, coords in enumerate(high_res_points):
                     dist = utils.eucl_dist(coords_max[0], coords_max[1], coords_max[2],
                                            coords[0], coords[1], coords[2], )
-                    if dist < 25:
+                    if dist < 30:
                         high_res_region.append(high_res_points[k])
 
             high_res_region_np = np.array(high_res_region)

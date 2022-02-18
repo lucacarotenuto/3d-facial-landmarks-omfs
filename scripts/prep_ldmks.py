@@ -13,7 +13,7 @@ from pathlib import Path
 def main():
     # Rootdir of headspace dataset
     # rootdir = '/Users/carotenuto/Master Radboud/MscProj/subjects_1-150/'
-    ROOTDIR = 'D:\\Master_proj\\subjects_196_labelled'
+    ROOTDIR = '/Volumes/Extreme SSD/MscProject/no-op/no_op_manual_labels'
     # Set True if manual labels ldmks.csv created by 3DMedX, False if headspace labels landmarks13*.txt
     MANUAL_LABELS = True
 

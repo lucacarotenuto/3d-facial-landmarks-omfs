@@ -33,10 +33,15 @@
 
 \usepackage{geometry}
 \geometry{
-   a4paper,
-   left=20mm, right=20mm,
-   top=20mm, bottom=25mm
+  a4paper,
+  left=20mm, right=20mm,
+  top=20mm, bottom=25mm
  }
+%  \geometry{
+%   a4paper,
+%   left=30mm, right=30mm,
+%   top=30mm, bottom=35mm
+%  }
  
 \usepackage{hyperref}
 \hypersetup{
@@ -56,8 +61,8 @@
 
 \begin{document}
 
-   \includepdf[pages=-]{titlepage/titlepage.pdf} % create with pdfescape.com
- % \subimport{titlepage}{titlepage}
+  \includepdf[pages=-]{titlepage/titlepage.pdf} % create with pdfescape.com
+%   \subimport{titlepage}{titlepage}
 
   \subimport{introduction}{abstract_thesis}
   \restoregeometry
@@ -76,7 +81,7 @@
 
 \begin{refsection}
 
-\twocolumn
+\onecolumn
 \appendix
   \subimport{appendices}{1}
   \clearpage

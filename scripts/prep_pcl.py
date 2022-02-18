@@ -9,10 +9,10 @@ from tqdm import tqdm
 
 def main():
     # Rootdir that contains the full resolution meshes, only meshes with manual labelled .csv files are prepared
-    ROOTDIR = '/Volumes/Extreme SSD/MscProject/no-op/no-op_2'
+    ROOTDIR = '/Volumes/Extreme SSD/MscProject/no-op/no_op_manual_labels'
     # New folder where simplified point cloud should be saved
-    NEW_FOLDER = '/Volumes/Extreme SSD/MscProject/no-op/no-op_2/pcl2'
-    NO_OP = True
+    NEW_FOLDER = '/Volumes/Extreme SSD/MscProject/no-op/no_op_manual_labels'
+    NO_OP = False
     j= 0
     ms = pymeshlab.MeshSet()
     if not NO_OP:

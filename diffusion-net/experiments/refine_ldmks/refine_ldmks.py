@@ -1,4 +1,4 @@
-print('test')
+
 import os
 import sys
 import argparse
@@ -10,7 +10,7 @@ import pickle
 import gc
 import shutil
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "..\\..\\src\\"))  # add the path to the DiffusionNet src
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "src"))  # add the path to the DiffusionNet src
 import diffusion_net
 from refine_ldmks_dataset import HeadspaceLdmksDataset
 
@@ -159,13 +159,19 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--evaluate', action="store_true", help="evaluate using the pretrained model")
 parser.add_argument('--input_features', type=str, help="what features to use as input ('xyz' or 'hks') default: hks", default='hks')
 parser.add_argument('--data_format', type=str, help="what format does the data have ('pcl' or 'mesh') default: pcl", default='pcl')
-parser.add_argument('--data_dir', type=str, help="directory name of dataset", default='pcl')
+parser.add_argument('--data_dir', type=str, help="directory name of dataset")
 parser.add_argument('--test_without_score', action='store_true', help="do not evaluate with score"
-                                                                      "(if no ground truth available)")
+                                                                    "(if no ground truth available)")
 parser.add_argument('--validate', action='store_true', help='if validating the training of refinement model')
 
-
 args = parser.parse_args()
+args.input_features = "xyz"
+args.data_dir = "refined_500_mult_25_3"
+args.validate = False
+args.evaluate = True
+args.test_without_score = True
+
+
 
 
 # system things
@@ -196,16 +202,16 @@ c_width = 256
 #augment_random_rotate = (input_features == 'xyz')
 
 
-#for ldmk_iter in [11]:
+#for ldmk_iter in [4,11]:
 for ldmk_iter in range(12):
 
     # Important paths
     base_path = os.path.dirname(__file__)
     dataset_path = os.path.join(base_path, args.data_dir)
     op_cache_dir = os.path.join(dataset_path, "op_cache")
-    last_model_path = os.path.join(dataset_path, "saved_models\\headspace_ldmks_last_{}_{}x{}_ldmk{}.pth".format(input_features,
+    last_model_path = os.path.join(dataset_path, "saved_models", "headspace_ldmks_last_{}_{}x{}_ldmk{}.pth".format(input_features,
                                                                                 n_block, c_width, ldmk_iter))
-    best_model_path = os.path.join(dataset_path, "saved_models\\headspace_ldmks_best_{}_{}x{}_ldmk{}.pth".format(input_features,
+    best_model_path = os.path.join(dataset_path, "saved_models", "headspace_ldmks_best_{}_{}x{}_ldmk{}.pth".format(input_features,
                                                                                 n_block, c_width, ldmk_iter))
     pretrain_path = best_model_path
 
@@ -253,7 +259,6 @@ for ldmk_iter in range(12):
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     for param in model.parameters():
-        print(param.requires_grad)
 
 
 

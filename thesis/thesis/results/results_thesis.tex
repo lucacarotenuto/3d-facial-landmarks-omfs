@@ -45,39 +45,74 @@
 
 
 \begin{document}
-
+\twocolumn
 
 
 
 \section{Results}
 \label{sec:results}
 
-\newcolumntype{L}{>{\raggedright\arraybackslash}X}
-\begin{table*}[!ht]
+% applying on meshes, applying on high resolution test samples...
 
-\captionof{table}{\textbf{Landmarks that are considered in this work.}
-Definitions from \cite{Bidra2009} and \cite{Plooij2009}
+% tell about effect of weighted mse
+
+%\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\begin{table*}[!htbp]
+
+\captionof{table}{\textbf{Prediction errors in mm.} Initial networks are trained on Headspace meshes (110 manually labelled, 1100 Headspace labels) with XYZ and HKS features. The refinement network is trained on 110 meshes (manual labels) with XYZ features. All networks are evaluated on 30 Headspace meshes (manually labelled).
     }
 \label{table:landmark_names}
-\begin{tabularx}{\textwidth}{l|l|L}
+\begin{tabularx}{\textwidth}{l|c|c|c}
 \toprule
-Landmark               & Error in mm &           
+Landmark               & Initial Network (XYZ)   & Refinement Network (XYZ)   & Initial Network (HKS)           
 \\
 \midrule
-Pogonion               & pg        &  \pm                                                                            \\
-Nasion                 & n            & \\
-Pronasale              & prn          & \\
-Subnasale              & sn           & \\
-Alar curvature (right) & ac-r         & \\
-Alar curvature (left)  & ac-l         & \\
-Exocanthion (right)    & ex-r         & \\
-Endocanthion (right)   & en-r         & \\
-Endocanthion (left)    & en-l         & \\
-Exocanthion (left)     & ex-l         & \\
-Cheilion (right)       & ch-r         & \\
-Cheilion (left)        & ch-l         &                                                                   
+Pogonion               & 7.703       & 4.780 & 13.902                                                                        \\
+Nasion                 & 2.762            & 1.867  & 3.314\\ %\pm
+Pronasale              & 2.444            & 1.864 & 3.313\\
+Alar curvature (right) & 2.541         & 2.089 & -\\
+Subnasale              & 2.871         & 2.472 & 3.280 \\
+Alar curvature (left)  & 3.037         & 2.662 & - \\
+Exocanthion (right)    & 5.134         & 5.017 & 4.247\\
+Endocanthion (right)   & 3.346         & 2.386 & 4.081\\
+Endocanthion (left)    & 2.355         & 2.635 & 5.718\\
+Exocanthion (left)     & 4.550         & 4.040 & 5.710\\
+Cheilion (right)       & 4.806         & 4.189 & 5.710\\
+Cheilion (left)        & 3.221         & 2.964 & 4.732\\
+\bottomrule
+mean & 3.731 & 3.089 & 5.386
 \end{tabularx}
 \end{table*}
+
+
+
+\import{}{import/pred_gt_pt.tex}
+
+
+\begin{table*}[!htbp]
+
+\captionof{table}{\textbf{Evaluation on Headspace labels} The initial networks are trained on 1200 Headspace point clouds with the Headspace labels and XYZ features. Evaluating on Headspace labels instead of manual labels unsurprisingly yields better results because the network presented more similar targets during training and evaluation. In the experiments, training on meshes instead of point clouds led to higher errors, which is why the remaining experiments were performed on the point cloud format.}
+\label{table:landmark_names}
+\begin{tabularx}{\textwidth}{l|c|c}
+\toprule
+Landmark               & Initial network (Point cloud)   & Initial Network (Mesh)      
+\\
+\midrule
+Pogonion               & 4.08       & 5.35                                                                        \\
+Nasion                 & 2.00       & 2.78  \\ %\pm
+Pronasale              & 2.96       & 3.20 \\
+Subnasale              & 2.81       & 1.98 \\
+Exocanthion (right)    & 2.71       & 3.89 \\
+Endocanthion (right)   & 2.51       & 2.92 \\
+Endocanthion (left)    & 2.30       & 2.15 \\
+Exocanthion (left)     & 3.07       & 3.50\\
+Cheilion (right)       & 2.71       & 3.46 \\
+Cheilion (left)        & 3.12       & 3.79 \\
+\bottomrule
+mean & 2.825 & 3.302 
+\end{tabularx}
+\end{table*}
+
 
 
 \end{document}

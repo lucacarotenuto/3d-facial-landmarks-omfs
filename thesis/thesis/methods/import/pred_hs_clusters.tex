@@ -1,0 +1,23 @@
+\documentclass[crop=false]{standalone}
+
+\usepackage[subpreambles=false]{standalone}
+\usepackage{import}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{tikz}
+
+\begin{document}
+
+
+\begin{center}
+  % \hspace*{-0.08\linewidth}
+  \includegraphics[width=\linewidth]{thesis/methods/import/imgs/pred_hs_clusters.png}
+  %\vspace*{-0.06\linewidth}
+  \captionof{figure}{
+    \textbf{Prediction example.}
+    \small Sample from Headspace data set. The intensity of the red points represents the predicted score. Note, that although it is not visible in this depiction, each cluster is part of a different channel to ensure a clear distinction between landmarks.
+  }
+  \label{fig:pred_hs_clusters}
+\end{center}
+
+\end{document}

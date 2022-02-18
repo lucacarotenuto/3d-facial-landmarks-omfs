@@ -26,9 +26,9 @@ parser.add_argument("--data_dir", type=str, help="directory name of dataset", de
 args = parser.parse_args()
 
 args.input_features = 'xyz'
-args.data_dir = 'no_op'
-args.test_without_score = True
-args.evaluate = True
+args.data_dir = 'manual_2'
+args.test_without_score = False
+args.evaluate = False
 
 
 # system things
@@ -53,8 +53,8 @@ lr = 1e-3
 decay_every = 50
 decay_rate = 0.5
 n_block = 4
-c_width = 256
-augment_random_rotate = (input_features == 'xyz') and True
+c_width = 128
+augment_random_rotate = (input_features == 'xyz') and False
 use_rgb = False
 
 
@@ -85,7 +85,7 @@ if train:
 
 # === Create the model
 
-C_in = {'xyz': 6 if use_rgb else 3, 'hks': 16}[input_features]  # dimension of input features
+C_in = {'xyz': 6 if use_rgb else 3, 'hks': 19 if use_rgb else 16}[input_features]  # dimension of input features
 
 model = diffusion_net.layers.DiffusionNet(C_in=C_in,
                                           C_out=n_class,
@@ -93,7 +93,7 @@ model = diffusion_net.layers.DiffusionNet(C_in=C_in,
                                           N_block=n_block,
                                           # last_activation=lambda x : torch.mean(x,dim=1),
                                           outputs_at='vertices',
-                                          dropout=True)
+                                          dropout=False)
 
 
 model = model.to(device)
@@ -134,6 +134,20 @@ def point_weights(labels):
     weights[weights == 0.5] = 50
     weights[weights == 0.25] = 25
     weights[weights == 0] = 1
+    return weights
+
+def point_weights_preds(preds):
+    """
+    Creates per-point weights
+
+    Args:
+        labels: per-point labels
+
+    Returns: weights
+    """
+    weights = torch.clone(preds)
+    weights[weights > 0.3] = 2
+    weights[weights < 0.3] = 1
     return weights
 
 
@@ -192,6 +206,9 @@ def train_epoch(epoch):
             labels = torch.Tensor([])
 
         weights = point_weights(labels)
+        weights_preds = point_weights_preds(predstp)
+        weights = weights*weights_preds
+
 
         # Evaluate loss
         loss = weighted_mse_loss(predstp.to(device), labels.to(device), weights.to(device))
@@ -242,7 +259,7 @@ def test():
             if input_features == 'xyz':
                 features = torch.cat((verts, rgb.float()), dim=1) if use_rgb else verts
             elif input_features == 'hks':
-                features = diffusion_net.geometry.compute_hks_autoscale(evals, evecs, 16)
+                features = diffusion_net.geometry.compute_hks_autoscale(evals, evecs, 16) if not use_rgb else torch.cat((diffusion_net.geometry.compute_hks_autoscale(evals,evecs,16), rgb.float()), dim=1)
 
             # Apply the model
             preds = model(features, mass, L=L, evals=evals, evecs=evecs, gradX=gradX, gradY=gradY, faces=faces)

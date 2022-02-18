@@ -988,8 +988,8 @@ def mirror(verts, ldmks):
 
     #v = pptk.viewer(pcl, show_axis=False)
     #v.set(point_size=0.5, show_axis=True, show_info=True)
-    exr = pcl[ldmk_pts[4]]
-    exl = pcl[ldmk_pts[6]]
+    exr = pcl[ldmk_pts[6]]
+    exl = pcl[ldmk_pts[9]]
 
     # calculate rotation matrix that aligns vector exl exr with x-axis
     R = rotation_matrix_from_vectors(np.array([exl[0] - exr[0], exl[1] - exr[1], exl[2] - exr[2]]),

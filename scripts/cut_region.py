@@ -11,17 +11,18 @@ from utils import eucl_dist
 from tqdm import tqdm
 
 def main():
-    TRAIN_DIR = 'D:\\Master_proj\\subjects'
-    LOWRES_DIR = 'D:\\Master_proj\\subjects_196_pcl'
+    TRAIN_DIR = '/Volumes/Extreme SSD/MscProject/subjects'
+    LOWRES_DIR = '/Volumes/Extreme SSD/MscProject/subjects_196_labelled'
     SAVE_DIR = 'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\refine_ldmks\\refined_196_manual_mult\\train'
     LANDMARK_INDICES = [8, 27, 30, 31, 33, 35, 36, 39, 42, 45, 60, 64]
     # LANDMARK_INDICES = [33] # subnasal
-    LDMKS = np.load('D:\\Master_proj\\subjects_196_pcl\\ldmks.pkl',
+    LDMKS = np.load('/Volumes/Extreme SSD/MscProject/subjects_196_labelled/ldmks.pkl',
                     allow_pickle=True)  # shape (samples, landmarks + 1, 3)
     LANDMARK_INDICES = [x + 1 for x in LANDMARK_INDICES]
     LDMKS = LDMKS[:, np.concatenate(([0], LANDMARK_INDICES)), :]  # +1 because first row reserved for folder_num
+    PRINT_MEAN_DIST = False
 
-    for filepath in tqdm(glob.glob(os.path.join(LOWRES_DIR, '*', '*.txt'))):
+    for filepath in tqdm(glob.glob(os.path.join(LOWRES_DIR, '*', '13*.txt'))):
         folder_num = Path(filepath).parts[-2]
         folder_num_int = int(folder_num)
 
@@ -33,9 +34,10 @@ def main():
         # targets = np.load(os.path.join(LOWRES_DIR, folder_num, 'hmap_per_class.pkl'), allow_pickle=True)
 
         # process lowres pointcloud file
-        lines = open(filepath, 'r').read().split('\n')[:-1]
-        verts = [[float(l) for l in lines[j].split(',')[:3]] for j in range(len(lines))]
-        verts = np.array(verts)
+        #lines = open(filepath, 'r').read().split('\n')[:-1]
+        #verts = [[float(l) for l in lines[j].split(',')[:3]] for j in range(len(lines))]
+        
+        verts = np.loadtxt(filepath)
 
         # only keep selected landmarks
         # targets = [item for pos, item in enumerate(targets) if pos in LANDMARK_INDICES]
@@ -47,6 +49,25 @@ def main():
 
         # process high res .obj file to pcl
         pcl_hres, _ = pp3d.read_mesh(obj_path)
+
+        if PRINT_MEAN_DIST:
+            # calculate mean distance between vertices
+            a = len(pcl_hres)
+            dist_list = np.zeros((a))
+            for j in tqdm(range(a)):
+                shortest_dist = 99999999
+                for i in range(len(pcl_hres)):
+                    if j != i:
+                        orig_coords = pcl_hres[j]
+                        target_coords= pcl_hres[i]
+                        dist = eucl_dist(orig_coords[0], orig_coords[1], orig_coords[2], target_coords[0], target_coords[1],
+                                        target_coords[2])
+                        if dist < shortest_dist:
+                            shortest_dist = dist
+                dist_list[j] = shortest_dist
+                # running mean
+                print('running mean {}'.format(np.mean(dist_list[:j])))
+            print(np.mean(dist_list))
 
         # identify landmark coordinates for file
         for i in range(LDMKS.shape[0]):
@@ -91,8 +112,8 @@ def main():
                 dir = os.path.join(SAVE_DIR, folder_num + '_' + str(o), str(m))
                 if not os.path.exists(dir):
                     os.makedirs(dir)
-                np.savetxt(os.path.join(dir, os.path.basename(filepath)[:-3] + 'txt'), X=pcl_hres_region, fmt='%10.7f',
-                           delimiter=',')
+                #np.savetxt(os.path.join(dir, os.path.basename(filepath)[:-3] + 'txt'), X=pcl_hres_region, fmt='%10.7f',
+                #           delimiter=',')
 
                 # # get points with shortest distance to actual landmark
                 # shortest_dist = 99999999
@@ -142,8 +163,8 @@ def main():
                 # to have similarity to gaussian heatmap
                 print(np.unique(output[:,1], return_counts=True))
 
-                with open(os.path.join(SAVE_DIR, folder_num + '_' + str(o), str(m), 'hmap_per_class.pkl'), 'wb') as f:
-                    pickle.dump(output, f)
+                #with open(os.path.join(SAVE_DIR, folder_num + '_' + str(o), str(m), 'hmap_per_class.pkl'), 'wb') as f:
+                #    pickle.dump(output, f)
 
 if __name__ == "__main__":
     main()

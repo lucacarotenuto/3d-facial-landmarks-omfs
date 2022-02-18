@@ -25,7 +25,7 @@ class HeadspaceLdmksDataset(Dataset):
         self.data_format = data_format
         self.num_landmarks = num_landmarks
         self.augment_mirror = False
-        self.no_op = True
+        self.no_op = False
 
         # store in memory
         self.verts_list = []
@@ -72,15 +72,18 @@ class HeadspaceLdmksDataset(Dataset):
 
             # create sparse labels
             landmark_indices = {8,27,30,31,33,35,36,39,45,42,60,64} # indices start with 1
+            #landmark_indices = {8,27,30,33,36,39,42,45,60,64} # indices start with 1
+            #landmark_indices = {30, 39, 42, 60, 64}
+            #landmark_indices = {30}
 
-            if self.train:
-                with open(os.path.join(self.root_dir, 'train' if self.train else 'test', folder_num,
-                                    'hmap_per_class.pkl'), 'rb') as fpath:
-                    labels_sparse = pickle.load(fpath)
-                labels_sparse = [item for pos, item in enumerate(labels_sparse) if pos in landmark_indices]
-                labels = self.labels_from_sparse(verts, labels_sparse)
-            else:
-                labels = np.array([])
+            #if :
+            with open(os.path.join(self.root_dir, 'train' if self.train else 'test', folder_num,
+                                'hmap_per_class.pkl'), 'rb') as fpath:
+                labels_sparse = pickle.load(fpath)
+            #labels_sparse = [item for pos, item in enumerate(labels_sparse) if pos in landmark_indices]
+            labels = self.labels_from_sparse(verts, labels_sparse)
+            #else:
+            #    labels = np.array([])
 
             # if this file is not cached, populate
             if not os.path.isfile(os.path.join(self.cache_dir, '{}.pt'.format(folder_num))):
@@ -90,12 +93,12 @@ class HeadspaceLdmksDataset(Dataset):
                     verts, faces, k_eig=self.k_eig, op_cache_dir=self.op_cache_dir)
                 torch.save((verts, faces, rgb, labels, frames, massvec, L,
                             evals, evecs, gradX, gradY), os.path.join(self.cache_dir, folder_num + ".pt"))
-            
-            if self.augment_mirror:
-                self.num_samples += 1
+            if self.train:
+                if self.augment_mirror:
+                    self.num_samples += 1
 
-                # create mirrored pcl and mirrored landmark heatmaps
-                verts = diffusion_net.geometry.mirror(verts, labels)
+                    # create mirrored pcl and mirrored landmark heatmaps
+                    verts = diffusion_net.geometry.mirror(verts, labels)
 
 
                 

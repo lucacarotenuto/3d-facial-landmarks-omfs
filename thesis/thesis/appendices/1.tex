@@ -50,23 +50,21 @@
 
 
 \section{Explanation of important concepts}
-\label{sec:app1}
+\label{sec:app_imp_concepts}
 % \explain different transformations (rigid...), centering, rotating..
 \begin{description}
-    \item[Rigid deformation] Deformation describes the transformation of an object from an initial to some final geometry. A rigid deformation, in contrast to non-rigid deformation, does not change the position and orientation of the object relative to the internal reference frame. Rotation around an axis is an example of a rigid operation that changes the configuration of the points relative to the external, but not to the internal reference frame. Translation is another rigid transformation, in the sense that it only affects the external reference frame, as the points within the object are all moved along parallel paths to the axis.
+    \item[Rigid deformation] Deformation describes the transformation of an object from an initial to some final geometry. In contrast to non-rigid deformation, a rigid deformation does not change the position and orientation of the object relative to the internal reference frame. Rotation around an axis is an example of a rigid operation that changes the configuration of the points relative to the external but not to the internal reference frame. Translation is another rigid transformation because it only affects the external reference frame, as the points within the object are all moved along parallel paths to the axis.
     \import{}{import/rigid.tex}
     
-    \item[Non-rigid deformation] Non-rigid deformations can affect points within the object relative to both the internal and external reference frame. Distortion is an example of a non-rigid operation that changes the spacing of points within the object and consequently changes the overall shape of the object. Dilation or scaling is another non-rigid operation that changes the volume of the object, but differently to distortion, retains the same shape for the object.
+    \item[Non-rigid deformation] Non-rigid deformations can affect points within the object relative to both the internal and external reference frame. Distortion is an example of a non-rigid operation that changes the spacing of points within the object and consequently changes the object's overall shape. Dilation or scaling is another non-rigid operation that changes object's volume, but differently from distortion, retains the same shape for the object.
     \import{}{import/nonrigid.tex}
     
-    \item[Isometric deformation/Isometry] 
+    % \item[Intrinsic/extrinsic deep learning] Extrinsic deep learning methods treat the geometric data as Euclidean data with zero curvature, whereas intrinsic deep learning treats the object as manifolds with non-zero curvature.
+    % \import{}{import/ex-intrinsic_dl.tex}
     
-    \item[Intrinsic/extrinsic deep learning] Extrinsic deep learning methods treat the geometric data as Euclidean data. Voxel-based representation methods discretize the 3D data by defining a voxel as the smallest unit in the 3D space. Then, the object can be divided into a 3D grid. A typical network architecture that falls into this category is 3DSN. However, most voxel-based methods suffer from a large memory consumption and long training times due to the added third dimension. Also, some information is lost due to the discretization. Other deep learning methods are based on multi-view representations, such as the multiview-based CNN MVCNN \cite{mvcnn}. Similarly to how the human eye manages to perceive depth, the methods combine views from multiple angles and process them into a single 3D image. Multi-view CNNs render the images from many different views, apply a CNN to each of the 2D image and perform a view pooling operation to combine the features. However, multi-view based methods suffer from different illumination, object occlusion and information loss during the reconstruction of the objects from different views.
-    \import{}{import/ex-intrinsic_dl.tex}
+    \item[Shape descriptor] A shape descriptor characterizes the local geometry of the surface. In other words, they describe a point's role on the surface. Examples for shape descriptors are the Gaussian curvature $K(x) = \kappa_1(x)\kappa_2(x)$ and the mean curvature $H(x) = \kappa_1(x)+\kappa_2(x)$. Good shape descriptors are robust to noise in the triangulation and against small deformations. They should also be invariant under rigid transformation and other isometries. \cite{stanfod_iso}
     
-    \item[Shape descriptor] A shape descriptor characterizes the local geometriy of the surface. Examples for shape descriptors are the Gaussian curvature $K(x) = \kappa_1(x)\kappa_2(x)$ and the mean curvature $H(x) = \kappa_1(x)+\kappa_2(x)$. Good shape descriptors are robust to noise in the triangulation and against small deformations. They should also be invariant under rigid transformation and other isometries. \cite{stanfod_iso}
-    
-    \item[Heat Kernel Signature] The Heat Kernel Signature (HKS) is a popular shape descriptor that is derived from the Laplacian. 
+    \item[Heat Kernel Signature] The Heat Kernel Signature (HKS) is a popular shape descriptor derived from the Laplacian. 
     % If we define $k_t(x,y)$ as the solution to the heat equation
     
     % \begin{equation}
@@ -74,18 +72,45 @@
     % \end{equation}
     For a fixed time $t$, it is defined as 
     \begin{equation}
-        HKS(x) = k_t(x,x) = \sum_{i} e^{-\lambda_i t}\phi_i(x)^2
+        HKS(x) = k_t(x,x) = \sum_{i} e^{-\lambda_i t}\phi_i(x)^2.
     \end{equation}
-    \import{}{import/hks_dragon.tex}
-    The Wave Kernel Signature (WKS) is a shape descriptor similar to HKS but is based on the Schrödinger wave equation. HKS and WKS both have the advantage of isometry-invariance and being easy to compute.
-
+    The time describes, how locally or globally the shape is captured from a given point (see figure \ref{fig:hks_dragon}).
     
-\end{description}
+    There are different shape descriptors, such as the Wave Kernel Signature (WKS) that is similar to HKS but is based on the Schrödinger wave equation. Depending on the application, each has its advantages, but both are invariant to isometric transformations invariant and can be computed efficiently.
+    Furthermore, HKS is also stable under small perturbations to the shape.
+    \import{}{import/hks_dragon.tex}
+    
+    \item[Manifold meshes] Generally speaking, a manifold is a topology that locally resembles Euclidean space. In computer graphics, often, triangular meshes are used as they are the simplest form of polygon meshes and require fewer computations for computer graphical operations. Many applications require the reconstructed triangular mesh surface to be a watertight manifold surface with a correct topology. Watertightness is fulfilled if the mesh does not have holes or missing triangles. Formally, a mesh is manifold if every edge in the mesh is either a boundary edge or a manifold edge, whereas a boundary edge is part of exactly one face and a manifold edge of two faces. Moreover, it does not include non-manifold vertices, i.e. vertices where the corresponding star (= union of all incident faces) is not connected when removing the vertex. See figure \ref{fig:non-manif-e-v} for an illustration of a non-manifold vertex and non-manifold edge.
+    Fixing the mesh to be manifold or watertight, is called mesh healing or mesh repairing.
+    \end{description}
+    
+    
+\vspace{0.05\linewidth}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.4\linewidth]{thesis/appendices/import/imgs/non-manif-e-v.png}
+    \caption{\textbf{Non-manifold geometry.}
+\small Non-manifold vertex (left), non-manifold vertex (right). Image from \cite{Botsch2010}.
+}
+    \label{fig:non-manif-e-v}
+\end{figure}
+\vspace{0.05\linewidth}
+    
 
 
-\section{Background for choice of the network}
-\label{sec:app2}
-The project started with exploring different networks that can tackle the problem of 3D landmark detection. This phase also lead to insights regarding networks that do not work well for the problem at hand. PointNet is one of the earliest and simpler model architectures that operates on point clouds was a straightforward choice  We tried the Pytorch implementation of the extension of PointNet, called PointNet++. The extensio in MeshCNN and Pointnet; many network architectures don't scale well
+\section{Background for choice of the approach}
+\label{sec:app_approach_choice}
+\subsection{Network}
+The project started with exploring different networks that can tackle the problem of 3D landmark detection. This phase also led to insights regarding networks that do not work well for the problem. PointNet is one of the earliest and simpler model architecture that operates on point clouds was a straightforward choice. The first attempts involved the Pytorch implementation of the extension of PointNet, called PointNet++. However, experiments on this network were difficult because of the very high memory consumption of the network architecture, indicating bad scalability. Even for decimated meshes, the input images were still too big for the approach of predicting point-wise activations per landmark channel.
+
+The next attempt to tackle the problem was MeshCNN, which showed better scaling properties and lower memory consumption in our experiments. The motivation to use a network that processes meshes directly instead of point clouds is that meshes include additional surface information that can better capture the surface structure. Specifically, MeshCNN combines specialized convolution and pooling layers that operate on the edges of the mesh.While the first results of a network that performs direct coordinate regression were promising, one big drawback prevents using MeshCNN in practice: the network requires mesh watertightness or manifoldness. Repairing the meshes is usually a manual task in a 3D computer graphics software such as Blender \cite{blender} or Meshlab \cite{meshlab} that cannot easily be automized inside a preprocessing pipeline. Therefore, it not feasible to apply MeshCNN on unseen meshes e.g. the meshes from the control samples from the Radboudumc data set.
+
+\subsection{Direct coordinate regression vs point-wise regression}
+\label{sec:coord_reg_vs_pw_reg}
+A straightforward way to learn the XYZ coordinates of landmarks is to build a regression network that predicts the coordinates directly. However, experiments performed on the MeshCNN network suggested that this approach tends to overfit on the average face structure observed in the training set, as opposed to learning surface-based features (see figure \ref{fig:meshcnn_res}). Importantly, the set of possible predictions also includes all points in space, not restricted to points on the mesh surface. A point-wise approach circumvents this problem by predicting a score for each point, thus only allowing landmark predictions located on the surface of the mesh. Besides, a point-wise approach enables the learning of point clusters that together represent a region in proximity of a landmark.
+\import{}{import/meshcnn_res.tex}
+
 
 % write about manual landmark annotations, how long it takes, which landmarks are easy, which hard...
 

@@ -22,10 +22,10 @@ def rotation_matrix_from_vectors(vec1, vec2):
 
 
 def main():
-    LDMKS = np.load('/Volumes/Extreme SSD/MscProject/headspace_pcl_all/ldmks.pkl',
+    LDMKS = np.load('/Volumes/Extreme SSD/MscProject/headspace_pcl_all/ldmks.pkl',#'/Volumes/Extreme SSD/MscProject/headspace_pcl_all_face/ldmks.pkl',
                     allow_pickle=True)  # shape (samples, landmarks + 1, 3)
     ROOTDIR = '/Volumes/Extreme SSD/MscProject/headspace_pcl_all'
-    RESULT_DIR = '/Volumes/Extreme SSD/MscProject/headspace_pcl_all_face2'
+    RESULT_DIR = '/Volumes/Extreme SSD/MscProject/headspace_pcl_all_f9cm'
     # No_op has different folder structure than headspace and landmarks have to be saved manually
     NO_OP = False
     # Also transform landmarks for headspace
@@ -47,10 +47,11 @@ def main():
         fname = Path(filepath).parts[-1]
         if not NO_OP:
             folder_num = Path(filepath).parts[-2]
-        pcl = np.loadtxt(
+        features = np.loadtxt(
             filepath,
             delimiter=',')
-        pcl = pcl[:, :3]
+        pcl = features[:, :3]
+        normals = features[:, 3:]
 
         if NO_OP:
             if Path(filepath).parts[-1] == '2_13_598.txt':
@@ -84,15 +85,17 @@ def main():
         # align x with exr - exl
         R_X = rotation_matrix_from_vectors(np.array([exl[0] - exr[0], exl[1] - exr[1], exl[2] - exr[2]]),
                                         np.array([1, 0, 0]))
-        pcl_transf = np.dot(pcl, R_X.T)       
+        pcl_transf = np.dot(pcl, R_X.T)
+        normals_transf = np.dot(normals, R_X.T)
 
         # align z with pg - nasion
         R_Z = rotation_matrix_from_vectors(np.array([ns[0] - pg[0], ns[1] - pg[1], ns[2] - pg[2]]),
                                         np.array([0, 0, 1]))
         pcl_transf = np.dot(pcl_transf, R_Z.T)
+        normals_transf = np.dot(normals_transf, R_Z.T)
 
         # remove points behind face (only keep y axis smaller 4cm)
-        pcl_face = pcl_transf[pcl_transf[:,1] < 40]
+        pcl_face = pcl_transf[pcl_transf[:,1] < 90]
 
         # do alignment and centering for landmarks
         if TRANSFORM_LDMKS:
@@ -113,10 +116,12 @@ def main():
         except:
             print('folder could not be created')
         np.savetxt(os.path.join(RESULT_DIR, folder_num, fname), pcl_face, fmt='%10.5f', delimiter=',')
+        #np.savetxt(os.path.join(RESULT_DIR, folder_num, fname), np.concatenate((pcl_face, normals_transf), axis=1), fmt='%10.5f', delimiter=',')
 
     #np.save(os.path.join(RESULT_DIR, 'ldmks.pkl'), transf_ldmks_all, allow_pickle=True)
-    with open(os.path.join(RESULT_DIR, 'ldmks.pkl'), 'wb') as f:
-        pickle.dump(transf_ldmks_all, f)
+    if TRANSFORM_LDMKS:
+        with open(os.path.join(RESULT_DIR, 'ldmks.pkl'), 'wb') as f:
+            pickle.dump(transf_ldmks_all, f)
 
 
 if __name__ == '__main__':

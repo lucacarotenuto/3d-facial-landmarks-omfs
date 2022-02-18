@@ -105,13 +105,13 @@ class HeadspaceLdmksDataset(Dataset):
 
 
 
-        exr = labels[36]  # vec origin
-        exl = labels[45]  # vec target
+        #exr = labels[36]  # vec origin
+        #exl = labels[45]  # vec target
 
-        R = self.rotation_matrix_from_vectors(np.array([exl[0] - exr[0], exl[1] - exr[1], exl[2] - exr[2]]),
-                                         np.array([1, 0, 0]))
+        #R = self.rotation_matrix_from_vectors(np.array([exl[0] - exr[0], exl[1] - exr[1], exl[2] - exr[2]]),
+        #                                 np.array([1, 0, 0]))
 
-        d = np.dot(verts, R.T)
+        #d = np.dot(verts, R.T)
 
         return verts, faces, frames, massvec, L, evals, evecs, gradX, gradY, labels, folder_num, folder_num_ldmk
 

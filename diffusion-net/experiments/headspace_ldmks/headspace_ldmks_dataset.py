@@ -24,7 +24,7 @@ class HeadspaceLdmksDataset(Dataset):
         self.op_cache_dir = op_cache_dir
         self.data_format = data_format
         self.num_landmarks = num_landmarks
-        self.augment_mirror = False
+        self.augment_mirror = True
         self.no_op = False
 
         # store in memory
@@ -77,6 +77,7 @@ class HeadspaceLdmksDataset(Dataset):
             #landmark_indices = {30}
 
             #if :
+
             with open(os.path.join(self.root_dir, 'train' if self.train else 'test', folder_num,
                                 'hmap_per_class.pkl'), 'rb') as fpath:
                 labels_sparse = pickle.load(fpath)
@@ -84,6 +85,8 @@ class HeadspaceLdmksDataset(Dataset):
             labels = self.labels_from_sparse(verts, labels_sparse)
             #else:
             #    labels = np.array([])
+
+
 
             # if this file is not cached, populate
             if not os.path.isfile(os.path.join(self.cache_dir, '{}.pt'.format(folder_num))):
@@ -93,13 +96,25 @@ class HeadspaceLdmksDataset(Dataset):
                     verts, faces, k_eig=self.k_eig, op_cache_dir=self.op_cache_dir)
                 torch.save((verts, faces, rgb, labels, frames, massvec, L,
                             evals, evecs, gradX, gradY), os.path.join(self.cache_dir, folder_num + ".pt"))
+            
             if self.train:
                 if self.augment_mirror:
                     self.num_samples += 1
+                    folder_num = folder_num + '_mirror'
+                    self.folder_num_list.append(folder_num)
 
                     # create mirrored pcl and mirrored landmark heatmaps
                     verts = diffusion_net.geometry.mirror(verts, labels)
+                    mesh_files.append(filepath)
 
+                    # if this file is not cached, populate
+                    if not os.path.isfile(os.path.join(self.cache_dir, '{}.pt'.format(folder_num))):
+                        # Precompute operators
+                        diffusion_net.utils.ensure_dir_exists(self.cache_dir)
+                        frames, massvec, L, evals, evecs, gradX, gradY = diffusion_net.geometry.populate_cache(
+                            verts, faces, k_eig=self.k_eig, op_cache_dir=self.op_cache_dir)
+                        torch.save((verts, faces, rgb, labels, frames, massvec, L,
+                                    evals, evecs, gradX, gradY), os.path.join(self.cache_dir, folder_num + ".pt"))
 
                 
 

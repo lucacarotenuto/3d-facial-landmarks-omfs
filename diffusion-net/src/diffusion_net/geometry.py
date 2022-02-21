@@ -991,7 +991,7 @@ def mirror(verts, ldmks):
     exr = pcl[ldmk_pts[6]]
     exl = pcl[ldmk_pts[9]]
 
-    # calculate rotation matrix that aligns vector exl exr with x-axis
+    # calculate rotation matrix that aligns vector exr exl with x-axis
     R = rotation_matrix_from_vectors(np.array([exl[0] - exr[0], exl[1] - exr[1], exl[2] - exr[2]]),
                                     np.array([1, 0, 0]))
 
@@ -1001,11 +1001,8 @@ def mirror(verts, ldmks):
     # create mirrored point cloud
     e = d.copy()
     e[:, 0] = -e[:, 0]
-
-    # create mirrored landmarks
-
-    # take maxium activation for each original landmark heatmap, mirror, create new heatmaps based on distance
-    return torch.from_numpy(e)
+    
+    return torch.from_numpy(e).float()
 
 def rotation_matrix_from_vectors(vec1, vec2):
     """ Find the rotation matrix that aligns vec1 to vec2

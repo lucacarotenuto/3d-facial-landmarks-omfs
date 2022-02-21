@@ -32,7 +32,7 @@ def main():
     if not IS_REFINED:
         num_ldmks = pred.shape[1]
     else:
-        num_ldmks = 5   
+        num_ldmks = 12   
     #num_ldmks = 10 # define landmarks manually if predictions include more landmarks
 
     if not IS_REFINED:

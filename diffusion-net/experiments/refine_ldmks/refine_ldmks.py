@@ -203,7 +203,7 @@ c_width = 256
 
 
 #for ldmk_iter in [4,11]:
-for ldmk_iter in range(12):
+for ldmk_iter in range(3,12):
 
     # Important paths
     base_path = os.path.dirname(__file__)
@@ -213,7 +213,7 @@ for ldmk_iter in range(12):
                                                                                 n_block, c_width, ldmk_iter))
     best_model_path = os.path.join(dataset_path, "saved_models", "headspace_ldmks_best_{}_{}x{}_ldmk{}.pth".format(input_features,
                                                                                 n_block, c_width, ldmk_iter))
-    pretrain_path = best_model_path
+    pretrain_path = last_model_path
 
     # === Load datasets
 
@@ -257,8 +257,6 @@ for ldmk_iter in range(12):
 
     # === Optimize
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-
-    for param in model.parameters():
 
 
 

@@ -48,7 +48,7 @@ k_eig = 128
 
 # training settings
 train = not args.evaluate
-n_epoch = 1
+n_epoch = 10
 lr = 1e-3
 decay_every = 50
 decay_rate = 0.5
@@ -136,20 +136,6 @@ def point_weights(labels):
     weights[weights == 0] = 1
     return weights
 
-def point_weights_preds(preds):
-    """
-    Creates per-point weights
-
-    Args:
-        labels: per-point labels
-
-    Returns: weights
-    """
-    weights = torch.clone(preds)
-    weights[weights > 0.3] = 2
-    weights[weights < 0.3] = 1
-    return weights
-
 
 def train_epoch(epoch):
 
@@ -206,8 +192,6 @@ def train_epoch(epoch):
             labels = torch.Tensor([])
 
         weights = point_weights(labels)
-        weights_preds = point_weights_preds(predstp)
-        weights = weights*weights_preds
 
 
         # Evaluate loss

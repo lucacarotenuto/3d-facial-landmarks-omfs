@@ -139,7 +139,7 @@ for filepath in tqdm(glob.iglob(os.path.join(rootdir, searchpath))):
             # create a plane
             plane = Plane(Point3D(ns), Point3D(prn), Point3D(sn))
 
-            # as computation is expensive, sort activations descending for each channel, if point found at the right side, set activation 1.0 and leave loop
+            # as computation is expensive, sort activations descending for each channel, if point found at the correct side, set activation 1.0 and leave loop
             right = [3, 6, 7, 10] if len(LANDMARK_INDICES) == 12 else [4, 5, 8]
             left = [5, 8, 9, 11] if len(LANDMARK_INDICES) == 12 else [6, 7, 9]
             sorted_indices_r = [np.argsort(preds[x,:])[::-1] for x in right]

@@ -26,10 +26,12 @@
 % Further work: focal loss?
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% summary
-
+In this work, a facial landmark detection network is developed based on DiffusionNet. An initial network predicts rough landmark positions in low resolution, which can be tweaked by a refinement model that operates in full resolution. With a mean error of 2.22mm, the landmarks detector shows promising results and makes only slightly more inaccurate predictions than a human annotator does. However, the model is limited to consistent head orientations. If that requirement is not met, a model trained on HKS features can enable rotation invariance but shows inferior detection accuracies.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% implications
 
+It is recommended to further research methods to promote rigid invariance as it has high clinical relevance. 3D deep learning is a challenging field that only recently is receiving increasing attention from the research community. Current methods have promising potential and better prevent overfitting on the mesh sampling and data representation.
+% neural networks quickly reach memory limits
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% conclusion
 

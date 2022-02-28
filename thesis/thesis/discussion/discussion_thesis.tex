@@ -58,24 +58,44 @@
 
 
 \section{Discussion}
-% diffusion net paper says raw points clouds restrict to real A for learned pointwise products. For meshes, symmetical features might be better captured
+The approach to regress point-wise scores demonstrates to be a suitable approach for the means of identifying point landmarks. The networks effectively learn regions around landmarks. The model generally recognizes the pattern of high activations in the center and lower activations with increasing distance. An advantage of the approach is that the intensity of the prediction can be interpreted as the model's confidence in the prediction. We see that the prediction cluster around the pogonion often has a lighter intensity reflecting the model's lower confidence in that landmark type (see figure \ref{fig:pred_hs_clusters}). Especially in medical imaging, it can be helpful for the medical practitioner to be informed of how confident the model is in the prediction, hinting at how reliable the prediction is. Some other approaches, e.g. regressing landmark positions directly, do not allow such an assessment.
+
+It is found that the initial network benefits from horizontal flipping and texture information. Unsurprisingly, it is preferred to train the network with accurate labels. Exchanging more samples with less accurate labels for less samples with more accurate labels does not appear worthwhile. 
+The refinement model's accuracy can be increased by sampling various random jitterings, although at the cost of training time. Higher jittering with a slightly higher radius for the local region is preferred as a better refinement performance is achieved.
+
+Introducing higher weights for points in landmark regions appears to be sufficient to combat class imbalance. Nevertheless, carefully tuning the values is expected to improve results. The activation scheme for the ground truth effectively models neighborhoods around landmarks. Similarly, choosing the radius more carefully can potentially facilitate network learning.
+%focal loss? activation scheme..
 
 % weighting scheme can be optimized by more carefully tuning, or focal loss?
 
-% activation scheme too
-
 % trade off: initial network slow, refinement quick; by reducing inital resolution and  times could be quicker while only slightly reducing accuracy
+The refinement networks improve accuracy while only adding little time for inference. The initial model is slow but essential to give rough estimates of landmark regions. However, for scenarios where real-time inference is needed, it might be worthwhile to reduce the input resolution for the initial network to accelerate the rough predictions. Then, the fast refinement network might deliver sufficient detection accuracies for the task.
+% inference times refinement networks help
 
-% DiffusionNets ability for deals with the problem by learning pairwise gradient products. The inner product between pairs of feature gradients are invariant to rotations ... adds robustness but not true invariance.
+% refinement network sitll needs adjustment, not performing good enough
+
+% rigid invariance can be promoted by HKS features
 
 \label{sec:discussion}
-\subsection{Limitations}
-% Requires pre-computed operations. Processes point clouds instead of meshes. Not universally applicable: subjects should be able to be landmarked independently of variations in pose, expression, illumination, background, occlusion, and image quality.
+\subsection{Limitations and future work}
+% Requires precomputed operations. Processes point clouds instead of meshes. Not universally applicable: subjects should be able to be landmarked independently of variations in pose, expression, illumination, background, occlusion, and image quality.
+Significant variations in the input are a major challenge for the model. The network trained on craniums does not generalize very well to faces. Different head poses can be tackled by suitable input features such as HKS features, but the performance lacks behind pose normalized images trained on raw coordinates. 
 
-\subsection{Future work}
-% maybe approaching problem as a segmentation instead of point-wise regression yields better results
+DiffusionNet requires precomputed operations which are rather time-intensive depending on the resolution. Especially during inference, this can be an issue because long waiting times hinder the practical usability of a landmarking tool for practitioners. The precomputation of operators involves different components. In this work, the gradient building component is rewritten to support CUDA-acceleration. Still, other components are computed on the CPU, which greatly slow down the precomputation.
 
-% transfer learning, hs set, refined ldmks...
+The choice of DiffusionNet as a network architecture has several advantages. Firstly, the network is robust to a different sampling of the points. Sampling robustness is a critical component as it avoids unnecessary preprocessing. However, it is noteworthy to mention that we do not observe true sampling invariance, which Sharp et al. speak of in their paper. The initial network trained on low-resolution but predicting in high-resolution performs slightly worse caused by the sampling differences. Secondly, the network can deal with different geometrical representations. Although the 3D photos are represented as point clouds in this work, it is conceivable that a mesh representation has many benefits as the connectivity information can be used, e.g. for more accurate or more efficient computation of the gradient features.
+
+Furthermore, the network run on HKS features produces the bilateral landmark issue. In this work, we avoid the problem by postprocessing, but the issue must be addressed on the network level to deal with the facial asymmetries of the subject properly. In the DiffusionNet paper, the authors describe how gradient features behave differently for segmenting bilaterally symmetric models. For consistently oriented normals, the model manages to disambiguate bilateral symmetry. However, for inconsistently oriented normals, the model fails to segment the left and right sides correctly. Point clouds are examples of a representation where normals are inconsistently oriented. According to the authors, a learned linear transformation $A$ is used to learn pairwise products of feature gradients. Inner products are invariant to rotations. However, the inner product is scaled by the matrix $A$ with dimension $D \times D$. Choosing $A$ as a complex matrix allows rotating and scaling gradients, creating sensitivity to the orientation. Real $A$ only allows scaling. $A$ should be restricted to real values for point clouds due to inconsistently oriented normals. These findings indicate that models trained on meshes and HKS features might intrinsically succeed in disambiguating bilateral landmarks.
+
+Unfortunately, due to a lack of time, no proper ablation study for the different network components are conducted in this work. It is desirable to analyze the effect on performance by adding components, such as examining the effect of added RGB features or added horizontal flip in isolation. The results presented here lack fair comparability caused by different training setups with a varying number of samples and different annotation qualities.
+
+Regarding the annotations, it could be helpful to apply transfer learning by pretraining the model on many samples with noisy annotations and then tuning or retraining the model by training fewer samples with accurate annotations.
+
+It would be helpful to study networks that support rigid invariance. When labels for the Radboudumc data are available, the model trained on HKS features can be evaluated quantitatively on craniums and faces without consistent orientation. With the rough landmarks, the subject can be aligned for a more accurate detection with the refinement model.
+
+Lastly, the approach of point-wise regression may be suboptimal for solving facial landmark detection. Perhaps it is more effective for the initial model to segment regions around landmarks and then predict scores for the most likely landmark candidate. It is also imaginable that vastly different architectures produce superior results.
+
+
 
 
 \end{document}

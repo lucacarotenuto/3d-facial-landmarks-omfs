@@ -15,7 +15,7 @@
   %\vspace*{-0.06\linewidth}
   \captionof{figure}{
     \textbf{DiffusionNet architecture.}
-    \small After precomputation of necessary operators, the input is applied to a number of blocks. In each block, spatial gradients and diffused features are fed into a point-wise MLP and residual connections are used to facilitate training. In this work, diffusion is computed by spectral acceleration. 
+    \small After the precomputation of necessary operators, the input is applied to several blocks. In each block, spatial gradients and diffused features are fed into a point-wise MLP with shared weights, and residual connections facilitate training. In this work, diffusion is computed by spectral acceleration. 
   }
   \label{fig:diffusionnet_architecture}
 \end{figure*}

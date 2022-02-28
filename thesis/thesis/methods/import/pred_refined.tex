@@ -1,0 +1,23 @@
+\documentclass[crop=false]{standalone}
+
+\usepackage[subpreambles=false]{standalone}
+\usepackage{import}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{tikz}
+
+\begin{document}
+
+
+\begin{center}
+  % \hspace*{-0.08\linewidth}
+  \includegraphics[width=0.6\linewidth]{thesis/methods/import/imgs/pred_refined.png}
+  %\vspace*{-0.06\linewidth}
+  \captionof{figure}{
+    \textbf{Refined example.}
+    \small The image shows the subnasale landmark. Previously, the rough landmark location is inferred by the initial network. Here, the refined network infers the location from the high-resolution point cloud sampled in the local region. The intensity of the red points represents the predicted score of the refinement network.
+  }
+  \label{fig:pred_refined}
+\end{center}
+
+\end{document}

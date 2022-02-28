@@ -1,3 +1,5 @@
+# Create point-wise targets for meshes
+
 import math
 import glob
 import os

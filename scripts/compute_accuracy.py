@@ -11,7 +11,7 @@ from sympy import Plane, Point3D
 
 
 def main():
-    ROOTDIR = '/Users/carotenuto/Documents/GitHub/3d-facial-landmarks-omfs/diffusion-net/experiments/refine_ldmks/refined_500_mult_25_3'
+    ROOTDIR = '/Users/carotenuto/Documents/GitHub/3d-facial-landmarks-omfs/diffusion-net/experiments/refine_ldmks/refined_500_mult_30_6'
     LANDMARK_INDICES = [8, 27, 30, 31, 33, 35, 36, 39, 42, 45, 60, 64]  # e.g. nosetip 31 has index 30
     #LANDMARK_INDICES = [8, 27, 30, 33, 36, 39, 42, 45, 60, 64]
     #LANDMARK_INDICES = [8, 27, 30, 33, 36, 39, 42, 45, 60, 64]

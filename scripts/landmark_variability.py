@@ -1,3 +1,5 @@
+# Calculate variability between Headspace labels and manual labels
+
 import numpy as np
 import pptk
 import potpourri3d as pp3d
@@ -6,8 +8,6 @@ import glob
 import os
 from utils import eucl_dist
 from pathlib import Path
-
-# Calculate variability between Headspace labels and manual labels
 
 rootdir = '/Volumes/Extreme SSD/MscProject/annotations_manual/annotations_luc_har_raw'
 distances = np.array([])

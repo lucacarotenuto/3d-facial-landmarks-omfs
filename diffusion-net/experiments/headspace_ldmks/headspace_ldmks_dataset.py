@@ -24,8 +24,9 @@ class HeadspaceLdmksDataset(Dataset):
         self.op_cache_dir = op_cache_dir
         self.data_format = data_format
         self.num_landmarks = num_landmarks
-        self.augment_mirror = True
-        self.no_op = False
+        self.augment_mirror = False
+        self.no_op = True
+        self.test_without_score = True
 
         # store in memory
         self.verts_list = []
@@ -71,20 +72,21 @@ class HeadspaceLdmksDataset(Dataset):
             self.folder_num_list.append(folder_num)
 
             # create sparse labels
-            landmark_indices = {8,27,30,31,33,35,36,39,45,42,60,64} # indices start with 1
-            #landmark_indices = {8,27,30,33,36,39,42,45,60,64} # indices start with 1
+            
+            #landmark_indices = {8,27,30,31,33,35,36,39,45,42,60,64} # indices start with 1
+            landmark_indices = {8,27,30,33,36,39,42,45,60,64} # indices start with 1
             #landmark_indices = {30, 39, 42, 60, 64}
             #landmark_indices = {30}
 
-            #if :
+            if not self.test_without_score:
 
-            with open(os.path.join(self.root_dir, 'train' if self.train else 'test', folder_num,
-                                'hmap_per_class.pkl'), 'rb') as fpath:
-                labels_sparse = pickle.load(fpath)
-            #labels_sparse = [item for pos, item in enumerate(labels_sparse) if pos in landmark_indices]
-            labels = self.labels_from_sparse(verts, labels_sparse)
-            #else:
-            #    labels = np.array([])
+                with open(os.path.join(self.root_dir, 'train' if self.train else 'test', folder_num,
+                                    'hmap_per_class.pkl'), 'rb') as fpath:
+                    labels_sparse = pickle.load(fpath)
+                #labels_sparse = [item for pos, item in enumerate(labels_sparse) if pos in landmark_indices]
+                labels = self.labels_from_sparse(verts, labels_sparse)
+            else:
+                labels = np.array([])
 
 
 

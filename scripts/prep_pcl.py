@@ -1,4 +1,4 @@
-# prepare point clouds
+# Prepare point clouds. Convert meshes to point clouds and simplify
 
 import pymeshlab
 import glob
@@ -22,7 +22,7 @@ def main():
     for filepath in tqdm(glob.iglob(p)):
         for File in os.listdir(os.path.dirname(filepath)):
             # use this for headspace landmarks
-            #if all([File.endswith(".txt") and File.startswith("ldmks")]) and os.path.exists(filepath[:-4] + '.bmp'):
+            if all([File.endswith(".txt") and File.startswith("ldmks")]) and os.path.exists(filepath[:-4] + '.bmp'):
             # use this for manual landmarks
             #if all([File.endswith(".csv") and File.startswith("ldmks")]) and os.path.exists(filepath[:-4] + '.bmp'):
                 j += 1
@@ -52,24 +52,6 @@ def main():
                     x = open(new_filepath, "w+")
                     x.write(verts)
 
-                # p = Path(filepath[:-4] + '.xyz')
-                #
-                # if os.path.exists(p.with_suffix(('.txt'))):
-                #     os.remove(p.with_suffix('.txt'))
-                #
-                # p.rename(p.with_suffix('.txt'))
-                # folder_num = Path(filepath).parts[-2]
-                #
-                # #Path(NEW_FOLDER + folder_num +'\\').mkdir(parents=True, exist_ok=True)
-                # new_filepath = os.path.join(NEW_FOLDER, folder_num, Path(filepath).parts[-1][:-3] + 'txt')
-                # with open(filepath[:-4] + '.txt', mode='r+') as f:
-                #     out = ""
-                #     lines = f.readlines()
-                #     for i in range(len(lines)):
-                #         out += ",".join(lines[i].split(" "))[:-2] + "\n"
-                #     os.makedirs(os.path.dirname(new_filepath), exist_ok=True)
-                #     x = open(new_filepath, "w+")
-                #     x.write(out)
                 ms.clear() # frees up from memory
 
 

@@ -25,10 +25,10 @@ parser.add_argument("--data_format", type=str, help="what format does the data h
 parser.add_argument("--data_dir", type=str, help="directory name of dataset", default='pcl')
 args = parser.parse_args()
 
-args.input_features = 'xyz'
-args.data_dir = 'manual_2'
-args.test_without_score = False
-args.evaluate = False
+args.input_features = 'hks'
+args.data_dir = 'no_op'
+args.test_without_score = True
+args.evaluate = True
 
 
 # system things
@@ -39,7 +39,7 @@ else:
 dtype = torch.float32
 
 # problem/dataset things
-n_class = 12
+n_class = 10
 data_format = args.data_format
 
 # model
@@ -52,8 +52,8 @@ n_epoch = 10
 lr = 1e-3
 decay_every = 50
 decay_rate = 0.5
-n_block = 4
-c_width = 128
+n_block = 8
+c_width = 356
 augment_random_rotate = (input_features == 'xyz') and False
 use_rgb = False
 
@@ -230,14 +230,9 @@ def test():
             gradY = gradY.to(device)
             labels = labels.to(device)
             
-            np.savetxt('orig.txt', verts, fmt='%10.5f', delimiter=',')
-
             # Randomly rotate positions
             if augment_random_rotate:
                 verts = diffusion_net.utils.random_rotate_points(verts)
-
-
-            np.savetxt('rotated.txt', verts, fmt='%10.5f', delimiter=',')
 
             # Construct features
             if input_features == 'xyz':

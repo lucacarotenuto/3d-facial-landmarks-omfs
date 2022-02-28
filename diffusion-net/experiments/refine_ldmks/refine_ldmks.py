@@ -166,7 +166,7 @@ parser.add_argument('--validate', action='store_true', help='if validating the t
 
 args = parser.parse_args()
 args.input_features = "xyz"
-args.data_dir = "refined_500_mult_25_3"
+args.data_dir = "refined_500_mult_30_6"
 args.validate = False
 args.evaluate = True
 args.test_without_score = True
@@ -198,12 +198,12 @@ lr = 1e-3
 decay_every = 50
 decay_rate = 0.5
 n_block = 4
-c_width = 256
+c_width = 128
 #augment_random_rotate = (input_features == 'xyz')
 
 
-#for ldmk_iter in [4,11]:
-for ldmk_iter in range(3,12):
+#for ldmk_iter in [0,1,6,7]:
+for ldmk_iter in range(12):
 
     # Important paths
     base_path = os.path.dirname(__file__)
@@ -213,7 +213,7 @@ for ldmk_iter in range(3,12):
                                                                                 n_block, c_width, ldmk_iter))
     best_model_path = os.path.join(dataset_path, "saved_models", "headspace_ldmks_best_{}_{}x{}_ldmk{}.pth".format(input_features,
                                                                                 n_block, c_width, ldmk_iter))
-    pretrain_path = last_model_path
+    pretrain_path = best_model_path
 
     # === Load datasets
 

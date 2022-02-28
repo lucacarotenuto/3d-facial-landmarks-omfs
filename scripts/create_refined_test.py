@@ -1,4 +1,5 @@
 # Cut region from high-resolution based on low-resolution predictions, and visualize or save pcl (for test set)
+# Used to create test set for Refinement Model
 
 import glob
 import os
@@ -30,13 +31,13 @@ def in_hull(p, hull):
 
 def main():
     # Directory should contain 'test' folder and 'preds' folder
-    PREDS_DIR = '/Users/carotenuto/Master Radboud/MscProj/manual_results/pcl_196_30k'
+    PREDS_DIR = '/Users/carotenuto/Documents/GitHub/3d-facial-landmarks-omfs/diffusion-net/experiments/headspace_ldmks/flip_xyz_500_luchar'
 
     # High res .obj directory
     HRES_DIR = '/Volumes/Extreme SSD/MscProject/annotations_manual/annotations_luc_har_raw'
 
     # Save dir
-    SAVE_DIR = '/Volumes/Extreme SSD/MscProject/pcl_196_rgb/refine_ldmks/refined_500_manual_inference'
+    SAVE_DIR = '/Volumes/Extreme SSD/MscProject/refined_test_500_flip_r30'
 
     VISUALIZE = False
 
@@ -132,7 +133,7 @@ def main():
 
             high_res_region_np = np.array(high_res_region)
 
-            # c_highres_mask = np.full(len(high_res_points), False, dtype=bool)
+            # c_highres_mask = np.full(len(high_resout_points), False, dtype=bool)
             # c_highres_mask[point_max] = True
             # c_highres = np.zeros((len(high_res_points),3))
             # c_highres[point_max] = [255,0,0]

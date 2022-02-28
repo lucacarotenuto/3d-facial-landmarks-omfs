@@ -1,4 +1,5 @@
-# Cut region from high-resolution based on low-resolution predictions, and create heatmap activation labels (for train)
+# Cut region from high-resolution based on landmarks with jitter, and create heatmap activation labels (for train)
+# Used to create train set for refinement model
 
 import glob
 import os.path
@@ -12,17 +13,18 @@ from tqdm import tqdm
 
 def main():
     TRAIN_DIR = '/Volumes/Extreme SSD/MscProject/subjects'
-    LOWRES_DIR = '/Volumes/Extreme SSD/MscProject/subjects_196_labelled'
-    SAVE_DIR = 'C:\\Users\\Luca\\Documents\\GitHub\\3d-facial-landmarks-omfs\\diffusion-net\\experiments\\refine_ldmks\\refined_196_manual_mult\\train'
+    LOWRES_DIR = '/Users/carotenuto/Master Radboud/MscProj/annotations_luc_har_pcl - Copy'
+    SAVE_DIR = '/Users/carotenuto/Master Radboud/MscProj/refined_train_500_30r_6t'
     LANDMARK_INDICES = [8, 27, 30, 31, 33, 35, 36, 39, 42, 45, 60, 64]
     # LANDMARK_INDICES = [33] # subnasal
-    LDMKS = np.load('/Volumes/Extreme SSD/MscProject/subjects_196_labelled/ldmks.pkl',
+    LDMKS = np.load('/Users/carotenuto/Master Radboud/MscProj/annotations_luc_har_pcl - Copy/ldmks.pkl',
                     allow_pickle=True)  # shape (samples, landmarks + 1, 3)
     LANDMARK_INDICES = [x + 1 for x in LANDMARK_INDICES]
     LDMKS = LDMKS[:, np.concatenate(([0], LANDMARK_INDICES)), :]  # +1 because first row reserved for folder_num
     PRINT_MEAN_DIST = False
 
     for filepath in tqdm(glob.glob(os.path.join(LOWRES_DIR, '*', '13*.txt'))):
+        print(filepath)
         folder_num = Path(filepath).parts[-2]
         folder_num_int = int(folder_num)
 
@@ -37,7 +39,7 @@ def main():
         #lines = open(filepath, 'r').read().split('\n')[:-1]
         #verts = [[float(l) for l in lines[j].split(',')[:3]] for j in range(len(lines))]
         
-        verts = np.loadtxt(filepath)
+        verts = np.loadtxt(filepath, delimiter=',')
 
         # only keep selected landmarks
         # targets = [item for pos, item in enumerate(targets) if pos in LANDMARK_INDICES]
@@ -48,6 +50,7 @@ def main():
                 raise RuntimeError('more than one obj found')
 
         # process high res .obj file to pcl
+        print(obj_path)
         pcl_hres, _ = pp3d.read_mesh(obj_path)
 
         if PRINT_MEAN_DIST:
@@ -97,13 +100,13 @@ def main():
             for o in range(3):
                 pcl_hres_region = []
                 # coords_max = verts[int(target[target[:,1] == 1.0][0][0])]
-                translate = -3 + (random.random() * (3 - (-3)))  # create random number and scale to range from -3 to 3
+                translate = -6 + (random.random() * (6 - (-6)))  # create random number and scale to range from -3 to 3
                 for k, coords in enumerate(pcl_hres):
                     ldmk_coords = [ldmks_per_file[m, 0] + translate, ldmks_per_file[m, 1] + translate,
                                    ldmks_per_file[m, 2] + translate]  # translate each coordinate
                     dist = eucl_dist(ldmk_coords[0], ldmk_coords[1], ldmk_coords[2],
                                      coords[0], coords[1], coords[2])
-                    if dist < 25:
+                    if dist < 30:
                         pcl_hres_region.append(pcl_hres[k])
 
                 # print(pcl_hres_region.shape)
@@ -141,11 +144,11 @@ def main():
                         min_dist, min_dist_pt = dist, n
 
                     # calculate activation
-                    if  dist <= 1.5:
+                    if  dist <= 1.2:
                         activation = 0.75
-                    elif dist <= 3.0:
+                    elif dist <= 1.8:
                         activation = 0.5
-                    elif dist <= 4.5:
+                    elif dist <= 2.4:
                         activation = 0.25
                     else:
                         continue

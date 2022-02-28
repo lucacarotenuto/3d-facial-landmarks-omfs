@@ -1,3 +1,5 @@
+# Create prediction visualizations from test set point clouds and ground truth visualizations from train set
+
 from inspect import indentsize
 import io
 import math
@@ -34,7 +36,7 @@ IS_TEST = True
 NO_OP = True
 PER_CLASS_VIS = True
 # Set true if preds in 'wrong' half of the face should be removed
-REMOVE_SYMMETRICAL_PREDS = False
+REMOVE_SYMMETRICAL_PREDS = True
 #LANDMARK_INDICES = [8, 27, 30, 31, 33, 35, 36, 39, 42, 45, 60, 64]  # e.g. nosetip 31 has index 30
 LANDMARK_INDICES = [8, 27, 30, 33, 36, 39, 42, 45, 60, 64]
 #LANDMARK_INDICES = [30, 39, 42, 60, 64]

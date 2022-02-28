@@ -1,5 +1,4 @@
-# Remove non manifold geometry and reduce face count for headspace dataset
-# Execute prep_hs_struc first to prepare headspace folder structure and remove objects without landmarks
+# Remove non manifold geometry
 
 import pymeshlab
 import glob
@@ -22,7 +21,6 @@ for filepath in glob.iglob(rootdir + '*/*.obj'):
     print("applying filters " + filepath)
     print("sqecd")
     ms.simplification_quadric_edge_collapse_decimation(targetfacenum=50000)
-    """
     print("remove")
     ms.remove_isolated_pieces_wrt_face_num(mincomponentsize=1000)
     print("repair")
@@ -38,7 +36,6 @@ for filepath in glob.iglob(rootdir + '*/*.obj'):
     ms.close_holes(maxholesize=3)
     #ms.save_current_mesh(filepath[:-4] + '_simplfd.obj', save_textures=False)
     print("saving " + filepath)
-    """
 
     if not os.path.exists(os.path.join(target_dir, filename)):
         os.makedirs(os.path.join(target_dir, folder_num))

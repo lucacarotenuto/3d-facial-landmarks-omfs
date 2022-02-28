@@ -1,3 +1,5 @@
+# Script to align point cloud
+
 import numpy as np
 import tqdm
 import glob

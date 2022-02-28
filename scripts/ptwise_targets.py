@@ -1,3 +1,5 @@
+# Create point-wise targets for point clouds
+
 import math
 import glob
 import os
@@ -159,7 +161,6 @@ def main():
 
             print(np.unique(output[:,1], return_counts = True))
             output_list.append(output)
-        # TODO: INSERT 0,0 for each landmark other than the 12
         f = open(os.path.join(os.path.dirname(filepath), 'hmap_per_class.pkl'), 'wb')
         pickle.dump(output_list, f)
 

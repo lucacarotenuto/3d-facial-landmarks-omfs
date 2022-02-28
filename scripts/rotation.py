@@ -1,3 +1,4 @@
+# Example script for mirroring a point cloud
 
 import numpy as np
 import pptk

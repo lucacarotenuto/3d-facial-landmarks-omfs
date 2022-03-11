@@ -20,3 +20,5 @@ MSc project by Luca Carotenuto
 ### Visualize or print results
 8. Run `scripts/colorize_vertices.py` to create visualizations in .txt format viewable in meshlab or with pptk
 9. Run `scripts/compute_accuracy.py` to print individual errors, sample/landmark mean and total mean errors
+
+![Refinement_pipeline](imgs/refinement_pipeline.png)

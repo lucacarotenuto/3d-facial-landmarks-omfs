@@ -15,8 +15,8 @@ MSc project by Luca Carotenuto
 6. Run `scripts/create_refined_test.py` to create refined testing samples based on prediction from initial network
 
 ### Refined network
-6. Run `diffusion-net/experiments/refine_ldmks/refine_ldmks.py` for training the model and do inference
+6. Run `diffusion-net/experiments/refine_ldmks/refine_ldmks.py` for training the model and doing inference
 
 ### Visualize or print results
 7. Run `scripts/colorize_vertices.py` to create visualizations in .txt format viewable in meshlab or with pptk
-8. Run `scripts/compute_accuracy.py to print individual errors, sample/landmark mean and total mean errors
+8. Run `scripts/compute_accuracy.py` to print individual errors, sample/landmark mean and total mean errors

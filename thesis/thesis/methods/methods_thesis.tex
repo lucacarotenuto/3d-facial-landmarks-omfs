@@ -43,23 +43,60 @@
 \section{Methods}
 \label{sec:methods}
 
-\subsection{Data set}\label{sec:data_preparation}The models are trained predominantly on the Headspace dataset \cite{Dai2019}, a set of 3D images of the human head that is available for university-based non-commercial research. The collection consists of 1519 subjects, each wearing tight-fitting latex caps to avoid holes in the mesh on the scalp of the patient. The photos are captured by a 5-camera setup around the head of the person (Fig. \ref{fig:stereophotogrammetry}).
-\import{}{import/stereophoto.tex}The images have a high quality, consistent illumination and are pose normalized. 1200 samples include annotations, but as they were automatically generated, the quality of the labels differs for each landmark type and each sample. Nonetheless, due to the sheer number of annotated samples, the Headspace data is used as training data for the first network that extracts rough landmark locations. Manual inspection shows that the Zhu-Ramanan mixture of trees algorithm in subsequent 2D to 3D projection similar mistakes for most samples, e.g. the landmarks are placed a few millimetres too low. %'although often inaccurate predictions, they are consistent (note: move to discussion). error patterns 
-In total, the Headspace data set comes with 68 landmarks per image. However, many of them are non-surgical and ill-defined and can be discarded for the purpose of finding landmarks to assist oral and maxillofacial surgery. Out of the 68 landmarks, we keep 12 medically relevant, anatomical landmarks (see table \ref{table:landmark_names}). to properly evaluate the results and to train the refinement network, we manually annotate the 12 landmark positions for around 307 Headspace samples. The landmarking is performed in 3DMedX\footnote{3DMedX is software from Radboudumc that allows 3D reconstruction using DICOM files from (CB)CT-scans or MRI scans and offers tools for the evaluation of orthognathic surgery. It also supports the creation of custom workflows, e.g. for registering landmarks.}\cite{3dmedx}. Although not placed by a specialist, these labels are considerably more accurate, as they are human-annotated instead of to machine-annotated (see appendix \ref{sec:app_manual_annotation} for details).
+\subsection{Data Set}\label{sec:data_preparation}The models are trained predominantly on the Headspace dataset \cite{Dai2019}, a set of 3D images of the human head that is available for university-based non-commercial research. The collection consists of 1519 subjects, each wearing tight-fitting latex caps to avoid holes in the mesh on the scalp of the patient. The photos are captured by a 5-camera setup around the head of the person (Fig. \ref{fig:stereophotogrammetry}).
+The images have a high quality, consistent illumination and are pose normalized. 1200 samples include annotations, but as they were automatically generated, the quality of the labels differs for each landmark type and each sample. Nonetheless, due to the sheer number of annotated samples, the Headspace data is used as training data for the first network that extracts rough landmark locations. Manual inspection shows that the Zhu-Ramanan mixture of trees algorithm with subsequent 2D to 3D projection makes similar mistakes for most samples, e.g.\ the landmarks are placed a few millimetres too low. %'although often inaccurate predictions, they are consistent (note: move to discussion). error patterns 
+In total, the Headspace data set comes with 68 landmarks per image. However, many of them are non-surgical and ill-defined and can be discarded for the purpose of finding landmarks to assist oral and maxillofacial surgery. Out of the 68 landmarks, we keep 12 medically relevant, anatomical landmarks (see Figure \ref{fig:landmarks} for a visualisation and Table \ref{table:landmark_names} for definitions). To properly evaluate the results and to train the refinement network, we manually annotate the 12 landmark positions for 307 Headspace samples. The landmarking is performed in 3DMedX\footnote{3DMedX is software from Radboudumc that allows 3D reconstruction using DICOM files from (CB)CT-scans or MRI scans and offers tools for the evaluation of orthognathic surgery. It also supports the creation of custom workflows, e.g.\ for registering landmarks.}\cite{3dmedx}. Although not placed by a specialist, these labels are considerably more accurate, as they are human-annotated instead of to machine-annotated (see Appendix \ref{sec:app_manual_annotation} for details).
 
-Furthermore, 3D photos from Radboudumc are used to validate the method further. The in-house meshes have lower quality, and the illumination varies greatly. The 3D photos are not pose normalized oriented differently in space than the Headspace photos. As the patients do not wear any latex caps, holes and artefacts in the region of the hair are common. Also, most 3D photos are captured by a 2-camera-setup, namely one from the front-left and one from the front-right. Consequently, meshes reconstructed from such photos have big holes in the back of the cranium as they only capture the frontal view.
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\begin{table*}[htb]
 
-See figure \ref{fig:data_hs_umc} for a visualization of the photos from the Headspace data set and the Radboudumc data set.
+\captionof{table}{\textbf{Landmark definitions.}
+Taken from \cite{Bidra2009} and \cite{Plooij2009}. Left/right is given from the perspective of the subject.
+    }
+\label{table:landmark_names}
+\begin{tabularx}{\textwidth}{l|l|L}
+\toprule
+Landmark               & Abbreviation & Definition          
+\\
+\midrule
+Pogonion               & pg           & The most anterior midpoint of the chin                                                                              \\
+Nasion                 & n            & The point in the midline of both the nasal root and nasofrontal suture \\
+Pronasale              & prn          & The most anterior midpoint of the nasal tip                                                                         \\
+Subnasale              & sn           & The midpoint on the nasolabial soft tissue contour between the columella crest and the upper lip                    \\
+Alar curvature (right) & ac-r         & The point located at the facial insertion of the alar base (right)                                                  \\
+Alar curvature (left)  & ac-l         & The point located at the facial insertion of the alar base (left)                                                   \\
+Exocanthion (right)    & ex-r         & The soft tissue point located at the outer commissure of the right eye fissure                                      \\
+Endocanthion (right)   & en-r         & The soft tissue point located at the inner commissure of the right eye fissure                                       \\
+Endocanthion (left)    & en-l         & The soft tissue point located at the inner commissure of the left eye fissure                                        \\
+Exocanthion (left)     & ex-l         & The soft tissue point located at the outer commissure of the left eye fissure                                        \\
+Cheilion (right)       & ch-r         & The point located at the right labial commissure                                                                    \\
+Cheilion (left)        & ch-l         & The point located at the left labial commissure                                                                     
+\end{tabularx}
+\end{table*}
+
+\begin{figure}[htb]
+\centering
+  \includegraphics[width=0.9\linewidth]{thesis/introduction/imgs/landmarks.jpg}
+  \captionof{figure}{
+    \textbf{Landmarks.}
+    \small Visualization of the landmarks with their corresponding abbreviations. Photo from Headspace dataset \cite{Dai2019}.
+  }
+  \label{fig:landmarks}
+\end{figure}
+
+Furthermore, 3D photos from Radboudumc are used to validate the method further. The in-house meshes have lower quality, and the illumination varies greatly. The 3D photos are not pose normalized and oriented differently in space from the Headspace photos. As the patients do not wear any latex caps, holes and artefacts in the region of the hair are common. Also, most 3D photos are captured by a 2-camera-setup, namely one from the front-left and one from the front-right. Consequently, meshes reconstructed from such photos have big holes in the back of the cranium as they only capture the frontal view.
+
+See Figure \ref{fig:data_hs_umc} for a comparison of the photos from the Headspace data set and the Radboudumc data set.
 \import{}{import/data_hs_umc.tex}
 % As the reconstruction of the mesh for subjects with long hair and hair styles that do not form a flat surface is especially difficult
 
 \subsection{Data Preparation}\label{sec_data_preparation}
-The 3D meshes are available as wavefront object’files (OBJ.). This file format contains information about vertices, edges, faces, normal vectors and texture.
-Vertices are points in the Cartesian coordinate system defined by x, y and z. Meshes also contain surface data in edges and faces that define the interconnectivity between vertices. Normals define vectors that are perpendicular the to face. Textures add color information by storing uv-coordinates per vertex. The uv-coordinates map the vertex to a bitmap file (.BMP) to refer to the corresponding color  \cite{Jong}.
+The 3D meshes are available as Wavefront object-files (.OBJ). This file format contains information about vertices, edges, faces, normal vectors and texture.
+Vertices are points in the Cartesian coordinate system defined by x, y and z. Meshes also contain surface data in edges and faces that define the interconnectivity between vertices. Normals define vectors that are perpendicular to the face. Textures add color information by storing uv-coordinates per vertex. The uv-coordinates map the vertex to a bitmap file (.BMP) to refer to the corresponding color  \cite{Jong}.
 % texel sampling meshlab pymeshlab
 To simplify the problem, the networks process point clouds instead of meshes. Using PyMeshLab, a Python interface for the 3D mesh processing software Meshlab \cite{meshlab}, filters are applied to prepare the point cloud data. First, a point sampling is applied, optionally with corresponding normals and colors. This process preserves the vertices of the mesh while discarding edge and face information. In literature, irregular sampling was identified as a factor that can potentially hamper certain machine learning methods. Thus, we use a sampling technique (‘Texel Sampling’) that was observed to produce evenly distributed points on the surface. Depending on the network the data is prepared for, the point cloud can be simplified to reduce the resolution. The refinement network takes as input the full resolution point cloud with an average vertex-to-vertex distance of 1.0mm. In contrast, the initial network is applied on low-resolution data with an average vertex-to-vertex distance of 2.2mm. Around 30,000 vertices are sampled for the low-resolution point cloud.
 
-The 68 landmarks in the Headspace data are given by a reference to the vertex index in the mesh. The manually annotated landmarks in 3DMedX are saved as coordinates in Comma-separated values files. Because the manually identified landmarks are stored as an arbitrary coordinate in space, it usually does not refer to a point. As we employ a point-wise network, the targets also need to be saved point-wise. To this end, the closest point to the landmark coordinate is identified. For the Headspace landmarks, landmarks are already given in a point-wise fashion. However, as the initial network requires a downsampled point cloud, the landmark might not point to a vertex in the downsampled point cloud anymore and still needs to be recalculated. Currently, the calculation of the closest point to the landmark is done in a naive way by iterating over each vertex in the mesh. This step can be sped up significantly by applying a more sophisticated algorithm. Constructing the targets as simple point landmarks can have certain disadvantages. For example, the neural network is more difficult on sparse positive cases. Therefore, we construct point clusters around the landmark point to create regions that the network can learn more easily. The point closest to the landmark has the highest activation (1.0), points in the neighborhood are assigned decreasing activations with decreasing proximity and points outside the landmark regions are considered background points with activation of zero. The exact activation scheme differs depending on which network the targets are prepared (see table \ref{tab:activation-scheme} for details). An alternative, perhaps more balanced solution would be to assign activations based on a continuous distribution such as the Gaussian distribution. The approach of generating point clusters around landmarks increases the proportion of points with an activation higher than zero and improves the class imbalance problem.
+The 68 landmarks in the Headspace data are given by a reference to the vertex index in the mesh. The manually annotated landmarks in 3DMedX are saved as coordinates in comma-separated values files. Because the manually identified landmarks are stored as arbitrary coordinates in space, they usually do not refer to a point. As we employ a point-wise network, the targets also need to be saved point-wise. To this end, the closest point to the landmark coordinate is identified. For the Headspace landmarks, landmarks are already given in a point-wise fashion. However, as the initial network requires a downsampled point cloud, the landmark might not point to a vertex in the downsampled point cloud anymore and still needs to be recalculated. Currently, the calculation of the closest point to the landmark is done in a naive way by iterating over each vertex in the mesh. This step can be sped up significantly by applying a more sophisticated algorithm. Constructing the targets as simple point landmarks can have certain disadvantages. For example, the neural network is more difficult to train on sparse positive cases. Therefore, we construct point clusters around the landmark point to create regions that the network can learn more easily. The point closest to the landmark has the highest activation (1.0), points in the neighborhood are assigned decreasing activations with decreasing proximity, and points outside the landmark regions are considered background points with an activation of zero (see Figure \ref{fig:gt_hs_clusters}). The exact activation scheme differs depending on which network the targets are prepared for (see Table \ref{tab:activation-scheme} for details). An alternative, perhaps more balanced solution would be to assign activations based on a continuous distribution such as the Gaussian distribution. The approach of generating point clusters around landmarks increases the proportion of points with an activation higher than zero and improves the class imbalance problem.
 
 \begin{table}[]
 \centering
@@ -80,11 +117,28 @@ Activation & Initial & Refinement\\
 \end{table}
 
 
-To build a landmark detector that can discriminate between landmark types and to allow for overlapping activation clusters (meaning one point can be part of the neighborhood of multiple landmarks), each landmark cluster is stored a channel.
+The landmark detector should discriminate between landmark types and allow for overlapping activation clusters, meaning one point as part of the neighborhood of multiple landmarks. To this end, each landmark cluster is stored in a separate channel.
 
 However, storing the activation for each point is very memory-consuming. To compress the label files, only the vertex indices and activation for points with an activation higher than zero are explicitly stored. All other points are assumed to have an activation equal to zero. This reduces the necessary information to store from $\textit{total vertices} \times \textit{}{landmarks}$ for the sparse matrix representation to $\textit{vertices in landmark regions} \times \textit{2} \times \textit{landmarks}$ where the factor 2 arises as the compressed representation not only needs to save the activation but also additional vertex index information. The sparse labels are saved as serialized Python object structures, so-called pickle objects.
 \import{}{import/gt_hs_clusters.tex}
 
+
+\subsection{Implementation}
+DiffusionNet requires precomputing the Laplacian, mass matrix and gradients for spectral acceleration and saving them in a cache to quickly access them during data loading to avoid repeating the computationally expensive operations. Together with these operators we additionally cache the labels. Since the labels were previously compressed to reduce disk space, they are decompressed as the sparse representation is needed for training.
+
+We define a point set \begin{math}X=\{X_i \in \mathbb{R}^F,\hspace{0.3cm}i = 1,2,...,V\}\end{math} as the input of the model, where $V$ defines the number of vertices in the point cloud and $F$ the dimension. For XYZ input, $F=3$ and $x_i$ is the 3D coordinate of each point in the Cartesian reference system. In this work, we use also use color information in the form of RGB which extends the dimension to $F=6$. We do not use normal vectors as input for the network. In the case of HKS features, the input consists of $F=16$ values of $t$ logarithmically spaced on $[0.01, 1]$.
+
+Most machine learning algorithms require a fixed input size. DiffusionNet can deal with a flexible input size, making sampling or simplification for standardizing the number of vertices unnecessary.
+
+The problem is approached as a point-wise regression problem as opposed to directly regressing coordinates (see Appendix \ref{sec:coord_reg_vs_pw_reg} for details).
+
+The network and data loading is implemented in PyTorch \cite{NEURIPS2019_9015}, a popular deep learning library that supports GPU acceleration.
+
+A first linear layer transforms the input $X$ with dimension $V \times F$ to the feature vector $u$ with dimension $V \times D$ where D is the block width. The features $u$ are diffused and spatial gradient features are constructed. Then, the input features, diffused features, and gradient features are concatenated and fed into a point-wise MLP with three layers which again have the output size $V \times D$. The output of a DiffusionNet block then serves as the input for the next DiffusionNet Block (see Figure \ref{fig:diffusionnet_architecture}).
+
+DiffusionNet is originally built for classification, segmentation and functional correspondence tasks. We adapt the network architecture to output per-point scores for each landmark channel by changing the size of the last layer to $V \times \textit{landmarks}$.
+
+Given the per-point scores for each landmark channel, the point landmarks can be extracted very easily. A simple argmax operation can find the point with the maximum activation which is regarded as the best estimate for the landmark prediction.
 
 \subsection{DiffusionNet}
 In this work, DiffusionNet \cite{sharp2022diffusion} is used to extract surface features from faces. With a diffusion operation, surface information is propagated through space. Diffusion is defined by the heat equation 
@@ -99,41 +153,28 @@ where $\Delta$ is the Laplacian and $u_t$ the diffused distribution. The action 
 \end{equation}
 where the heat operator $H_t$ creates a diffused distribution based on the initial distribution $u_0$. With increasing time, diffusion becomes a global smoothing process, thus approaching the average for $t \to \infty$. An advantage of this technique is that diffusion is fairly robust to how the surface is sampled. In practice, diffusion needs to be discretized by replacing the distributional Laplacian with the weak Laplace matrix $L$, which, together with the mass matrix $M$ (diagonal matrix of areas associated with each vertex) yields the rate of diffusion $M^{-1}Lu$.
 
-A diffusion layer $h_t : \mathbb{R}^V \to \mathbb{R}^V$ creates the diffused matrix for V vertices and the feature channel $u$. The time $t \in \mathbb{R}_{\geq 0}$ is a learned parameter per feature channel. The time parameter represents the spatial support and is analogous to the receptive field in CNNs, dependent on the filter size and pooling. Since diffusion time is a learned parameter per feature channel, the spatial support is more flexible and does not need to be manually chosen. Interestingly, Sharp et al. give theoretical proof that shows that replacing convolution by diffusion maintains the expressive power of the network.
+A diffusion layer $h_t : \mathbb{R}^V \to \mathbb{R}^V$ creates the diffused matrix for $V$ vertices and the feature channel $u$. The time $t \in \mathbb{R}_{\geq 0}$ is a learned parameter per feature channel. The time parameter represents the spatial support and is analogous to the receptive field in CNNs, dependent on the filter size and pooling. Since diffusion time is a learned parameter per feature channel, the spatial support is more flexible and does not need to be manually chosen. Interestingly, Sharp et al.\ give theoretical proof that shows that replacing convolution by diffusion maintains the expressive power of the network \cite[Appendix A]{sharp2022diffusion}.
 
-The evaluation of the diffusion layer $h_t(u)$ needs to be efficient and differentiable to allow network training. Sharp et al. propose to use a direct implicit timestep or spectral expansion. This work uses spectral expansion as the diffusion can be more efficiently computed at evaluation time, with the trade-off that the eigenbases need to be precomputed. Diffusion is truncated to a lower frequency basis $k$, which leads to some approximation error, but no noticeable effect on network performance.
+The evaluation of the diffusion layer $h_t(u)$ needs to be efficient and differentiable to allow network training. Sharp et al.\ propose to use a direct implicit timestep or spectral expansion \cite[Section 3.3]{sharp2022diffusion}. This work uses spectral expansion as the diffusion can be more efficiently computed at evaluation time, with the trade-off that the eigenbases need to be precomputed. Diffusion is truncated to a lower frequency basis $k$, which leads to some approximation error, but no noticeable effect on network performance.
 
-Since diffusion only allows for radially symmetric filters, in addition, spatial gradients are used to enable directional filters. In the case of point cloud input without normals, the normal vectors per point are approximated by the m-nearest neighbors (we use $m = 30$). A least squares approximation then calculates gradient values in the tangent plane which yields the sparse gradient matrix $G \in \mathbb{C}^{V\timesV}$. Applying the feature vector $u$ to the sparse matrix yields the gradient tangent vector per point.
+Since diffusion only allows for radially symmetric filters, in addition, spatial gradients are used to enable directional filters. In the case of point cloud input without normals, the normal vectors per point are approximated by the m-nearest neighbors (we use $m = 30$). A least-squares approximation then calculates gradient values in the tangent plane which yields the sparse gradient matrix $G \in \mathbb{C}^{V\timesV}$. Applying the feature vector $u$ to the sparse matrix yields the gradient tangent vector per point.
 % Additionally, gradient features
 \input{thesis/methods/import/diffusionnet_architecture}
 
 
 % diffusion at various learned timescales fol- lowed by a learned pointwise function 
 
-\subsection{Implementation}
-We define a point set \begin{math}X=\{X_i \in \mathbb{R}^F,\hspace{0.3cm}i = 1,2,...,V\}\end{math} as the input of the model, where $V$ defines the number of vertices in the point cloud, $D$ the dimension, and $x_i$ is the 3D coordinate of each point in the Cartesian reference system. Note that even in a 3-dimensional reference system, $D$ is not restricted to 3 as we can use other point-based features such as the color or the normal vector.
 
-Most machine learning algorithms require a fixed input size. DiffusionNet can deal with a flexible input size, making sampling or simplification for standardizing the number of vertices unnecessary.
-
-The problem is approached as a point-wise regression problem as opposed to directly regressing coordinates (see appendix \ref{sec:coord_reg_vs_pw_reg} for details).
-
-The network and data loading is implemented in PyTorch \cite{NEURIPS2019_9015}, a popular deep learning library that supports GPU acceleration.
-
-DiffusionNet requires precomputing the Laplacian, mass matrix and gradients for spectral acceleration and saving them in a cache to quickly access them during data loading to avoid repeating the computationally expensive operations. Together with these operators we additionally cache the labels. Since the labels were previously compressed to reduce disk space, they are decompressed as the sparse representation is needed for training.
-
-As DiffusionNet is originally built for classification, segmentation and functional correspondence tasks. We adapt the network architecture to output per-point scores for each landmark channel by changing the size of the last layer to $\textit{vertices} \times \textit{landmarks}$.
-
-Given the per-point scores for each landmark channel, the point landmarks can be extracted very easily. A simple argmax operation can find the point with the maximum activation which is regarded as the best estimate for the landmark prediction.
 
 
 \subsection{Training}
-The networks are trained with the weighted mean squared error (WMSE) metric. Mean squared error (MSE) guarantees the error to be strictly positive the square punishes very large differences:
+The networks are trained with the weighted mean squared error (WMSE) metric. The mean squared error (MSE) punishes large differences:
 \begin{equation}
-    MSE = \frac{1}{n}\sum^n_{i=1} (Y_i - \hat{Y}_i)^2
+    MSE = \frac{1}{n}\sum^n_{i=1} (Y_i - \hat{Y}_i)^2.
 \end{equation}
-Even with modelling landmark regions, activations $> 0$ are rare due to an imbalance between background and landmark regions. We introduce weights to counteract the class imbalance problem. Points with higher activations are assigned higher weights and background points are assigned a weight of one. The exact weighting scheme differs for the initial network and the refinement network, because they exhibit different imbalances between background and landmark regions. The weighting schemes ensure that the network pays sufficient attention to finding points in landmark regions while not overemphasizing on them, which can lead to exceedingly large and blurry clusters. Leaving out the weight leads to the network not learning anything or very small activations. In contrast, too high weights lead to exceedingly high activations making it hard to extract the correct point landmark with the maximum activation as the activations are too close to each other.
+Even with modelling landmark regions, activations $> 0$ are rare due to an imbalance between background and landmark regions. We introduce weights to counteract the class imbalance problem. Points with higher activations are assigned higher weights and background points are assigned a weight of one. The exact weighting scheme differs for the initial network and the refinement network, because they exhibit different imbalances between background and landmark regions (see Table \ref{tab:weighting-scheme}). The weighting schemes ensure that the network pays sufficient attention to finding points in landmark regions while not overemphasizing on them, which can lead to exceedingly large and blurry clusters. Leaving out the weight leads to the network not learning anything or very small activations. In contrast, too high weights lead to exceedingly high activations, making it hard to extract the correct point landmark with the maximum activation as the activations are too close to each other.
 
-\subsection{Initial Network}The initial network takes as input the full point cloud which typically involves the cranium, neck and possibly some artefacts and other body parts of the upper body depending on the photo and mesh reconstruction. The original Headspace meshes can have 100,000 to 200,000 vertices. Processing the photos in full resolution would lead to excessively high memory footprints and very long times for the precomputation of the operators. Thus, around 30,000 vertices are sampled and used as input for the initial network (see figure \ref{fig:gt_hs_clusters} for a visualialization of the input and figures \ref{fig:pred_hs_clusters} for a visualization of the output). Due to the big class imbalance, the weighting scheme is set quite aggressively (see table \ref{tab:weighting-scheme})
+\subsection{Initial Network}The initial network takes as input the full point cloud which typically involves the cranium, neck and possibly some artefacts and other body parts of the upper body depending on the photo and mesh reconstruction. The original Headspace meshes can have 100,000 to 200,000 vertices. Processing the photos in full resolution would lead to excessively high memory footprints and very long times for the precomputation of the operators. Thus, around 30,000 vertices are sampled and used as input for the initial network (see Figure \ref{fig:gt_hs_clusters} for a visualization of the input and Figure \ref{fig:pred_hs_clusters} for a visualization of the output). Due to the big class imbalance, the weighting scheme is set quite aggressively (see Table \ref{tab:weighting-scheme}).
 \begin{table}[]
 \centering
 \begin{tabular}[t]{lll}\toprule
@@ -151,26 +192,35 @@ Activation & Initial & Refinement\\
 \caption{\textbf{Weighting scheme.} The initial network uses more aggressive weighting for points with higher activation to combat class imbalance. For the refined network, smaller weights are sufficient because of less prominent class imbalance.}
 \label{tab:weighting-scheme}
 \end{table}
-\import{}{import/pred_hs_clusters.tex}
+%\import{}{import/pred_hs_clusters.tex}
+\begin{figure}[htb]
+  % \hspace*{-0.08\linewidth}
+  \centering
+  \includegraphics[width=\linewidth]{thesis/methods/import/imgs/pred_hs_clusters.png}
+  %\vspace*{-0.06\linewidth}
+  \captionof{figure}{
+    \textbf{Prediction example.}
+    \small Sample from Headspace data set. The intensity of the red points represents the predicted score. Note that although it is not visible in this depiction, each cluster is part of a different channel to ensure a clear distinction between landmarks.
+  }
+  \label{fig:pred_hs_clusters}
+\end{figure}
 
 \subsection{Refinement Network}
-The refinement network is applied to regions around landmarks. The regions are sampled in full resolution to enable a higher potential accuracy. For training, a sphere around the ground truth landmark with a radius $r$ cut out. To prevent the model from overfitting by consistently selecting the center point of the sphere as the mid point of the predicted cluster, we specify a jittering $j$ of the cluster center. It is implemented by a random translation of up to $j$ millimeters in each direction. For each landmark region in a photo, we take three jittering samples to augment the training set. This effectively triples the data set and makes better use of the training samples available.
+The refinement network is applied to regions around landmarks. The regions are sampled in full resolution to enable a higher potential accuracy. For training, a sphere is cut out around the ground truth landmark with a radius $r$. To prevent the model from overfitting by consistently selecting the center point of the sphere as the mid point of the predicted cluster, we specify a jittering $j$ of the cluster center. It is implemented by a random translation of up to $j$ millimeters in each direction. For each landmark region in a photo, we take three jittering samples to augment the training set. This effectively triples the data set and makes better use of the training samples available.
 
-To emphasize the network's focus on the local neighborhood we adapt a more local activation scheme for the targets.
+To emphasize the network's focus on the local neighborhood we adapt a more local activation scheme for the targets (see Table \ref{tab:activation-scheme}). The regional point clouds only comprise around 1000 to 2000 points for the Headspace data, depending on the landmark type. For the Radboudumc data, this number is even lower since the meshes have a lower resolution. This, combined with the chosen activation scheme, leads to a less prominent class imbalance, reflected in the chosen weights.
 
-The regional point clouds only comprise around 1000 to 2000 points for the Headspace data, depending on the landmark type. For the Radboudumc data, this number is even lower since the meshes have a lower resolution. This, combined with the chosen activation scheme, leads to a less prominent class imbalance, reflected in the chosen weights.
-
-Similarly, during prediction, a sphere of the same size is cut around the predicted landmark and sampled in high-resolution (see figure \ref{fig:pred_refined}).
+Similarly, during prediction, a sphere of the same size is cut around the predicted landmark and sampled in high-resolution (see Figure \ref{fig:pred_refined}).
 \input{thesis/methods/import/pred_refined}
 
 \subsection{Shape Variants}
-3D shapes can come in different variants that the network should be invariant to, such as different orientations or different discretization. Varying camera setups or differing preprocessing can lead to different head orientations in space. The network should give the same result regardless of head rotations. The perhaps most straightforward approach is to perform data augmentation. While it can make the network more robust to the presented augmented variants, data augmentation does not scale well as it is not feasible to sample all variations. Additionally, including slightly varied samples in training quickly increases training times. The preferred approach to dealing with shape variants is to design an inherently invariant network to rotations. There is still ongoing research on how to design such invariant networks most efficiently. 
+3D shapes can come in different variants that the network should be invariant to, such as different orientations or different discretization. Varying camera setups or differing preprocessing can lead to different head orientations in space. The network should give the same result regardless of head rotations. The perhaps most straightforward approach is to perform data augmentation. While it can make the network more robust to rotation, data augmentation does not scale well as it is not feasible to sample all orientations. Additionally, including slightly varied samples in training quickly increases training times. The preferred approach to dealing with shape variants is to design an inherently invariant network to rotations. There is still ongoing research on how to design such invariant networks most efficiently. 
 
 Another way is to use input features that are intrinsically invariant to isometric transformations, thus also to rigid deformations such as rotation. To this end, we include the Heat Kernel Signature (HKS) in our experiments and compare HKS features to raw XYZ coordinate features.
 
 Simple preprocessing steps can already create robustness to scaling and translation. Thus, we center and unit scale the objects. Centering mitigates translations in the x-, y- or z-axis by centering around the average of the point positions. Unit scaling can avoid significant variances in head sizes. However, it should be noted that both centering and unit scaling are applied to the entire point cloud. Because the photos vary a lot in artefacts and different body parts captured, the scaling and centering of the face itself are noisy.
 
-While centering the object is likely unnecessary for the network with HKS features as input, as the features are already invariant to rigid deformations, it can improve robustness for networks with raw coordinate input which is sensitive to translation.
+Centering the object is likely unnecessary for the network with HKS features, as the features are already invariant to rigid deformations. Still, for the network with raw coordinate input, it can improve robustness due to its sensitivity to translation.
 
 \subsection{Augmentation}
 We implement mirroring or horizontal flipping as a data augmentation technique. This effectively doubles the training samples by making use of the symmetry of faces.
@@ -187,11 +237,11 @@ v_3 & 0 & -v_1 \\
 \end{bmatrix}
 \end{equation}
 %from https://math.stackexchange.com/questions/180418/calculate-rotation-matrix-to-align-vector-a-to-vector-b-in-3d/476311#476311
-We calculate the rotation matrix $R$ that aligns the vector $\overrightarrow{ex{\text -}r\text{ }ex{\text -}l}$ onto the x-axis. To apply the transformation, i.e. transforming the point cloud to be x-axis aligned, the dot product of the point cloud and the rotation matrix is calculated. Then, multiplying the x-values of the resulting matrix with $-1$ yields the mirrored point cloud. Although it is likely not the most efficient method for mirroring a point cloud, the technique can easily be reused for other applications that involve vector alignment, e.g. aligning faces completely by horizontal and vertical axis alignment.
+We calculate the rotation matrix $R$ that aligns the vector $a$ created by the left and right exocanthion onto the x-axis. To apply the transformation, i.e.\ transforming the point cloud to be x-axis aligned, the dot product of the point cloud and the rotation matrix is calculated. Then, multiplying the x-values of the resulting matrix with $-1$ yields the mirrored point cloud. Although it is likely not the most efficient method for mirroring a point cloud, the technique can easily be reused for other applications that involve vector alignment, e.g.\ aligning faces completely by horizontal and vertical axis alignment.
 
-Note that the targets are defined point-wise, and a rotation does not alter the order of the point set. Therefore, the labels of the original sample can be reused for the horizontal flip augmentation.
+Note that the targets are defined point-wise, and a rotation does not alter the order of the point set. Therefore, the labels of the original sample can be reused for the horizontal flip augmentation. After the last experiments were performed, we noticed that even swapping the channels for bilateral landmarks does not seem urgently necessary, which seems counter-intuitive and should be investigated further.
 
-\subsection{Bilateral landmark issue}\label{sec:symm_ldmk_issue}%\import{}{import/sym_ldmks.tex}
+\subsection{Bilateral Landmark Issue}\label{sec:symm_ldmk_issue}%\import{}{import/sym_ldmks.tex}
 
 \begin{figure*}[b]
   \centering
@@ -219,11 +269,11 @@ Note that the targets are defined point-wise, and a rotation does not alter the 
   %\label{fig:sym_ldmks}
 \end{figure*}
 
-As explained, using HKS features brings the valuable consequence of rotation-invariance. Unfortunately, we observe an issue that makes the network unable to differentiate between bilateral landmarks. With this issue, the channels of bilateral landmarks such as the left and right exocanthion show identical predicted activations (see figure \ref{fig:sym_ldmksa}). We only consider activations from the 'correct' half of the face for the point landmark extraction to fix the issue. To this end, a mid-face plane is constructed through the nasion, pronasale and subnasale. Generally, a plane can be uniquely identified given three points if they are non-collinear, meaning they do not lie on the same straight line. Plugging the point into the plane equation
+As explained, using HKS features brings the valuable consequence of rotation-invariance. Unfortunately, we observe an issue that makes the network unable to differentiate between bilateral landmarks. With this issue, the channels of bilateral landmarks such as the left and right exocanthion show identical predicted activations (see Figure \ref{fig:sym_ldmksa}). We only consider activations from the 'correct' half of the face for the point landmark extraction to fix the issue. To this end, a mid-face plane is constructed through the nasion, pronasale and subnasale. Generally, a plane can be uniquely identified given three points if they are non-collinear, meaning they do not lie on the same straight line. Plugging the point into the plane equation
 \begin{equation}
     ax + by + cz + d 
 \end{equation} 
-and comparing the sign gives insight into where the point lies. We use the geometry module for SymPy \cite{10.7717/peerj-cs.103}, a Python library for symbolic mathematics to compute the plane equation. If the equation yields a positive value, the point is on the same side as the direction of the normal vector of the plane, which in this case is the left side of the face. Conversely, if the equation yields a negative value, the point lies on the opposite side, here the right side of the face. Plugging each point into the plane equation would result in unnecessarily long processing times. The points are arranged in descending order for each channel to keep the postprocessing times short. The point with the highest activation that lies on the correct side of the face is assigned the activation of 1.0 and thus considered the best point prediction for the landmark (see figure \ref{fig:sym_ldmksb} for before and \ref{fig:sym_ldmksc} after the fix.
+and comparing the sign gives insight into where the point lies. We use the geometry module for SymPy \cite{10.7717/peerj-cs.103}, a Python library for symbolic mathematics to compute the plane equation. If the equation yields a positive value, the point is on the same side as the direction of the normal vector of the plane, which in this case is the left side of the face. Conversely, if the equation yields a negative value, the point lies on the opposite side, here the right side of the face. Plugging each point into the plane equation would result in unnecessarily long processing times. The points are arranged in descending order for each channel to keep the postprocessing times short. The point with the highest activation that lies on the correct side of the face is assigned the activation of 1.0 and thus considered the best point prediction for the landmark (see Figure \ref{fig:sym_ldmksb} for before and \ref{fig:sym_ldmksc} after the fix).
 
 
 

@@ -64,7 +64,7 @@
     
     \item[Shape descriptor] A shape descriptor characterizes the local geometry of the surface. In other words, they describe a point's role on the surface. Examples for shape descriptors are the Gaussian curvature $K(x) = \kappa_1(x)\kappa_2(x)$ and the mean curvature $H(x) = \kappa_1(x)+\kappa_2(x)$. Good shape descriptors are robust to noise in the triangulation and against small deformations. They should also be invariant under rigid transformation and other isometries. \cite{stanfod_iso}
     
-    \item[Heat Kernel Signature] The Heat Kernel Signature (HKS) is a popular shape descriptor derived from the Laplacian. 
+    \item[Heat Kernel Signature] The Heat Kernel Signature (HKS) is a popular shape descriptor. It is related to the eigenvalues and eigenfunctions of the Laplace–Beltrami operator.
     % If we define $k_t(x,y)$ as the solution to the heat equation
     
     % \begin{equation}
@@ -72,15 +72,16 @@
     % \end{equation}
     For a fixed time $t$, it is defined as 
     \begin{equation}
-        HKS(x) = k_t(x,x) = \sum_{i} e^{-\lambda_i t}\phi_i(x)^2.
+        HKS(x) = k_t(x,x) = \sum_{i} e^{-\lambda_i t}\phi_i(x)^2,
     \end{equation}
-    The time describes, how locally or globally the shape is captured from a given point (see figure \ref{fig:hks_dragon}).
+    where $\lambda_i$ is the i-th eigenvalue and $\phi_i$ the i-th eigenfunction of the Laplace-Beltrami operator.
+    The time describes how locally or globally the shape is captured from a given point (see Figure \ref{fig:hks_dragon}).
     
-    There are different shape descriptors, such as the Wave Kernel Signature (WKS) similar to HKS but based on the Schrödinger wave equation. Each has its advantages depending on the application, but both are invariant to isometric transformations invariant and can be computed efficiently.
+    There are different shape descriptors, such as the Wave Kernel Signature (WKS) similar to HKS but based on the Schrödinger wave equation. Each has its advantages depending on the application, but both are invariant to isometric transformations and can be computed efficiently.
     Furthermore, HKS is also stable under small perturbations to the shape.
     \import{}{import/hks_dragon.tex}
     
-    \item[Manifold meshes] Generally speaking, a manifold is a topology that locally resembles Euclidean space. In computer graphics, often, triangular meshes are used as they are the simplest form of polygon meshes and require fewer computations for computer graphical operations. Many applications require the reconstructed triangular mesh surface to be a watertight manifold surface with correct topology. Watertightness is fulfilled if the mesh does not have holes or missing triangles. Formally, a mesh is manifold if every edge in the mesh is either a boundary edge or a manifold edge, whereas a boundary edge is part of exactly one face and a manifold edge of two faces. Moreover, it does not include non-manifold vertices, i.e. vertices where the corresponding star (= union of all incident faces) is not connected when removing the vertex. See figure \ref{fig:non-manif-e-v} for an illustration of a non-manifold vertex and non-manifold edge.
+    \item[Manifold meshes] Generally speaking, a manifold is a topology that locally resembles Euclidean space. In computer graphics, often, triangular meshes are used as they are the simplest form of polygon meshes and require fewer computations for computer graphical operations. Many applications require the reconstructed triangular mesh surface to be a watertight manifold surface with correct topology. Watertightness is fulfilled if the mesh does not have holes or missing triangles. Formally, a mesh is manifold if every edge in the mesh is either a boundary edge or a manifold edge, whereas a boundary edge is part of exactly one face and a manifold edge of two faces. Moreover, it does not include non-manifold vertices, i.e. vertices where the corresponding star (= union of all incident faces) is not connected when removing the vertex. See Figure \ref{fig:non-manif-e-v} for an illustration of a non-manifold vertex and non-manifold edge.
     Fixing the mesh to be manifold or watertight is called mesh healing or mesh repairing.
     \end{description}
     
@@ -92,7 +93,7 @@
     \includegraphics[width=0.4\linewidth]{thesis/appendices/import/imgs/non-manif-e-v.png}
     \caption{\textbf{Non-manifold geometry.}
 \small Non-manifold vertex (left), non-manifold vertex (right). Image from \cite{Botsch2010}.
-}
+geed}
     \label{fig:non-manif-e-v}
 \end{figure}
 \vspace{0.05\linewidth}
@@ -104,11 +105,11 @@
 \subsection{Network}
 The project started with exploring different networks that can tackle the problem of 3D landmark detection. This phase also led to insights regarding networks that do not work well for the problem. PointNet is one of the earliest and more straightforward model architecture that operates on point clouds was a straightforward choice. The first attempts involved the Pytorch implementation of the extension of PointNet, called PointNet++. However, experiments on this network were difficult because of the very high memory consumption of the network architecture, indicating poor scalability. Even for decimated meshes, the input images were still too big for the approach of predicting point-wise activations per landmark channel.
 
-The next attempt to tackle the problem was MeshCNN, which showed better scaling properties and lower memory consumption in our experiments. The motivation to use a network that processes meshes directly instead of point clouds is that meshes include additional surface information that can better capture the surface structure. Specifically, MeshCNN combines specialized convolution and pooling layers that operate on the edges of the mesh. While the first results of a network that performs direct coordinate regression were promising, one big drawback prevents using MeshCNN in practice: the network requires mesh watertightness or manifoldness. Repairing the meshes is usually a manual task in a 3D computer graphics software such as Blender \cite{blender} or Meshlab \cite{meshlab} that cannot easily be automized inside a preprocessing pipeline. Therefore, it is not feasible to apply MeshCNN on unseen meshes, e.g. the meshes from the control samples from the Radboudumc data set.
+The next attempt to tackle the problem was MeshCNN, which showed better scaling properties and lower memory consumption in our experiments. The motivation to use a network that processes meshes directly instead of point clouds is that meshes include additional surface information that can better capture the surface structure. Specifically, MeshCNN combines specialized convolution and pooling layers that operate on the edges of the mesh. While the first results of a network that performs direct coordinate regression were promising, one big drawback prevents using MeshCNN in practice: the network requires mesh watertightness or manifoldness. Repairing the meshes is usually a manual task in a 3D computer graphics software such as Blender \cite{blender} or Meshlab \cite{meshlab} that cannot easily be automized inside a preprocessing pipeline. Therefore, it is not feasible to apply MeshCNN on unseen meshes, e.g. the meshes of the control samples from the Radboudumc data set.
 
 \subsection{Direct coordinate regression vs point-wise regression}
 \label{sec:coord_reg_vs_pw_reg}
-A straightforward way to learn the XYZ coordinates of landmarks is to build a regression network that predicts the coordinates directly. However, experiments performed on the MeshCNN network suggested that this approach tends to overfit the average face structure observed in the training set, as opposed to learning surface-based features (see figure \ref{fig:meshcnn_res}). Notably, the set of possible predictions also includes all points in space, not restricted to points on the mesh surface. A point-wise approach circumvents this problem by predicting a score for each point, thus only allowing landmark predictions located on the surface of the mesh. Besides, a point-wise approach enables the learning of point clusters that represent a region in proximity of a landmark.
+A straightforward way to learn the XYZ coordinates of landmarks is to build a regression network that predicts the coordinates directly. However, experiments performed on the MeshCNN network suggested that this approach tends to overfit the average face structure observed in the training set, as opposed to learning surface-based features (see Figure \ref{fig:meshcnn_res}). Notably, the set of possible predictions also includes all points in space, not restricted to points on the mesh surface. A point-wise approach circumvents this problem by predicting a score for each point, thus only allowing landmark predictions located on the surface of the mesh. Besides, a point-wise approach enables the learning of point clusters that represent a region in proximity of a landmark.
 \import{}{import/meshcnn_res.tex}
 
 
@@ -127,7 +128,7 @@ After the annotation process, the average variability between the Headspace and 
 \section{Results details}
 \label{sec:app_results}
 \begin{table*}[!htbp]
-\captionof{table}{\textbf{Maximum errors for table \ref{table:ref_hks}: Refinement network assessment and HKS features.}
+\captionof{table}{\textbf{Maximum errors for Table \ref{table:ref_hks}: Refinement network assessment and HKS features.}
     }
 \label{table:ref_hks_max}
 \begin{tabularx}{\textwidth}{l|c|c|c}
@@ -154,7 +155,7 @@ total & \textbf{12.78} & \textbf{11.05} & \textbf{110.15}
 \end{table*}
 
 \begin{table*}[!htbp]
-\captionof{table}{\textbf{Maximum errors for table \ref{table:horizflip_rgb}: Horizontal flipping and color features.}}
+\captionof{table}{\textbf{Maximum errors for Table \ref{table:horizflip_rgb}: Horizontal flipping and color features.}}
 \label{table:horizflip_rgb_max}
 \begin{tabularx}{\textwidth}{l|c|c|c}
 \toprule

@@ -38,19 +38,20 @@
 Three-dimensional (3D) landmarks find application in various fields within medicine, such as cephalometry, the study and measurement of the head. Jaw surgery, also known as orthognathic surgery, deals with correcting irregularities of the jaw bones. Orthognathic surgery and orthodontics often aim at creating facial balance or harmony \cite{Plooij2009}. Landmarks help the surgeon during the diagnosis, planning and documentation of surgical interventions. Moreover, they are used to retrospectively judge whether the interventions have been successful. % perform objective post-operative evaluation of surgical results based on the available 3D scans of a patient
 
 Conventionally, landmarks are placed by the surgeon %practitioner
-manually. This process is tedious and introduces human error. It can suffer from a high variability caused by how the same surgeon places landmarks due to human error (intraobserver variability) and how different surgeons place landmarks due to different landmarking habits (interobserver variability).
-AI-assisted landmarking can automate the landmarking procedure by employing recent advances in the field of deep learning.
+manually. This process is tedious and prone to human error. It can suffer from a high variability caused by how the same surgeon places landmarks due to human error (intraobserver variability) and how different surgeons place landmarks due to different landmarking habits (interobserver variability).
+Artificial Intelligence (AI) assisted landmarking can automate the landmarking procedure by employing recent advances in the field of deep learning.
 
-In machine learning, a distinction is made between object localization and object detection. The former only locates the presence of an object, whereas the latter also assigns a class label to the object. In this work, the problem is tackles as a landmark detection problem, to distinguish between different landmark types.
+In machine learning, a distinction is made between object localization and object detection. The former only locates the presence of an object, whereas the latter also assigns a class label to the object. In this work, we tackle the problem of identifying facial landmarks as an object detection problem  to distinguish between different landmark types.
 
-Different modalities can be used for landmarking, such as 3D photos, textured 3D photos, bony-tissue CT scans and soft-tissue CT scans. 3D photographs only capture soft tissue. Nonetheless, \cite{Plooij2009} showed high reproducibility for most soft tissue landmarks, suggesting that no hard tissue data, i.e. bony structure, is needed to perform accurate soft tissue analysis. Acquiring hard tissue data requires radiation-based capturing devices such as X-ray or CT, whereas soft tissue images can be recorded by 3D stereophotogrammetry (see Figure \ref{fig:stereophotogrammetry}). Stereophotogrammetry is a three-dimensional registration method for quantifying facial morphology and detecting changes in facial morphology during growth and development \cite{Ras1996}.
-The images come from the Headspace dataset \cite{Dai2019}, a public dataset that comprises 3D images of the human head for 1519 subjects. The majority of the images come with landmark annotations. However, the annotations from the Headspace dataset have been identified automatically. Specifically, they were determined by the Zhu-Ramanan mixture-of-trees algorithm \cite{Zhu2012} applied to the texture of each mesh. Dai et al. project the 2D points to 3D using the texture coordinates, which adds inaccuracies to the resulting landmarks. Thus, we manually annotate 3D landmarks for 307 3D photos to ensure accurate testing scores and improve training by using more accurate annotations.
+Different modalities can be used for landmarking, such as 3D photos, textured 3D photos, bony-tissue CT scans and soft-tissue CT scans. 3D photographs only capture soft tissue. Nonetheless, previous research shows high reproducibility for most soft tissue landmarks, suggesting that no hard tissue data, i.e.\ bony structure, is needed to perform accurate soft tissue analysis \cite{Plooij2009}. Acquiring hard tissue data requires radi\-ation-based capturing devices such as X-ray or CT, whereas soft tissue images can be recorded by 3D stereo\-photogrammetry (see Figure \ref{fig:stereophotogrammetry}). Stereophotogrammetry is a three-dimensional registration method for quantifying facial morphology and detecting changes in facial morphology during growth and development \cite{Ras1996}.
 
-Deep learning is becoming an increasingly powerful tool for data processing in computer vision tasks. Especially 2D computer vision tasks can be solved with high accuracy. Convolutional neural networks (CNNs) have delivered excellent results in computer vision tasks such as classification, object detection and segmentation. However, 3D deep learning faces several challenges. 3D data can be represented in different formats, including depth images, multi-view images, volumetric grids, point clouds or meshes. Which data representation should be used depends heavily on the application and the data acquisition device. Point clouds and meshes do not suffer from discretization or projection loss and are therefore the preferred method for surface-based learning \cite{Guo2021}. Point clouds and meshes are intrinsically non-euclidean data representations. Due to the irregular distribution of the points in space, conventional techniques such as convolution are not directly transferable to 3D.
+In this work, the images come from the Headspace dataset \cite{Dai2019}, a public dataset that comprises 3D images of the human head for 1519 subjects. The majority of the images come with landmark annotations. The annotations from the Headspace dataset have been identified automatically, specifically, they were determined by the Zhu-Ramanan mixture-of-trees algorithm \cite{Zhu2012} applied to the texture of each mesh. Then, the 2D points are projected to 3D using the texture coordinates, which adds inaccuracies to the resulting landmarks. Thus, we manually annotate 3D landmarks for 307 3D photos to ensure accurate testing scores and improve training by using more accurate annotations.
 
-Moreover, there is a lack of big data sets. There exist several big data sets for 2D facial landmarking, such as the Annotated Facial Landmarks in the Wild (AFLW) \cite{aflw} collection that comprises 25,993 faces. However, even with larger 3D data sets, training would remain difficult due to high computation costs and memory footprints.%applications: lidar room scanning, self driving cars,...
-% explain  geometrical deep learning 
-Despite these challenges, in recent years, the field of 3D deep learning comes up with increasingly powerful techniques to tackle surface learning problems. This work leverages DiffusionNet \cite{sharp2022diffusion}, a discretization agnostic network by Nicholas Sharp et al., to extract features for the prediction of heatmaps around landmarks.
+Deep learning is becoming an increasingly powerful tool for data processing in computer vision tasks. Especially 2D computer vision tasks can be solved with high accuracy. Convolutional neural networks (CNNs) have delivered excellent results in computer vision tasks such as classification, object detection and segmentation. However, 3D deep learning faces several challenges. 3D data can be represented in different formats, including depth images, multi-view images, volumetric grids, point clouds or meshes. Which data representation should be used depends on the application and the data acquisition device. Point clouds and meshes do not suffer from discretization or projection loss and are therefore the preferred method for surface-based learning \cite{Guo2021}. However, due to the irregular distribution of the points in space, conventional techniques such as convolution are not directly transferable to meshes and point clouds.
+
+Moreover, there is a lack of big data sets. There exist several big data sets for 2D facial landmarking, such as the Annotated Facial Landmarks in the Wild (AFLW) \cite{aflw} collection that comprises 25,993 faces. However, even with larger 3D data sets, training would remain difficult due to high computation costs and memory footprints.
+
+Despite these challenges, in recent years, the field of 3D deep learning came up with increasingly powerful techniques to tackle surface learning problems. This work leverages DiffusionNet \cite{sharp2022diffusion}, a discretization-agnostic network by Nicholas Sharp et al.\, to extract features for the prediction of heatmaps around landmarks.
 
 
 
@@ -62,33 +63,8 @@ Despite these challenges, in recent years, the field of 3D deep learning comes u
 
 % 3D digital stereophotogrammetry: a practical guide to facial image acquisition Carrie L Heike, Kristen Upson, Erik Stuhaug & Seth M Weinberg 
 
-\newcolumntype{L}{>{\raggedright\arraybackslash}X}
-\begin{table*}[!ht]
 
-\captionof{table}{\textbf{Landmarks that are considered in this work.}
-Definitions from \cite{Bidra2009} and \cite{Plooij2009}. Left/right is given from the perspective of the subject.
-    }
-\label{table:landmark_names}
-\begin{tabularx}{\textwidth}{l|l|L}
-\toprule
-Landmark               & Abbreviation & Definition          
-\\
-\midrule
-Pogonion               & pg           & The most anterior midpoint of the chin                                                                              \\
-Nasion                 & n            & The Point in the midline of both the nasal root and nasofrontal suture \\
-Pronasale              & prn          & The most anterior midpoint of the nasal tip                                                                         \\
-Subnasale              & sn           & The midpoint on the nasolabial soft tissue contour between the columella crest and the upper lip                    \\
-Alar curvature (right) & ac-r         & The point located at the facial insertion of the alar base (right)                                                  \\
-Alar curvature (left)  & ac-l         & The point located at the facial insertion of the alar base (left)                                                   \\
-Exocanthion (right)    & ex-r         & The soft tissue point located at the outer commissure of the right eye fissure                                      \\
-Endocanthion (right)   & en-r         & The soft tissue point located at the inner commissure of the right eye fissure                                       \\
-Endocanthion (left)    & en-l         & The soft tissue point located at the inner commissure of the left eye fissure                                        \\
-Exocanthion (left)     & ex-l         & The soft tissue point located at the outer commissure of the left eye fissure                                        \\
-Cheilion (right)       & ch-r         & The point located at the right labial commissure                                                                    \\
-Cheilion (left)        & ch-l         & The point located at the left labial commissure                                                                     
-\end{tabularx}
-\end{table*}
-
-The paper starts with related works of facial landmarking and important methods for 3D deep learning in Section \ref{sec:works}. Then, the data, pre-processing and networks are described in section \ref{sec:methods}. Section \ref{sec:exp_setup} shortly presents the experimental setup and section \ref{sec:results} the quantitative results on the Headspace dataset and qualitative results on data from Radboudumc. In Section \ref{sec:discussion}, limitations and future work are discussed. Section \ref{sec:conclusion} finally concludes the paper.
+\import{}{methods/import/stereophoto.tex}
+The paper starts with related works of facial landmarking and important methods for 3D deep learning in Section \ref{sec:works}. Then, the data, pre-processing and networks are described in Section \ref{sec:methods}. Section \ref{sec:exp_setup} shortly presents the experimental setup and Section \ref{sec:results} the quantitative results on the Headspace dataset and qualitative results on data from Radboud University Medical Centre (Radboudumc). In Section \ref{sec:discussion}, limitations and future work are discussed and Section \ref{sec:conclusion} concludes the paper.
 
 \end{document}

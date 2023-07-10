@@ -3,7 +3,7 @@ MSc project by Luca Carotenuto
 
 Project Page with results: [https://www.ai-for-health.nl/projects/3d-landmark-detection/](https://www.ai-for-health.nl/projects/3d-landmark-detection/)
 
-### Important note: The data is sensitive patient data owned by RadboudUMC and cannot be shared.
+Important note: The data is sensitive patient data owned by RadboudUMC and cannot be shared. The following steps can only be executed by people that were given access to the data.
 
 ### Data Preparation
 1. Run `scripts/prep_pcl.py` to convert .obj meshes to point clouds and optionally sample for lower resolution
